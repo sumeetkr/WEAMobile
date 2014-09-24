@@ -4,25 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
-
-
-
-/**
- * An activity representing a list of Alerts. This activity
- * has different presentations for handset and tablet-size devices. On
- * handsets, the activity presents a list of items, which when touched,
- * lead to a {@link AlertDetailActivity} representing
- * item details. On tablets, the activity presents the list of items and
- * item details side-by-side using two vertical panes.
- * <p>
- * The activity makes heavy use of fragments. The list of items is a
- * {@link AlertListFragment} and the item details
- * (if present) is a {@link AlertDetailFragment}.
- * <p>
- * This activity also implements the required
- * {@link AlertListFragment.Callbacks} interface
- * to listen for item selections.
- */
 public class AlertListActivity extends FragmentActivity
         implements AlertListFragment.Callbacks {
 

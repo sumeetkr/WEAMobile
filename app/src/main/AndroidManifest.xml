@@ -23,21 +23,9 @@
         </activity>
 
         <service
-            android:name="sv.cmu.edu.weamobile.service.BackgroundService"
+            android:name=".service.ConfigurationPullerService"
             android:exported="false" >
         </service>
-
-        <activity
-            android:name="sv.cmu.edu.weamobile.MainActivity"
-            android:label="@string/title_activity_main" >
-
-            <!-- <intent-filter> -->
-            <!-- <action android:name="android.intent.action.MAIN" /> -->
-
-
-            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-            <!-- </intent-filter> -->
-        </activity>
 
         <receiver
             android:name="sv.cmu.edu.weamobile.service.AlarmWakefulBroadcastReceiver"
