@@ -6,5 +6,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_alert">AlertActivity</string>
+    <string name="title_alert_list">WEA Mobile</string>
+    <string name="title_alert_detail">Alert Details</string>
 
 </resources>

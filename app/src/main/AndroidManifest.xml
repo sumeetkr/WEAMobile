@@ -2,6 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="sv.cmu.edu.weamobile" >
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -20,6 +30,29 @@
         <activity
             android:name="sv.cmu.edu.weamobile.MainActivity"
             android:label="@string/title_activity_main" >
+
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
+        </activity>
+
+        <receiver
+            android:name="sv.cmu.edu.weamobile.service.AlarmWakefulBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true" >
+        </receiver>
+        <receiver
+            android:name="sv.cmu.edu.weamobile.service.SMSBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true" >
+        </receiver>
+
+        <activity
+            android:name="sv.cmu.edu.weamobile.AlertListActivity"
+            android:label="@string/title_alert_list" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -27,9 +60,19 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="sv.cmu.edu.weamobile.AlertActivity"
-            android:label="@string/title_activity_alert" >
+            android:name="sv.cmu.edu.weamobile.AlertDetailActivity"
+            android:label="@string/title_alert_detail"
+            android:parentActivityName="sv.cmu.edu.weamobile.AlertListActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="sv.cmu.edu.weamobile.AlertListActivity" />
         </activity>
+
+        <receiver
+            android:name="sv.cmu.edu.weamobile.service.BootupBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true" >
+        </receiver>
     </application>
 
 </manifest>
