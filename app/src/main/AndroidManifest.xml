@@ -23,7 +23,7 @@
         </activity>
 
         <service
-            android:name=".service.ConfigurationPullerService"
+            android:name=".service.WEABackgroundService"
             android:exported="false" >
         </service>
 
