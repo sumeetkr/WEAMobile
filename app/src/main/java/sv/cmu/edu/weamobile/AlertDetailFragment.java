@@ -12,7 +12,7 @@ import sv.cmu.edu.weamobile.Data.AlertContent;
 
 /**
  * A fragment representing a single Alert detail screen.
- * This fragment is either contained in a {@link AlertListActivity}
+ * This fragment is either contained in a {@link MainActivity}
  * in two-pane mode (on tablets) or a {@link AlertDetailActivity}
  * on handsets.
  */

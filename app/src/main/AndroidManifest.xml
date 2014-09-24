@@ -28,7 +28,7 @@
         </service>
 
         <receiver
-            android:name="sv.cmu.edu.weamobile.service.AlarmWakefulBroadcastReceiver"
+            android:name=".service.AlarmReceiver"
             android:enabled="true"
             android:exported="true" >
         </receiver>
@@ -39,7 +39,7 @@
         </receiver>
 
         <activity
-            android:name="sv.cmu.edu.weamobile.AlertListActivity"
+            android:name=".MainActivity"
             android:label="@string/title_alert_list" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -50,7 +50,7 @@
         <activity
             android:name="sv.cmu.edu.weamobile.AlertDetailActivity"
             android:label="@string/title_alert_detail"
-            android:parentActivityName="sv.cmu.edu.weamobile.AlertListActivity" >
+            android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="sv.cmu.edu.weamobile.AlertListActivity" />

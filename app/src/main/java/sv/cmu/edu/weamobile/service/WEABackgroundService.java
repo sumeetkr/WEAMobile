@@ -3,6 +3,7 @@ package sv.cmu.edu.weamobile.service;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.Context;
+import android.util.Log;
 
 public class WEABackgroundService extends IntentService {
     private static final String FETCH_CONFIGURATION = "sv.cmu.edu.weamobile.service.action.FETCH_CONFIGURATION";
@@ -20,7 +21,10 @@ public class WEABackgroundService extends IntentService {
     }
 
     public static void checkServerForNewAlerts(Context context, String param){
-
+        Intent intent = new Intent(context, WEABackgroundService.class);
+        intent.setAction(FETCH_ALERT);
+        intent.putExtra(EXTRA_PARAM1, param);
+        context.startService(intent);
     }
 
     public WEABackgroundService() {
@@ -29,6 +33,7 @@ public class WEABackgroundService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        Log.d("WEABackgroundService", "called with "+ intent.getAction());
         if (intent != null) {
             final String action = intent.getAction();
             if (FETCH_CONFIGURATION.equals(action)) {
@@ -49,6 +54,13 @@ public class WEABackgroundService extends IntentService {
     }
 
     private void fetchAlert(String param){
-        throw new UnsupportedOperationException("Not yet implemented");
+        //fetch alerts from server first
+        //if new alert broadcast alert
+        broadcastNewAlert("Free food alert", "1222222233123113");
+    }
+
+    private void broadcastNewAlert(String message, String polygonEncoded){
+        WEAAlertIntent broadcastIntent = new WEAAlertIntent(message, polygonEncoded);
+        sendBroadcast(broadcastIntent);
     }
 }

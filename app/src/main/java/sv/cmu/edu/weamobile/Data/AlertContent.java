@@ -29,7 +29,6 @@ public class AlertContent {
     public static Map<String, AlertItem> ITEM_MAP = new HashMap<String, AlertItem>();
 
     static {
-
         addItem(new AlertItem("1", "Free food in kitchen"));
         addItem(new AlertItem("2", "Seminar in Room 118"));
         addItem(new AlertItem("3", "No classes today !!"));

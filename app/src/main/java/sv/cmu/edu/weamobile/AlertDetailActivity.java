@@ -11,7 +11,7 @@ import android.view.MenuItem;
  * An activity representing a single Alert detail screen. This
  * activity is only used on handset devices. On tablet-size devices,
  * item details are presented side-by-side with a list of items
- * in a {@link AlertListActivity}.
+ * in a {@link MainActivity}.
  * <p>
  * This activity is mostly just a 'shell' activity containing nothing
  * more than a {@link AlertDetailFragment}.
@@ -60,7 +60,7 @@ public class AlertDetailActivity extends ActionBarActivity {
             //
             // http://developer.android.com/design/patterns/navigation.html#up-vs-back
             //
-            NavUtils.navigateUpTo(this, new Intent(this, AlertListActivity.class));
+            NavUtils.navigateUpTo(this, new Intent(this, MainActivity.class));
             return true;
         }
         return super.onOptionsItemSelected(item);

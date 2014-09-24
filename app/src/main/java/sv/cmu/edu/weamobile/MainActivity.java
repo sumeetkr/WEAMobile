@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
-public class AlertListActivity extends FragmentActivity
+public class MainActivity extends FragmentActivity
         implements AlertListFragment.Callbacks {
 
     /**
