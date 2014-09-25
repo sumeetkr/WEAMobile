@@ -6,8 +6,8 @@ import android.content.Context;
 import android.util.Log;
 
 public class WEABackgroundService extends IntentService {
-    private static final String FETCH_CONFIGURATION = "sv.cmu.edu.weamobile.service.action.FETCH_CONFIGURATION";
-    private static final String FETCH_ALERT = "sv.cmu.edu.weamobile.service.action.FETCH_ALERT";
+    public static final String FETCH_CONFIGURATION = "sv.cmu.edu.weamobile.service.action.FETCH_CONFIGURATION";
+    public static final String FETCH_ALERT = "sv.cmu.edu.weamobile.service.action.FETCH_ALERT";
 
     private static final String EXTRA_PARAM1 = "sv.cmu.edu.weamobile.service.extra.PARAM1";
     private static final String EXTRA_PARAM2 = "sv.cmu.edu.weamobile.service.extra.PARAM2";
@@ -33,7 +33,7 @@ public class WEABackgroundService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.d("WEABackgroundService", "called with "+ intent.getAction());
+        Log.d("WEA", "called with "+ intent.getAction());
         if (intent != null) {
             final String action = intent.getAction();
             if (FETCH_CONFIGURATION.equals(action)) {
@@ -50,7 +50,12 @@ public class WEABackgroundService extends IntentService {
     }
 
     private void fetchConfiguration(String param1, String param2) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        Log.d("WEA", "Got request to fetch new configuration");
+        //read configuration and setup up new alarm
+        //if problem in getting/receiving configuration, set default alarm
+
+        //if time to show new alert
+        broadcastNewAlert("Free food alert", "1222222233123113");
     }
 
     private void fetchAlert(String param){
@@ -60,7 +65,9 @@ public class WEABackgroundService extends IntentService {
     }
 
     private void broadcastNewAlert(String message, String polygonEncoded){
-        WEAAlertIntent broadcastIntent = new WEAAlertIntent(message, polygonEncoded);
+        WEANewAlertIntent broadcastIntent = new WEANewAlertIntent(message, polygonEncoded);
+        broadcastIntent.setAction(WEANewAlertIntent.WEA_NEW_ALERT);
+        Log.d("WEA", "Broadcast intent: About to broadcast new Alert");
         sendBroadcast(broadcastIntent);
     }
 }

@@ -1,8 +1,19 @@
 package sv.cmu.edu.weamobile;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
+import android.widget.Toast;
+
+import sv.cmu.edu.weamobile.service.WEAAlarmManager;
+import sv.cmu.edu.weamobile.service.WEANewAlertIntent;
 
 public class MainActivity extends FragmentActivity
         implements AlertListFragment.Callbacks {
@@ -12,6 +23,7 @@ public class MainActivity extends FragmentActivity
      * device.
      */
     private boolean mTwoPane;
+    private Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +44,34 @@ public class MainActivity extends FragmentActivity
                     .setActivateOnItemClick(true);
         }
 
-        // TODO: If exposing deep links into your app, handle intents here.
+        handler = new Handler(){
+            @Override
+            public void handleMessage(Message msg) {
+
+            }
+        };
+
+    }
+
+    @Override
+    protected void onStart(){
+        super.onStart();
+        Log.d("WEA", "scheduling wake up");
+        //WEAAlarmManager.setupAlarmToWakeUpApplicationAtScheduledTime(this.getApplicationContext(), 4000);
+
+        BroadcastReceiver newAlertBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.d("WEA", "Received new broadcast alert" + intent.getAction());
+                Toast toast = Toast.makeText(context, intent.getAction(), Toast.LENGTH_SHORT);
+                toast.show();
+            }
+        };
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(newAlertBroadcastReceiver,
+                new IntentFilter(WEANewAlertIntent.WEA_NEW_ALERT));
+
+        WEAAlarmManager.setupAlarmToWakeUpApplicationAtScheduledTime(this.getApplicationContext(), 5000);
     }
 
     /**
