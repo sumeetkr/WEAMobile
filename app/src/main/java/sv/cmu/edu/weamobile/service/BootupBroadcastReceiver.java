@@ -17,7 +17,7 @@ public class BootupBroadcastReceiver extends BroadcastReceiver {
             Intent i = new Intent();
             i.setClass(context, WEABackgroundService.class);
             i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(i);
+            context.startService(i);
         }
 
     }

@@ -1,19 +1,14 @@
 package sv.cmu.edu.weamobile;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import sv.cmu.edu.weamobile.service.WEAAlarmManager;
-import sv.cmu.edu.weamobile.service.WEANewAlertIntent;
+import sv.cmu.edu.weamobile.service.WEABackgroundService;
 
 public class MainActivity extends FragmentActivity
         implements AlertListFragment.Callbacks {
@@ -24,6 +19,9 @@ public class MainActivity extends FragmentActivity
      */
     private boolean mTwoPane;
     private Handler handler;
+    private NewAlertBroadcastReceiver newAlertReciver;
+    private WEABackgroundService mBoundService;
+    private boolean mIsBound;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,34 +42,46 @@ public class MainActivity extends FragmentActivity
                     .setActivateOnItemClick(true);
         }
 
-        handler = new Handler(){
-            @Override
-            public void handleMessage(Message msg) {
-
-            }
-        };
+        handler = new Handler();
 
     }
 
     @Override
     protected void onStart(){
         super.onStart();
-        Log.d("WEA", "scheduling wake up");
-        //WEAAlarmManager.setupAlarmToWakeUpApplicationAtScheduledTime(this.getApplicationContext(), 4000);
+        Log.d("WEA", "scheduling one time wakeup");
+//        WEAAlarmManager.setupAlarmToWakeUpApplicationAtScheduledTime(this.getApplicationContext(), 5000);
+//        WEAAlarmManager.setupRepeatingAlarm(this.getApplicationContext(), 4000);
+        WEAAlarmManager.setupRepeatingAlarm(this.getApplicationContext(), 4000);
+    }
 
-        BroadcastReceiver newAlertBroadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                Log.d("WEA", "Received new broadcast alert" + intent.getAction());
-                Toast toast = Toast.makeText(context, intent.getAction(), Toast.LENGTH_SHORT);
-                toast.show();
-            }
-        };
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(newAlertBroadcastReceiver,
-                new IntentFilter(WEANewAlertIntent.WEA_NEW_ALERT));
+    @Override
+    protected void onResume(){
+        super.onResume();
+//        if(newAlertReciver ==null) newAlertReciver = new NewAlertBroadcastReceiver(handler);
+//        Log.d("WEA", "Alert receiver created in main activity");
+//        getBaseContext().registerReceiver(newAlertReciver, new IntentFilter());
 
-        WEAAlarmManager.setupAlarmToWakeUpApplicationAtScheduledTime(this.getApplicationContext(), 5000);
+        if(newAlertReciver ==null) newAlertReciver = new NewAlertBroadcastReceiver(handler);
+        Log.d("WEA", "Alert receiver created in main activity");
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("android.intent.action.NEW_ALERT");
+        filter.addCategory(Intent.CATEGORY_DEFAULT);
+        getApplicationContext().registerReceiver(newAlertReciver, filter);
+        // Register mMessageReceiver to receive messages.
+//        LocalBroadcastManager.getInstance(this).registerReceiver(newAlertReciver,new IntentFilter());
+    }
+
+    @Override
+    protected void onPause(){
+        // Register mMessageReceiver to receive messages.
+        if(newAlertReciver!= null){
+            getApplication().unregisterReceiver(newAlertReciver);
+        }
+//        LocalBroadcastManager.getInstance(this).unregisterReceiver(newAlertReciver);
+
+        super.onPause();
     }
 
     /**

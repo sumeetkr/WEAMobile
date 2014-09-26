@@ -9,7 +9,8 @@ public class WEANewAlertIntent extends Intent{
     public static String WEA_NEW_ALERT = "NewWEAAlert";
 
     public WEANewAlertIntent(String message, String polygonEncoded){
-        setAction(WEA_NEW_ALERT);
+        super(WEA_NEW_ALERT);
+        setAction("android.intent.action.NEW_ALERT");
         addCategory(Intent.CATEGORY_DEFAULT);
         putExtra("MESSAGE", message);
         putExtra("POLYGON_ENCODED", polygonEncoded);

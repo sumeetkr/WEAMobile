@@ -23,12 +23,13 @@
         </activity>
 
         <service
-            android:name=".service.WEABackgroundService"
-            android:exported="false" >
+            android:name="sv.cmu.edu.weamobile.service.WEABackgroundService"
+            android:enabled="true"
+            android:exported="true" >
         </service>
 
         <receiver
-            android:name=".service.AlarmBroadcastReceiver"
+            android:name="sv.cmu.edu.weamobile.service.AlarmBroadcastReceiver"
             android:enabled="true"
             android:exported="true" >
         </receiver>
@@ -39,7 +40,7 @@
         </receiver>
 
         <activity
-            android:name=".MainActivity"
+            android:name="sv.cmu.edu.weamobile.MainActivity"
             android:label="@string/title_alert_list" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -50,7 +51,7 @@
         <activity
             android:name="sv.cmu.edu.weamobile.AlertDetailActivity"
             android:label="@string/title_alert_detail"
-            android:parentActivityName=".MainActivity" >
+            android:parentActivityName="sv.cmu.edu.weamobile.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="sv.cmu.edu.weamobile.AlertListActivity" />
@@ -58,6 +59,11 @@
 
         <receiver
             android:name="sv.cmu.edu.weamobile.service.BootupBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true" >
+        </receiver>
+        <receiver
+            android:name="sv.cmu.edu.weamobile.NewAlertBroadcastReceiver"
             android:enabled="true"
             android:exported="true" >
         </receiver>
