@@ -67,6 +67,11 @@
             android:enabled="true"
             android:exported="true" >
         </receiver>
+
+        <activity
+            android:name="sv.cmu.edu.weamobile.AlertDialogActivity"
+            android:label="@string/title_activity_alert_dialog" >
+        </activity>
     </application>
 
 </manifest>

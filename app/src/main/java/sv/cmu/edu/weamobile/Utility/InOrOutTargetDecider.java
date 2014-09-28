@@ -6,7 +6,7 @@ package sv.cmu.edu.weamobile.Utility;
 public class InOrOutTargetDecider {
 
     public static boolean isInTarget(String polygon){
-        boolean isInTarget = false;
+        boolean isInTarget = true;
 
         GPSTracker tracker =  GPSTracker.getGPSTrackerInstance();
         //Get location from tracker and calculate if location is in polygon.

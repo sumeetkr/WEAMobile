@@ -50,18 +50,14 @@ public class MainActivity extends FragmentActivity
     protected void onStart(){
         super.onStart();
         Log.d("WEA", "scheduling one time wakeup");
-//        WEAAlarmManager.setupAlarmToWakeUpApplicationAtScheduledTime(this.getApplicationContext(), 5000);
-//        WEAAlarmManager.setupRepeatingAlarm(this.getApplicationContext(), 4000);
-        WEAAlarmManager.setupRepeatingAlarm(this.getApplicationContext(), 4000);
+        WEAAlarmManager.setupAlarmToWakeUpApplicationAtScheduledTime(this.getApplicationContext(), 5000);
+//        WEAAlarmManager.setupRepeatingAlarm(this.getApplicationContext(), 1000*60);
     }
 
 
     @Override
     protected void onResume(){
         super.onResume();
-//        if(newAlertReciver ==null) newAlertReciver = new NewAlertBroadcastReceiver(handler);
-//        Log.d("WEA", "Alert receiver created in main activity");
-//        getBaseContext().registerReceiver(newAlertReciver, new IntentFilter());
 
         if(newAlertReciver ==null) newAlertReciver = new NewAlertBroadcastReceiver(handler);
         Log.d("WEA", "Alert receiver created in main activity");
@@ -78,10 +74,21 @@ public class MainActivity extends FragmentActivity
         // Register mMessageReceiver to receive messages.
         if(newAlertReciver!= null){
             getApplication().unregisterReceiver(newAlertReciver);
+            newAlertReciver = null;
         }
 //        LocalBroadcastManager.getInstance(this).unregisterReceiver(newAlertReciver);
 
         super.onPause();
+    }
+
+    @Override
+    protected void onDestroy(){
+        if(newAlertReciver!= null){
+            getApplication().unregisterReceiver(newAlertReciver);
+            newAlertReciver = null;
+        }
+
+        super.onDestroy();
     }
 
     /**

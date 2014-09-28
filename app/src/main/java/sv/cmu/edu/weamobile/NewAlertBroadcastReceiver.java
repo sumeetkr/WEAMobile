@@ -10,10 +10,6 @@ import android.widget.Toast;
 public class NewAlertBroadcastReceiver extends BroadcastReceiver {
     private final Handler handler;
 
-    public NewAlertBroadcastReceiver(){
-        handler = null;
-    }
-
     public NewAlertBroadcastReceiver(Handler handler) {
         this.handler = handler;
     }

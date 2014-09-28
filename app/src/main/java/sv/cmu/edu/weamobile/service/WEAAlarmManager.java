@@ -15,10 +15,13 @@ public class WEAAlarmManager {
     public static void setupAlarmToWakeUpApplicationAtScheduledTime(Context context,
                                                                     long triggerAfterMilliSeconds){
         AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        Log.d("WEA", "setting up alarm after triggerAfterMilliSeconds milliseconds ");
+        Log.d("WEA", "setting up alarm to trigger after milliseconds " +
+                String.valueOf(triggerAfterMilliSeconds));
 
-        Intent intent = new Intent(context, AlarmBroadcastReceiver.class);
-        PendingIntent alarmIntent = PendingIntent.getBroadcast(
+        Intent intent = new Intent(context, WEABackgroundService.class);
+        intent.setAction(WEABackgroundService.FETCH_CONFIGURATION);
+
+        PendingIntent alarmIntent = PendingIntent.getService(
                 context,
                 WEAAlarmManager.ALARM_REQUEST_CODE,
                 intent,
@@ -29,11 +32,15 @@ public class WEAAlarmManager {
 
     public static void setupRepeatingAlarm(Context context,
                                            long timeBetweenRepeatsInMilliSeconds){
-        AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        Log.d("WEA", "setting up alarm after triggerAfterMilliSeconds milliseconds ");
 
-        Intent intent = new Intent(context, AlarmBroadcastReceiver.class);
-        PendingIntent alarmIntent = PendingIntent.getBroadcast(
+        AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        Log.d("WEA", "setting up alarm to trigger after milliseconds "
+                + String.valueOf(timeBetweenRepeatsInMilliSeconds));
+
+        Intent intent = new Intent(context, WEABackgroundService.class);
+        intent.setAction(WEABackgroundService.FETCH_CONFIGURATION);
+
+        PendingIntent alarmIntent = PendingIntent.getService(
                 context,
                 WEAAlarmManager.ALARM_REQUEST_CODE,
                 intent,

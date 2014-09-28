@@ -8,5 +8,6 @@
     <string name="title_activity_alert">AlertActivity</string>
     <string name="title_alert_list">WEA Mobile</string>
     <string name="title_alert_detail">Alert Details</string>
+    <string name="title_activity_alert_dialog">AlertDialogActivity</string>
 
 </resources>

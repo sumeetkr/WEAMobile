@@ -1,15 +1,16 @@
 package sv.cmu.edu.weamobile.service;
 
-import android.app.IntentService;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import sv.cmu.edu.weamobile.AlertDialogActivity;
 import sv.cmu.edu.weamobile.Utility.InOrOutTargetDecider;
 
-public class WEABackgroundService extends IntentService {
+public class WEABackgroundService extends Service {
     public static final String FETCH_CONFIGURATION = "sv.cmu.edu.weamobile.service.action.FETCH_CONFIGURATION";
     public static final String FETCH_ALERT = "sv.cmu.edu.weamobile.service.action.FETCH_ALERT";
 
@@ -32,17 +33,30 @@ public class WEABackgroundService extends IntentService {
         context.startService(intent);
     }
 
-    public WEABackgroundService() {
-        super("WEABackgroundService");
-    }
+//    public WEABackgroundService() {
+//        super("WEABackgroundService");
+//    }
 
     public class LocalBinder extends Binder {
         WEABackgroundService getService() {
             return WEABackgroundService.this;
         }
     }
+
     @Override
+    public int onStartCommand(Intent intent, int flags, int startId){
+        if(intent == null){
+            intent = new Intent(getApplicationContext(), WEABackgroundService.class);
+            intent.setAction(WEABackgroundService.FETCH_CONFIGURATION);
+        }
+        Log.d("WEA", "Service onStart called with "+ intent.getAction());
+        onHandleIntent(intent);
+
+        return Service.START_NOT_STICKY;
+    }
+//    @Override
     protected void onHandleIntent(Intent intent) {
+
         Log.d("WEA", "called with "+ intent.getAction());
         if (intent != null) {
             final String action = intent.getAction();
@@ -91,7 +105,10 @@ public class WEABackgroundService extends IntentService {
         //Do not send it as a broadcast, we need to keep service alive till
         //we know the is in target
         if(InOrOutTargetDecider.isInTarget(polygonEncoded)){
-
+            Intent dialogIntent = new Intent(getBaseContext(), AlertDialogActivity.class);
+            dialogIntent.putExtra("Message", message);
+            dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            getApplication().startActivity(dialogIntent);
         }
     }
 }
