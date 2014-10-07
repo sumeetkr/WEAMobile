@@ -8,6 +8,8 @@ import android.os.IBinder;
 import android.util.Log;
 
 import sv.cmu.edu.weamobile.AlertDialogActivity;
+import sv.cmu.edu.weamobile.Data.AppConfiguration;
+import sv.cmu.edu.weamobile.Utility.AppConfigurationFactory;
 import sv.cmu.edu.weamobile.Utility.InOrOutTargetDecider;
 
 public class WEABackgroundService extends Service {
@@ -66,10 +68,6 @@ public class WEABackgroundService extends Service {
                 final String param2 = intent.getStringExtra(EXTRA_PARAM2);
                 fetchConfiguration(param1, param2);
             }
-            if(FETCH_ALERT.equals(action)){
-                final String param = intent.getStringExtra(EXTRA_PARAM1);
-                fetchAlert(param);
-            }
 
         }
 
@@ -86,14 +84,13 @@ public class WEABackgroundService extends Service {
         //read configuration and setup up new alarm
         //if problem in getting/receiving configuration, set default alarm
 
-        //if time to show new alert
-        broadcastNewAlert("Free food alert", "1222222233123113");
-    }
+        AppConfiguration configuration = AppConfigurationFactory.getConfiguration();
 
-    private void fetchAlert(String param){
-        //fetch alerts from server first
-        //if new alert broadcast alert
-        broadcastNewAlert("Free food alert", "1222222233123113");
+        long currentTime = System.currentTimeMillis();
+        if(currentTime < configuration.getEndingAt() && currentTime > configuration.getScheduledFor()){
+            //if time to show new alert
+            broadcastNewAlert("Free food alert", "1222222233123113");
+        }
     }
 
     private void broadcastNewAlert(String message, String polygonEncoded){
