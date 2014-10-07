@@ -11,7 +11,7 @@ public class SMSBroadcastReceiver extends BroadcastReceiver {
     public SMSBroadcastReceiver() {
     }
 
-    static final String ACTION_NOTIFICATION = "edu.cmu.sv.smsreceiver.NOTIFICATION_RECEIVER";
+    static final String ACTION_NOTIFICATION = "sv.cmu.edu.weamobile.service.NOTIFICATION_RECEIVER";
 
     static Integer base62_to_int(String sequence, Integer base, Integer digits) //This is only signed 32-bit int!!! Enough for now, I hope
     {

@@ -6,20 +6,47 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Vibrator;
+import android.speech.tts.TextToSpeech;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.util.Locale;
+
 
 public class AlertDialogActivity extends Activity {
+
+    private Vibrator vibrator;
+    private TextToSpeech tts;
+    private Intent intent;
+    private String message;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alert_dialog);
 
-        createDialog(this.getApplicationContext()).show();
-    }
+        try {
 
+            intent = getIntent();
+            message = intent.getStringExtra("Message");
+
+            vibrator = (Vibrator) this.getBaseContext().getSystemService(Context.VIBRATOR_SERVICE);
+            long[] pattern = {200, 200, 200, 200, 200, 200, 200, 400,200,
+                    400,200, 400,200, 200, 200, 200, 200, 200, 400,
+                    200, 200, 200, 200, 200, 200,400,200, 400,
+                    200, 400,200, 200, 200, 200, 200, 200};
+
+            vibrator.vibrate(pattern, -1);
+
+            tts = new TextToSpeech(this, new TTSListener(message, 2));
+
+            createDialog(this.getApplicationContext()).show();
+        }catch (Exception ex){
+         Log.d("WEA", "Exception while showing dialog " + ex.getMessage());
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -55,13 +82,41 @@ public class AlertDialogActivity extends Activity {
             }
         });
 
-        Intent intent = getIntent();
-        String message = intent.getStringExtra("Message");
         //set the title and message of the alert
         builder.setTitle("WEA Alert");
         builder.setMessage(message);
 
         alert = builder.create();
         return alert;
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+    }
+
+    protected class TTSListener implements TextToSpeech.OnInitListener {
+
+        String what_to_speak = null;
+        Integer how_many_times = null;
+
+        public TTSListener(String to_speak, Integer times) {
+            what_to_speak = to_speak;
+            how_many_times = times;
+        }
+
+        @Override
+        public void onInit(int status) {
+            if (status == TextToSpeech.SUCCESS) {
+                int result = tts.setLanguage(Locale.US);
+                if (result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED) {
+                    tts.speak(what_to_speak, TextToSpeech.QUEUE_FLUSH, null);
+                    for (Integer n = 1; n < how_many_times; n++) {
+                        tts.speak(what_to_speak, TextToSpeech.QUEUE_ADD, null);
+                    }
+                }
+            }
+        }
     }
 }

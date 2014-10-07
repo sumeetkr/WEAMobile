@@ -54,6 +54,7 @@ public class WEABackgroundService extends Service {
 
         return Service.START_NOT_STICKY;
     }
+
 //    @Override
     protected void onHandleIntent(Intent intent) {
 
