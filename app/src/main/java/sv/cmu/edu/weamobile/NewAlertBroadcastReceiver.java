@@ -19,8 +19,6 @@ public class NewAlertBroadcastReceiver extends BroadcastReceiver {
         Log.d("WEA", "Got new alert broadcast2 ");
         // Extract data included in the Intent
         final String message = intent.getStringExtra("MESSAGE");
-        Toast.makeText(context, "Found Beacon: " + message, Toast.LENGTH_SHORT).show();
-
 
         // Post the UI updating code to our Handler
         if(handler!= null){
@@ -28,7 +26,7 @@ public class NewAlertBroadcastReceiver extends BroadcastReceiver {
                 @Override
                 public void run() {
                     Log.d("WEA", "Got new alert broadcast " );
-                    Toast.makeText(context, "Found Beacon: " + message, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Alert !!: " + message, Toast.LENGTH_SHORT).show();
                 }
             });
 

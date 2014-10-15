@@ -1,16 +1,22 @@
 package sv.cmu.edu.weamobile.service;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import sv.cmu.edu.weamobile.AlertDialogActivity;
+import sv.cmu.edu.weamobile.Data.Alert;
 import sv.cmu.edu.weamobile.Data.AppConfiguration;
 import sv.cmu.edu.weamobile.Utility.AppConfigurationFactory;
 import sv.cmu.edu.weamobile.Utility.InOrOutTargetDecider;
+import sv.cmu.edu.weamobile.Utility.Logger;
 
 public class WEABackgroundService extends Service {
     public static final String FETCH_CONFIGURATION = "sv.cmu.edu.weamobile.service.action.FETCH_CONFIGURATION";
@@ -19,6 +25,7 @@ public class WEABackgroundService extends Service {
     private static final String EXTRA_PARAM1 = "sv.cmu.edu.weamobile.service.extra.PARAM1";
     private static final String EXTRA_PARAM2 = "sv.cmu.edu.weamobile.service.extra.PARAM2";
     private final IBinder mBinder = new LocalBinder();
+    private BroadcastReceiver newConfigurationHandler;
 
     public static void checkServerForConfiguration(Context context, String param1, String param2) {
         Intent intent = new Intent(context, WEABackgroundService.class);
@@ -35,9 +42,6 @@ public class WEABackgroundService extends Service {
         context.startService(intent);
     }
 
-//    public WEABackgroundService() {
-//        super("WEABackgroundService");
-//    }
 
     public class LocalBinder extends Binder {
         WEABackgroundService getService() {
@@ -47,9 +51,17 @@ public class WEABackgroundService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
+        Log.d("WEA", "WEABackgroundService started" );
         if(intent == null){
             intent = new Intent(getApplicationContext(), WEABackgroundService.class);
             intent.setAction(WEABackgroundService.FETCH_CONFIGURATION);
+        }
+
+        if(newConfigurationHandler == null){
+            newConfigurationHandler= new NewConfigurationReceiver(new Handler());
+            LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(newConfigurationHandler,
+                    new IntentFilter("new-config-event"));
+
         }
         Log.d("WEA", "Service onStart called with "+ intent.getAction());
         onHandleIntent(intent);
@@ -57,7 +69,6 @@ public class WEABackgroundService extends Service {
         return Service.START_NOT_STICKY;
     }
 
-//    @Override
     protected void onHandleIntent(Intent intent) {
 
         Log.d("WEA", "called with "+ intent.getAction());
@@ -84,13 +95,8 @@ public class WEABackgroundService extends Service {
         //read configuration and setup up new alarm
         //if problem in getting/receiving configuration, set default alarm
 
-        AppConfiguration configuration = AppConfigurationFactory.getConfiguration();
+        AppConfigurationFactory.getConfigurationAsync(getApplicationContext());
 
-        long currentTime = System.currentTimeMillis();
-        if(currentTime < configuration.getEndingAt() && currentTime > configuration.getScheduledFor()){
-            //if time to show new alert
-            broadcastNewAlert("Free food alert", "1222222233123113");
-        }
     }
 
     private void broadcastNewAlert(String message, String polygonEncoded){
@@ -102,11 +108,57 @@ public class WEABackgroundService extends Service {
         //If in target send intent to show dialog
         //Do not send it as a broadcast, we need to keep service alive till
         //we know the is in target
-        if(InOrOutTargetDecider.isInTarget(polygonEncoded)){
+        if(InOrOutTargetDecider.isInTarget(getApplicationContext(), polygonEncoded)){
             Intent dialogIntent = new Intent(getBaseContext(), AlertDialogActivity.class);
             dialogIntent.putExtra("Message", message);
             dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             getApplication().startActivity(dialogIntent);
         }
     }
+
+    private void newConfigurationReceived(AppConfiguration configuration){
+
+        //two things to be done, shown now or schedule for later if in half an hour
+        Alert relevantAlert = getAlertRelevantForNow(configuration);
+        if(relevantAlert != null){
+            broadcastNewAlert(relevantAlert.getText(), "1222222233123113");
+        }
+    }
+
+    private Alert getAlertRelevantForNow(AppConfiguration config){
+        Alert relevantAlertForNow = null;
+        Alert [] alerts = config.getAlerts();
+        if(alerts.length >0){
+            //ToDo: for test only
+//            long currentTime = System.currentTimeMillis();
+//            if(currentTime < configuration.getEndingAt() && currentTime > configuration.getScheduledFor()){
+//                //if time to show new alert
+//                broadcastNewAlert("Free food alert", "1222222233123113");
+//            }
+            relevantAlertForNow = alerts[0];
+        }
+        return relevantAlertForNow;
+    }
+
+    private class NewConfigurationReceiver extends BroadcastReceiver {
+        private final Handler handler;
+        private String lastSentBeaconId ="";
+
+        public NewConfigurationReceiver(Handler handler) {
+            this.handler = handler;
+        }
+
+        @Override
+        public void onReceive(final Context context, Intent intent) {
+            // Extract data included in the Intent
+            Logger.log("NewConfigurationReceiver", intent.getStringExtra("message"));
+            final String json = intent.getStringExtra("message");
+            AppConfiguration configuration = AppConfiguration.fromJson(json);
+            newConfigurationReceived(configuration);
+        }
+
+    };
+
+
+
 }

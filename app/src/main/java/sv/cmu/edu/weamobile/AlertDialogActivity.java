@@ -49,6 +49,13 @@ public class AlertDialogActivity extends Activity {
     }
 
     @Override
+    protected void onDestroy() {
+        vibrator = null;
+        tts.shutdown();
+        super.onDestroy();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.alert_dialog, menu);
@@ -73,12 +80,15 @@ public class AlertDialogActivity extends Activity {
     private AlertDialog createDialog(Context context){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         AlertDialog alert;
+        final Activity activity = this;
 
         //set the cancel button
-        builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+        AlertDialog.Builder ok = builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
+                Intent intent = new Intent(activity, FeedbackWebViewActivity.class);
+                startActivity(intent);
             }
         });
 

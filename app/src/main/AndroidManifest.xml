@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="sv.cmu.edu.weamobile" >
 
-
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -37,8 +36,8 @@
             android:name="sv.cmu.edu.weamobile.service.SMSBroadcastReceiver"
             android:enabled="true"
             android:exported="true" >
-            <intent-filter android:priority="999">
-                <action android:name="crossmobile_wea"/>
+            <intent-filter android:priority="999" >
+                <action android:name="crossmobile_wea" />
                 <action android:name="sv.cmu.edu.weamobile.service.NOTIFICATION_RECEIVER" />
             </intent-filter>
             <intent-filter>
@@ -52,6 +51,7 @@
             android:label="@string/title_alert_list" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -68,12 +68,11 @@
             android:name="sv.cmu.edu.weamobile.service.BootupBroadcastReceiver"
             android:enabled="true"
             android:exported="true"
-            android:label="BootupBroadcastReceiver">
+            android:label="BootupBroadcastReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-
         <receiver
             android:name="sv.cmu.edu.weamobile.NewAlertBroadcastReceiver"
             android:enabled="true"
@@ -83,7 +82,12 @@
         <activity
             android:name="sv.cmu.edu.weamobile.AlertDialogActivity"
             android:label="@string/title_activity_alert_dialog"
-            android:theme="@style/Invisible">
+            android:theme="@style/Invisible" >
+        </activity>
+        <activity
+            android:name="sv.cmu.edu.weamobile.FeedbackWebViewActivity"
+            android:label="@string/title_activity_feedback_web_view" >
         </activity>
     </application>
+
 </manifest>
