@@ -34,7 +34,7 @@ public class WEAAlarmManager {
                                            long timeBetweenRepeatsInMilliSeconds){
 
         AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        Log.d("WEA", "setting up alarm to trigger after milliseconds "
+        Log.d("WEA", "setting up repeating alarm to trigger after milliseconds "
                 + String.valueOf(timeBetweenRepeatsInMilliSeconds));
 
         Intent intent = new Intent(context, WEABackgroundService.class);

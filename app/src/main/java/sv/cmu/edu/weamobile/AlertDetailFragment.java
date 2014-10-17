@@ -27,22 +27,18 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone;
 
 import sv.cmu.edu.weamobile.Data.Alert;
 import sv.cmu.edu.weamobile.Data.AlertContent;
 import sv.cmu.edu.weamobile.Data.GeoLocation;
 import sv.cmu.edu.weamobile.Utility.GPSTracker;
 import sv.cmu.edu.weamobile.Utility.Logger;
+import sv.cmu.edu.weamobile.Utility.WEAUtil;
 
 
 /**
@@ -78,23 +74,23 @@ public class AlertDetailFragment extends Fragment {
             String key = getArguments().getString(ARG_ITEM_ID);
             Logger.log("AlertDetailFragment key: " + key);
             alert = AlertContent.getAlertsMap().get(Integer.parseInt(key));
+            updateMyLocation();
+            calculatePolyCenter();
+            setUpMapIfNeeded();
         }
-
-        setUpMapIfNeeded();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_alert_detail, container, false);
-        updateMyLocation();
 
         // Show the dummy content as text in a TextView.
         if (alert != null) {
             Logger.log("Item is there"+ alert.getText());
              ((TextView) rootView.findViewById(R.id.alertText)).setText(getTextWithStyle(alert.getAlertType() + " : "+ alert.toString(),30));
-              localTime = getTimeString(Long.parseLong(alert.getScheduledFor()));
-             ((TextView) rootView.findViewById(R.id.txtLabel)).setText(getTextWithStyle(alert.getAlertType() + " : "+ alert.toString(),25));
+              localTime = WEAUtil.getTimeString(Long.parseLong(alert.getScheduledFor()));
+            ((TextView) rootView.findViewById(R.id.txtLabel)).setText(getTextWithStyle("Time: " + localTime + " You are at distance " + getDistanceFromCentroid(polyCenter) + " miles",25));
         }else{
             Logger.log("Item is null");
         }
@@ -105,9 +101,7 @@ public class AlertDetailFragment extends Fragment {
                 LinearLayout buttonLayout = (LinearLayout) rootView.findViewById(R.id.alertDialogButtons);
                 buttonLayout.setVisibility(View.VISIBLE);
 
-                calculatePolyCenter();
                 addEventListenersToButtons();
-                ((TextView) rootView.findViewById(R.id.txtLabel)).setText(getTextWithStyle("Time: " + localTime + " You are at distance " + getDistanceFromCentroid(polyCenter) + " miles",25));
                 alertUserWithVibrationAndSpeech();
             }else{
                 LinearLayout buttonLayout = (LinearLayout) rootView.findViewById(R.id.alertDialogButtons);
@@ -212,7 +206,7 @@ public class AlertDetailFragment extends Fragment {
             }
 
 
-            Polygon polygon = mMap.addPolygon(polyOptions);
+            mMap.addPolygon(polyOptions);
             setCenter(polyCenter[0],polyCenter[1]);
         }
     }
@@ -249,14 +243,6 @@ public class AlertDetailFragment extends Fragment {
         centroid[1] = centroid[1] / totalPoints;
 
         return centroid;
-    }
-
-    private String getTimeString(long epoch){
-        Date date = new Date(epoch * 1000L);
-        DateFormat format = new SimpleDateFormat("yy-MM-dd HH:mm");
-        format.setTimeZone(TimeZone.getTimeZone("Etc/UTC"));
-        String formatted = format.format(date);
-        return  formatted;
     }
 
     private SpannableString getTextWithStyle(String text, int fontSize){

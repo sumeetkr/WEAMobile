@@ -1,12 +1,18 @@
 package sv.cmu.edu.weamobile;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 
+import sv.cmu.edu.weamobile.Utility.AppConfigurationFactory;
+import sv.cmu.edu.weamobile.Utility.WEAUtil;
 import sv.cmu.edu.weamobile.service.WEAAlarmManager;
 import sv.cmu.edu.weamobile.service.WEABackgroundService;
 
@@ -23,6 +29,7 @@ public class MainActivity extends FragmentActivity
     private WEABackgroundService mBoundService;
     private boolean mIsBound;
     private boolean isAlarmScheduled= false;
+    private Switch mySwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +50,24 @@ public class MainActivity extends FragmentActivity
                     .setActivateOnItemClick(true);
         }
 
+        mySwitch = (Switch) findViewById(R.id.switch2);
+        mySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView,
+                                         boolean isChecked) {
+
+                if(isChecked){
+                    mySwitch.setText("Syncing..");
+                    fetchConfig();
+                }else{
+//                    fetchConfig();
+                    mySwitch.setText("Alerts disabled");
+                }
+
+            }
+        });
+
         handler = new Handler();
 
     }
@@ -50,9 +75,9 @@ public class MainActivity extends FragmentActivity
     @Override
     protected void onStart(){
         super.onStart();
-        Log.d("WEA", "scheduling one time wakeup");
         //WEAAlarmManager.setupAlarmToWakeUpApplicationAtScheduledTime(this.getApplicationContext(), 60*000);
         if(!isAlarmScheduled){
+            Log.d("WEA", "scheduling alarm");
             WEAAlarmManager.setupRepeatingAlarm(this.getApplicationContext(), 1000*60*30);
             isAlarmScheduled =  true;
         }
@@ -69,8 +94,28 @@ public class MainActivity extends FragmentActivity
         filter.addAction("android.intent.action.NEW_ALERT");
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         getApplicationContext().registerReceiver(newAlertReciver, filter);
-        // Register mMessageReceiver to receive messages.
-//        LocalBroadcastManager.getInstance(this).registerReceiver(newAlertReciver,new IntentFilter());
+
+        updateStatus();
+
+    }
+
+    private void updateStatus() {
+        String time = AppConfigurationFactory.getStringProperty(getApplicationContext(), "lastTimeChecked");
+        if(time != null && !time.isEmpty() && (Long.parseLong(time)-System.currentTimeMillis()<30*60*1000)){
+            mySwitch.setChecked(true);
+            mySwitch.setText("Synced at: " + WEAUtil.getTimeString(Long.parseLong(time) / 1000));
+        }else{
+            mySwitch.setChecked(false);
+            fetchConfig();
+        }
+    }
+
+    private void fetchConfig() {
+        WEAAlarmManager.setupAlarmToWakeUpApplicationAtScheduledTime(this.getApplicationContext(), 60*000);
+//
+//        Intent intent = new Intent(getApplicationContext(), WEABackgroundService.class);
+//        intent.setAction(WEABackgroundService.FETCH_CONFIGURATION);
+//        sendBroadcast(intent);
     }
 
     @Override
@@ -121,4 +166,33 @@ public class MainActivity extends FragmentActivity
             startActivity(detailIntent);
         }
     }
+
+    public class NewAlertBroadcastReceiver extends BroadcastReceiver {
+        private final Handler handler;
+
+        public NewAlertBroadcastReceiver(Handler handler) {
+            this.handler = handler;
+        }
+
+        @Override
+        public void onReceive(final Context context, Intent intent) {
+            Log.d("WEA", "Got new alert broadcast2 ");
+            // Extract data included in the Intent
+            final String message = intent.getStringExtra("MESSAGE");
+
+            // Post the UI updating code to our Handler
+            if(handler!= null){
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateStatus();
+                        Log.d("WEA", "Got new alert broadcast " );
+//                        Toast.makeText(context, "Alert !!: " + message, Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+            }
+        }
+    }
+
 }
