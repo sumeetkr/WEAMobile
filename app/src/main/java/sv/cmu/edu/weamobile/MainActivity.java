@@ -51,7 +51,7 @@ public class MainActivity extends FragmentActivity
         super.onStart();
         Log.d("WEA", "scheduling one time wakeup");
         //WEAAlarmManager.setupAlarmToWakeUpApplicationAtScheduledTime(this.getApplicationContext(), 60*000);
-        WEAAlarmManager.setupRepeatingAlarm(this.getApplicationContext(), 1000*60*10);
+        WEAAlarmManager.setupRepeatingAlarm(this.getApplicationContext(), 1000*60*30);
     }
 
 

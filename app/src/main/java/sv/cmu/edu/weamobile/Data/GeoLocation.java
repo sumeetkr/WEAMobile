@@ -24,6 +24,14 @@ public class GeoLocation {
         return lat;
     }
 
+    public double getLatitude() {
+        return Double.parseDouble(lat);
+    }
+
+    public double getLongitude() {
+        return Double.parseDouble(lng);
+    }
+
     public void setLat(String lat) {
         this.lat = lat;
     }

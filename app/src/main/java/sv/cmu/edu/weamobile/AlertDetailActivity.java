@@ -1,8 +1,9 @@
 package sv.cmu.edu.weamobile;
 
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
 
@@ -16,15 +17,24 @@ import android.view.MenuItem;
  * This activity is mostly just a 'shell' activity containing nothing
  * more than a {@link AlertDetailFragment}.
  */
-public class AlertDetailActivity extends ActionBarActivity {
+public class AlertDetailActivity extends FragmentActivity {
+
+    FragmentManager fragmentManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if(getIntent().getBooleanExtra("isDialog",false)){
+            setTheme(android.R.style.Theme_DeviceDefault_Dialog_NoActionBar);
+        }else{
+            setTheme(android.R.style.Theme_DeviceDefault);
+        }
+
         setContentView(R.layout.activity_alert_detail);
 
         // Show the Up button in the action bar.
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // savedInstanceState is non-null when there is fragment state
         // saved from previous configurations of this activity
@@ -41,6 +51,7 @@ public class AlertDetailActivity extends ActionBarActivity {
             Bundle arguments = new Bundle();
             arguments.putString(AlertDetailFragment.ARG_ITEM_ID,
                     getIntent().getStringExtra(AlertDetailFragment.ARG_ITEM_ID));
+            arguments.putBoolean("isDialog", getIntent().getBooleanExtra("isDialog",false));
             AlertDetailFragment fragment = new AlertDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()

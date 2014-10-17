@@ -9,6 +9,9 @@ public class Logger {
     public static final String TAG = "IPS";
 
     public static void log(String text){
+        if(text==null || text.isEmpty()){
+            text = "no message";
+        }
         Log.d(TAG, text);
     }
 

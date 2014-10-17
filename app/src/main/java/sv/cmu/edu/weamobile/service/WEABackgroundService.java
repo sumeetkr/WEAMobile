@@ -11,13 +11,12 @@ import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import sv.cmu.edu.weamobile.AlertDialogActivity;
+import sv.cmu.edu.weamobile.AlertDetailActivity;
 import sv.cmu.edu.weamobile.Data.Alert;
 import sv.cmu.edu.weamobile.Data.AppConfiguration;
 import sv.cmu.edu.weamobile.Data.GeoLocation;
 import sv.cmu.edu.weamobile.Utility.AppConfigurationFactory;
 import sv.cmu.edu.weamobile.Utility.GPSTracker;
-import sv.cmu.edu.weamobile.Utility.InOrOutTargetDecider;
 import sv.cmu.edu.weamobile.Utility.Logger;
 import sv.cmu.edu.weamobile.Utility.WEAPointInPoly;
 
@@ -102,7 +101,7 @@ public class WEABackgroundService extends Service {
 
     }
 
-    private void broadcastNewAlert(String message, String polygonEncoded){
+    private void broadcastNewAlert(String message, String polygonEncoded, int alertId){
 //        WEANewAlertIntent newAlertIntent = new WEANewAlertIntent(message, polygonEncoded);
 //        Log.d("WEA", "Broadcast intent: About to broadcast new Alert");
 //        getApplicationContext().sendBroadcast(newAlertIntent);
@@ -111,12 +110,19 @@ public class WEABackgroundService extends Service {
         //If in target send intent to show dialog
         //Do not send it as a broadcast, we need to keep service alive till
         //we know the is in target
-        if(InOrOutTargetDecider.isInTarget(getApplicationContext(), polygonEncoded)){
-            Intent dialogIntent = new Intent(getBaseContext(), AlertDialogActivity.class);
-            dialogIntent.putExtra("Message", message);
-            dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            getApplication().startActivity(dialogIntent);
-        }
+//        if(InOrOutTargetDecider.isInTarget(getApplicationContext(), polygonEncoded)){
+//            Intent dialogIntent = new Intent(getBaseContext(), AlertDialogActivity.class);
+//            dialogIntent.putExtra("Message", message);
+//            dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            getApplication().startActivity(dialogIntent);
+//        }
+
+        Intent dialogIntent = new Intent(getBaseContext(), AlertDetailActivity.class);
+        dialogIntent.putExtra("item_id", String.valueOf(alertId));
+        dialogIntent.putExtra("isDialog", true);
+//        dialogIntent.putExtra("Message", message);
+        dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        getApplication().startActivity(dialogIntent);
     }
 
     private void newConfigurationReceived(AppConfiguration configuration){
@@ -146,9 +152,10 @@ public class WEABackgroundService extends Service {
 
                     Logger.log("Verifying presence in polygon.");
                     boolean inPoly = WEAPointInPoly.pointInPoly(locations.length,lats,longs,Double.parseDouble(location.getLat()), Double.parseDouble(location.getLng()));
+                    broadcastNewAlert(alert.getText(), "1222222233123113", alert.getId());
                     if(inPoly){
                         Logger.log("Presence in polygon: ", String.valueOf(inPoly));
-                        broadcastNewAlert(alert.getText(), "1222222233123113");
+//                        broadcastNewAlert(alert.getText(), "1222222233123113", alert.getId());
                     }else{
                         Logger.log("Not present in polygon: ", String.valueOf(inPoly));
                     }
