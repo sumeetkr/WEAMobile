@@ -5,9 +5,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
+import sv.cmu.edu.weamobile.Data.Alert;
 import sv.cmu.edu.weamobile.Data.AlertContent;
+import sv.cmu.edu.weamobile.Utility.Logger;
 
 
 /**
@@ -26,7 +27,7 @@ public class AlertDetailFragment extends Fragment {
     /**
      * The dummy content this fragment is presenting.
      */
-    private AlertContent.AlertItem mItem;
+    private Alert mItem;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -43,7 +44,9 @@ public class AlertDetailFragment extends Fragment {
             // Load the dummy content specified by the fragment
             // arguments. In a real-world scenario, use a Loader
             // to load content from a content provider.
-            mItem = AlertContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
+            String key = getArguments().getString(ARG_ITEM_ID);
+            Logger.log("AlertDetailFragment key: " + key);
+            mItem = AlertContent.getAlertsMap().get(Integer.parseInt(key));
         }
     }
 
@@ -54,8 +57,12 @@ public class AlertDetailFragment extends Fragment {
 
         // Show the dummy content as text in a TextView.
         if (mItem != null) {
-            ((TextView) rootView.findViewById(R.id.alert_detail)).setText("Alert "+ mItem.content);
+            Logger.log("Item is there"+ mItem.getText());
+//            ((TextView) rootView.findViewById(R.id.alert_detail)).setText("Alert "+ mItem.toString());
+        }else{
+            Logger.log("Item is null");
         }
+
 
         return rootView;
     }

@@ -1,42 +1,47 @@
 package sv.cmu.edu.weamobile.Data;
 
+import android.content.Context;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import sv.cmu.edu.weamobile.Utility.AppConfigurationFactory;
 
 /**
  * Created by sumeet on 9/24/14.
  */
 public class AlertContent {
-    public static class AlertItem {
 
-        public String id;
-        public String content;
+    private static List<Alert> alertItems = new ArrayList<Alert>();
+    private static Map<Integer, Alert> alertsMap = new HashMap<Integer, Alert>();
 
-        public AlertItem(String id, String content) {
-            this.id = id;
-            this.content = content;
-        }
-
-        @Override
-        public String toString() {
-            return content;
-        }
+    private static void addItem(Alert item) {
+        alertItems.add(item);
+        alertsMap.put(item.getId(), item);
     }
 
-    public static List<AlertItem> ITEMS = new ArrayList<AlertItem>();
-    public static Map<String, AlertItem> ITEM_MAP = new HashMap<String, AlertItem>();
+    public static List<Alert> getAlerts(Context context){
 
-    static {
-        addItem(new AlertItem("1", "Free food in kitchen"));
-        addItem(new AlertItem("2", "Seminar in Room 118"));
-        addItem(new AlertItem("3", "No classes today !!"));
+        alertItems.clear();
+        alertsMap.clear();
+
+        String json = AppConfigurationFactory.getStringProperty(context, "message");
+        AppConfiguration configuration = AppConfiguration.fromJson(json);
+
+        if(configuration != null && configuration.getAlerts().length>0){
+            List<Alert> alerts = Arrays.asList(configuration.getAlerts());
+            for(Alert alert:alerts){
+                addItem(alert);
+            }
+        }
+        return alertItems;
     }
 
-    private static void addItem(AlertItem item) {
-        ITEMS.add(item);
-        ITEM_MAP.put(item.id, item);
+    public static Map<Integer, Alert> getAlertsMap(){
+        return alertsMap;
     }
 
 }

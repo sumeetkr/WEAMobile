@@ -128,6 +128,8 @@ public class Alert {
     private int id;
     private String text;
     private String alertType;
+    private String scheduledFor;
+    private String endingAt;
     private GeoLocation [] polygon;
 
     public int getId() {
@@ -164,5 +166,26 @@ public class Alert {
 
     public static Alert fromJson(String s) {
         return new Gson().fromJson(s, Alert.class);
+    }
+
+    public String getEndingAt(){
+        return endingAt;
+    }
+
+    public String getScheduledFor(){
+        return scheduledFor;
+    }
+
+    public void setScheduledFor(String scheduledFor) {
+        this.scheduledFor = scheduledFor;
+    }
+
+    public void setEndingAt(String endingAt) {
+        this.endingAt = endingAt;
+    }
+
+    @Override
+    public String toString(){
+        return getText();
     }
 }

@@ -14,9 +14,12 @@ import android.util.Log;
 import sv.cmu.edu.weamobile.AlertDialogActivity;
 import sv.cmu.edu.weamobile.Data.Alert;
 import sv.cmu.edu.weamobile.Data.AppConfiguration;
+import sv.cmu.edu.weamobile.Data.GeoLocation;
 import sv.cmu.edu.weamobile.Utility.AppConfigurationFactory;
+import sv.cmu.edu.weamobile.Utility.GPSTracker;
 import sv.cmu.edu.weamobile.Utility.InOrOutTargetDecider;
 import sv.cmu.edu.weamobile.Utility.Logger;
+import sv.cmu.edu.weamobile.Utility.WEAPointInPoly;
 
 public class WEABackgroundService extends Service {
     public static final String FETCH_CONFIGURATION = "sv.cmu.edu.weamobile.service.action.FETCH_CONFIGURATION";
@@ -100,9 +103,9 @@ public class WEABackgroundService extends Service {
     }
 
     private void broadcastNewAlert(String message, String polygonEncoded){
-        WEANewAlertIntent newAlertIntent = new WEANewAlertIntent(message, polygonEncoded);
-        Log.d("WEA", "Broadcast intent: About to broadcast new Alert");
-        getApplicationContext().sendBroadcast(newAlertIntent);
+//        WEANewAlertIntent newAlertIntent = new WEANewAlertIntent(message, polygonEncoded);
+//        Log.d("WEA", "Broadcast intent: About to broadcast new Alert");
+//        getApplicationContext().sendBroadcast(newAlertIntent);
 
         //Ask InOuttargetDecider to decide
         //If in target send intent to show dialog
@@ -119,30 +122,43 @@ public class WEABackgroundService extends Service {
     private void newConfigurationReceived(AppConfiguration configuration){
 
         //two things to be done, shown now or schedule for later if in half an hour
-        Alert relevantAlert = getAlertRelevantForNow(configuration);
-        if(relevantAlert != null){
-            broadcastNewAlert(relevantAlert.getText(), "1222222233123113");
-        }
+        getAlertRelevantForNow(configuration);
     }
 
-    private Alert getAlertRelevantForNow(AppConfiguration config){
-        Alert relevantAlertForNow = null;
+    private void getAlertRelevantForNow(AppConfiguration config){
         Alert [] alerts = config.getAlerts();
         if(alerts.length >0){
-            //ToDo: for test only
-//            long currentTime = System.currentTimeMillis();
-//            if(currentTime < configuration.getEndingAt() && currentTime > configuration.getScheduledFor()){
-//                //if time to show new alert
-//                broadcastNewAlert("Free food alert", "1222222233123113");
-//            }
-            relevantAlertForNow = alerts[0];
+            GPSTracker tracker = new GPSTracker(this.getApplicationContext());
+            GeoLocation location = tracker.getGeoLocation();
+            long currentTime = System.currentTimeMillis()/1000;
+            for(Alert alert: alerts){
+                //only show if not shown before
+                if(currentTime < Long.parseLong(alert.getEndingAt()) && currentTime > Long.parseLong(alert.getScheduledFor())){
+                    //Now check the locaton range
+                    GeoLocation [] locations = alert.getPolygon();
+                    double [] longs = new double[locations.length];
+                    double [] lats = new double[locations.length];
+
+                    for(int i = 0; i<locations.length; i++){
+                        lats[i]= Double.parseDouble(locations[i].getLat());
+                        longs[i] = Double.parseDouble(locations[i].getLng());
+                    }
+
+                    Logger.log("Verifying presence in polygon.");
+                    boolean inPoly = WEAPointInPoly.pointInPoly(locations.length,lats,longs,Double.parseDouble(location.getLat()), Double.parseDouble(location.getLng()));
+                    if(inPoly){
+                        Logger.log("Presence in polygon: ", String.valueOf(inPoly));
+                        broadcastNewAlert(alert.getText(), "1222222233123113");
+                    }else{
+                        Logger.log("Not present in polygon: ", String.valueOf(inPoly));
+                    }
+                }
+            }
         }
-        return relevantAlertForNow;
     }
 
     private class NewConfigurationReceiver extends BroadcastReceiver {
         private final Handler handler;
-        private String lastSentBeaconId ="";
 
         public NewConfigurationReceiver(Handler handler) {
             this.handler = handler;
@@ -152,7 +168,12 @@ public class WEABackgroundService extends Service {
         public void onReceive(final Context context, Intent intent) {
             // Extract data included in the Intent
             Logger.log("NewConfigurationReceiver", intent.getStringExtra("message"));
-            final String json = intent.getStringExtra("message");
+            String json = intent.getStringExtra("message");
+            if(json.isEmpty()){
+                json = AppConfigurationFactory.getStringProperty(context, "message");
+            }else{
+                AppConfigurationFactory.setStringProperty(context, "message", json);
+            }
             AppConfiguration configuration = AppConfiguration.fromJson(json);
             newConfigurationReceived(configuration);
         }

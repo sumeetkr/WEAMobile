@@ -73,6 +73,9 @@ public class WEAHttpClient {
                 public void onFailure(int statusCode, org.apache.http.Header[] headers, byte[] errorResponse, Throwable e) {
                     // called when response HTTP status is "4XX" (eg. 401, 403, 404)
                     Log.w("IPS JsonSender", "Failure in sending - " + "Status code -" + statusCode + " Error response -" + errorResponse);
+                    Intent intent = new Intent("new-config-event");
+                    intent.putExtra("message", "");
+                    LocalBroadcastManager.getInstance(ctxt).sendBroadcast(intent);
                 }
             });
         } catch (Exception e) {

@@ -7,7 +7,9 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import sv.cmu.edu.weamobile.Data.Alert;
 import sv.cmu.edu.weamobile.Data.AlertContent;
+import sv.cmu.edu.weamobile.Utility.Logger;
 
 
 /**
@@ -72,11 +74,11 @@ public class AlertListFragment extends ListFragment {
         super.onCreate(savedInstanceState);
 
         // TODO: replace with a real list adapter.
-        setListAdapter(new ArrayAdapter<AlertContent.AlertItem>(
+        setListAdapter(new ArrayAdapter<Alert>(
                 getActivity(),
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1,
-                AlertContent.ITEMS));
+                AlertContent.getAlerts(getActivity().getApplicationContext())));
     }
 
     @Override
@@ -116,7 +118,10 @@ public class AlertListFragment extends ListFragment {
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
-        mCallbacks.onItemSelected(AlertContent.ITEMS.get(position).id);
+        Alert alert = AlertContent.getAlerts(getActivity().getApplicationContext()).get(position);
+        Logger.log(alert.toString());
+        String idStr = String.valueOf(alert.getId());
+        mCallbacks.onItemSelected(idStr);
     }
 
     @Override

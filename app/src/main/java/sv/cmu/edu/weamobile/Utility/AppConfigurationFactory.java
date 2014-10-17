@@ -1,6 +1,8 @@
 package sv.cmu.edu.weamobile.Utility;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.telephony.TelephonyManager;
 
 import sv.cmu.edu.weamobile.Data.GeoLocation;
@@ -18,7 +20,7 @@ public class AppConfigurationFactory {
         String imsi = telephoneMananger.getSimSerialNumber();
 
         //fetch application configuration from server
-        WEAHttpClient.sendHeartbeat(location.getJson(), context, Constants.URL_TO_GET_CONFIGURATION + imsi.substring(0,6));
+        WEAHttpClient.sendHeartbeat(location.getJson(), context, Constants.URL_TO_GET_CONFIGURATION + imsi.substring(0, 6));
 
 
         //if received, validate application configuration
@@ -28,5 +30,24 @@ public class AppConfigurationFactory {
         //Load application configuration using shared preferences
 
         //create configuration object and return
+    }
+
+    public static String getStringProperty(Context context, String key) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("preferences", Activity.MODE_PRIVATE);
+        String res = null;
+        if (sharedPreferences != null) {
+            res = sharedPreferences.getString(key, null);
+        }
+        return res;
+    }
+
+    public static void setStringProperty(Context context, String key, String value) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("preferences", Activity.MODE_PRIVATE);
+        if (sharedPreferences != null) {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString(key, value);
+            editor.commit();
+            Logger.log("Set " + key + " property = " + value);
+        }
     }
 }

@@ -148,6 +148,10 @@ public class AppConfiguration {
     private Alert [] alerts;
 
 
+    public AppConfiguration(){
+        alerts = new Alert[0];
+    }
+
     public int getId() {
         return id;
     }

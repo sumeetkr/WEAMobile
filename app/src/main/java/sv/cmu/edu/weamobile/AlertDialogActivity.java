@@ -11,8 +11,12 @@ import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
 import java.util.Locale;
+
+import sv.cmu.edu.weamobile.Utility.Logger;
 
 
 public class AlertDialogActivity extends Activity {
@@ -21,31 +25,68 @@ public class AlertDialogActivity extends Activity {
     private TextToSpeech tts;
     private Intent intent;
     private String message;
+    private boolean isDialogShown;
+    private AlertDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alert_dialog);
 
+        addEventListenersToButtons();
+
+        Logger.log("Create alert dialog");
         try {
-
-            intent = getIntent();
-            message = intent.getStringExtra("Message");
-
-            vibrator = (Vibrator) this.getBaseContext().getSystemService(Context.VIBRATOR_SERVICE);
-            long[] pattern = {200, 200, 200, 200, 200, 200, 200, 400,200,
-                    400,200, 400,200, 200, 200, 200, 200, 200, 400,
-                    200, 200, 200, 200, 200, 200,400,200, 400,
-                    200, 400,200, 200, 200, 200, 200, 200};
-
-            vibrator.vibrate(pattern, -1);
-
-            tts = new TextToSpeech(this, new TTSListener(message, 2));
-
-            createDialog(this.getApplicationContext()).show();
+            alertUserWithVibrationAndSpeech();
+            //showDialog();
         }catch (Exception ex){
          Log.d("WEA", "Exception while showing dialog " + ex.getMessage());
         }
+    }
+
+    private void addEventListenersToButtons() {
+        Button close_button = (Button) findViewById(R.id.buttonOk);
+        close_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
+        Button btnFeedback = (Button) findViewById(R.id.buttonFeedback);
+        final Activity activity = this;
+        btnFeedback.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(activity, FeedbackWebViewActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
+
+    private void showDialog() {
+        if(isDialogShown){
+            dialog.cancel();
+            Logger.log("One dialog is already shown");
+        }
+        dialog = createDialog(this.getApplicationContext());
+        dialog.show();
+        isDialogShown = true;
+    }
+
+    private void alertUserWithVibrationAndSpeech() {
+        intent = getIntent();
+        message = intent.getStringExtra("Message");
+
+        vibrator = (Vibrator) this.getBaseContext().getSystemService(Context.VIBRATOR_SERVICE);
+        long[] pattern = {200, 200, 200, 200, 200, 200, 200, 400,200,
+                400,200, 400,200, 200, 200, 200, 200, 200, 400,
+                200, 200, 200, 200, 200, 200,400,200, 400,
+                200, 400,200, 200, 200, 200, 200, 200};
+
+        vibrator.vibrate(pattern, -1);
+
+        tts = new TextToSpeech(this, new TTSListener(message, 2));
     }
 
     @Override
@@ -77,6 +118,13 @@ public class AlertDialogActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        Logger.log("New intent for alert dialog");
+        alertUserWithVibrationAndSpeech();
+        //showDialog();
+    }
+
     private AlertDialog createDialog(Context context){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         AlertDialog alert;
@@ -87,6 +135,7 @@ public class AlertDialogActivity extends Activity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
+                isDialogShown = false;
                 Intent intent = new Intent(activity, FeedbackWebViewActivity.class);
                 startActivity(intent);
             }
