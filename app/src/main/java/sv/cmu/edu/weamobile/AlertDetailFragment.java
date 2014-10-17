@@ -61,6 +61,7 @@ public class AlertDetailFragment extends Fragment {
     private boolean isDialog = false;
     private Vibrator vibrator;
     private TextToSpeech tts;
+    private double [] polyCenter;
 
 
     public AlertDetailFragment() {
@@ -86,7 +87,7 @@ public class AlertDetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_alert_detail, container, false);
-
+        updateMyLocation();
 
         // Show the dummy content as text in a TextView.
         if (alert != null) {
@@ -103,7 +104,10 @@ public class AlertDetailFragment extends Fragment {
             if(isDialog){
                 LinearLayout buttonLayout = (LinearLayout) rootView.findViewById(R.id.alertDialogButtons);
                 buttonLayout.setVisibility(View.VISIBLE);
+
+                calculatePolyCenter();
                 addEventListenersToButtons();
+                ((TextView) rootView.findViewById(R.id.txtLabel)).setText(getTextWithStyle("Time: " + localTime + " You are at distance " + getDistanceFromCentroid(polyCenter) + " miles",25));
                 alertUserWithVibrationAndSpeech();
             }else{
                 LinearLayout buttonLayout = (LinearLayout) rootView.findViewById(R.id.alertDialogButtons);
@@ -113,6 +117,12 @@ public class AlertDetailFragment extends Fragment {
         }
 
         return rootView;
+    }
+
+    private void updateMyLocation() {
+        GPSTracker tracker = new GPSTracker(this.getActivity().getApplicationContext());
+        myLocation = tracker.getLocation();
+        Logger.log("my location: " + myLocation.toString());
     }
 
     @Override
@@ -160,7 +170,7 @@ public class AlertDetailFragment extends Fragment {
 
         vibrator.vibrate(pattern, -1);
 
-        tts = new TextToSpeech(this.getActivity(), new TTSListener(alert.getText(), 2));
+        tts = new TextToSpeech(this.getActivity(), new TTSListener(alert.getText()+ ". You are at distance " + getDistanceFromCentroid(polyCenter) + " miles from center.", 2));
     }
 
     private void setUpMapIfNeeded() {
@@ -181,10 +191,6 @@ public class AlertDetailFragment extends Fragment {
     }
 
     private void setUpMap() {
-        GPSTracker tracker = new GPSTracker(this.getActivity().getApplicationContext());
-        myLocation = tracker.getLocation();
-        Logger.log("my location: " +myLocation.toString());
-
         mMap.clear();
         mMap.setMyLocationEnabled(true);
         mMap.addMarker(new MarkerOptions().position(
@@ -205,15 +211,20 @@ public class AlertDetailFragment extends Fragment {
                 }
             }
 
-            double [] polyCenter = getCentroid(Arrays.asList(alert.getPolygon()));
+
             Polygon polygon = mMap.addPolygon(polyOptions);
             setCenter(polyCenter[0],polyCenter[1]);
-
-            String distance = "close";
-            float [] results= new float[2];
-            Location.distanceBetween(polyCenter[0],polyCenter[1],myLocation.getLatitude(), myLocation.getLongitude(),results);
-            ((TextView) rootView.findViewById(R.id.txtLabel)).setText(getTextWithStyle("Time: " + localTime + " You are at distance " + results[0]/1000 + " miles",25));
         }
+    }
+
+    private void calculatePolyCenter() {
+        polyCenter = getCentroid(Arrays.asList(alert.getPolygon()));
+    }
+
+    private double getDistanceFromCentroid(double[] polyCenter) {
+        float [] results= new float[2];
+        Location.distanceBetween(polyCenter[0], polyCenter[1], myLocation.getLatitude(), myLocation.getLongitude(), results);
+        return results[0]/1000;
     }
 
     private void setCenter(double lat, double lng){
