@@ -96,7 +96,8 @@
         android:layout_centerHorizontal="true"
         android:id="@+id/alertDialogButtons"
         android:layout_alignParentBottom="true"
-        android:weightSum="1">
+        android:weightSum="1"
+        android:gravity="center_horizontal">
 
         <Button
             android:layout_width="wrap_content"

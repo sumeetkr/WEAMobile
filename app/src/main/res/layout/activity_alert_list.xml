@@ -19,14 +19,14 @@
         android:focusableInTouchMode="true"
         android:layout_below="@+id/linear_layout_alerts_header">
 
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="WEA Alerts History"
-            android:layout_marginTop="20dp"
-            android:layout_marginLeft="16dp"
-            android:id="@+id/textView" />
+        <!--<TextView-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textAppearance="?android:attr/textAppearanceMedium"-->
+            <!--android:text="WEA Alerts History"-->
+            <!--android:layout_marginTop="20dp"-->
+            <!--android:layout_marginLeft="16dp"-->
+            <!--android:id="@+id/textView" />-->
 
         <fragment xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:tools="http://schemas.android.com/tools"

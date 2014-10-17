@@ -1,6 +1,8 @@
 package sv.cmu.edu.weamobile;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.location.Location;
@@ -15,6 +17,8 @@ import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -75,12 +79,6 @@ public class AlertDetailFragment extends Fragment {
             alert = AlertContent.getAlertsMap().get(Integer.parseInt(key));
         }
 
-        if(getArguments().containsKey("isDialog")){
-            isDialog = getArguments().getBoolean("isDialog");
-            if(isDialog){
-                alertUserWithVibrationAndSpeech();
-            }
-        }
         setUpMapIfNeeded();
     }
 
@@ -93,12 +91,27 @@ public class AlertDetailFragment extends Fragment {
         // Show the dummy content as text in a TextView.
         if (alert != null) {
             Logger.log("Item is there"+ alert.getText());
-             ((TextView) rootView.findViewById(R.id.alertText)).setText(getTextWithStyle(alert.getAlertType() + " : "+ alert.toString(),25));
+             ((TextView) rootView.findViewById(R.id.alertText)).setText(getTextWithStyle(alert.getAlertType() + " : "+ alert.toString(),30));
               localTime = getTimeString(Long.parseLong(alert.getScheduledFor()));
-             ((TextView) rootView.findViewById(R.id.txtLabel)).setText(getTextWithStyle(alert.getAlertType() + " : "+ alert.toString(),20));
+             ((TextView) rootView.findViewById(R.id.txtLabel)).setText(getTextWithStyle(alert.getAlertType() + " : "+ alert.toString(),25));
         }else{
             Logger.log("Item is null");
         }
+
+        if(getArguments().containsKey("isDialog")){
+            isDialog = getArguments().getBoolean("isDialog");
+            if(isDialog){
+                LinearLayout buttonLayout = (LinearLayout) rootView.findViewById(R.id.alertDialogButtons);
+                buttonLayout.setVisibility(View.VISIBLE);
+                addEventListenersToButtons();
+                alertUserWithVibrationAndSpeech();
+            }else{
+                LinearLayout buttonLayout = (LinearLayout) rootView.findViewById(R.id.alertDialogButtons);
+                buttonLayout.setVisibility(View.INVISIBLE);
+            }
+
+        }
+
         return rootView;
     }
 
@@ -113,6 +126,28 @@ public class AlertDetailFragment extends Fragment {
         vibrator = null;
         if(tts != null) tts.shutdown();
         super.onDestroy();
+    }
+
+    private void addEventListenersToButtons() {
+        Button close_button = (Button) rootView.findViewById(R.id.buttonOk);
+        if(close_button != null) close_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().finish();
+            }
+        });
+
+        Button btnFeedback = (Button) rootView.findViewById(R.id.buttonFeedback);
+        if(btnFeedback != null){
+            final Activity activity = this.getActivity();
+            btnFeedback.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(activity, FeedbackWebViewActivity.class);
+                    startActivity(intent);
+                }
+            });
+        }
     }
 
     private void alertUserWithVibrationAndSpeech() {
@@ -177,7 +212,7 @@ public class AlertDetailFragment extends Fragment {
             String distance = "close";
             float [] results= new float[2];
             Location.distanceBetween(polyCenter[0],polyCenter[1],myLocation.getLatitude(), myLocation.getLongitude(),results);
-            ((TextView) rootView.findViewById(R.id.txtLabel)).setText(getTextWithStyle("Time: " + localTime + " You are at distance " + results[0]/1000 + " miles",20));
+            ((TextView) rootView.findViewById(R.id.txtLabel)).setText(getTextWithStyle("Time: " + localTime + " You are at distance " + results[0]/1000 + " miles",25));
         }
     }
 
@@ -207,7 +242,7 @@ public class AlertDetailFragment extends Fragment {
 
     private String getTimeString(long epoch){
         Date date = new Date(epoch * 1000L);
-        DateFormat format = new SimpleDateFormat("dd-MM-yyyy");
+        DateFormat format = new SimpleDateFormat("yy-MM-dd HH:mm");
         format.setTimeZone(TimeZone.getTimeZone("Etc/UTC"));
         String formatted = format.format(date);
         return  formatted;

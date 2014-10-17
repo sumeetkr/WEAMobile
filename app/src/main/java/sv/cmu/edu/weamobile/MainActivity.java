@@ -22,6 +22,7 @@ public class MainActivity extends FragmentActivity
     private NewAlertBroadcastReceiver newAlertReciver;
     private WEABackgroundService mBoundService;
     private boolean mIsBound;
+    private boolean isAlarmScheduled= false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +52,10 @@ public class MainActivity extends FragmentActivity
         super.onStart();
         Log.d("WEA", "scheduling one time wakeup");
         //WEAAlarmManager.setupAlarmToWakeUpApplicationAtScheduledTime(this.getApplicationContext(), 60*000);
-        WEAAlarmManager.setupRepeatingAlarm(this.getApplicationContext(), 1000*60*30);
+        if(!isAlarmScheduled){
+            WEAAlarmManager.setupRepeatingAlarm(this.getApplicationContext(), 1000*60*30);
+            isAlarmScheduled =  true;
+        }
     }
 
 

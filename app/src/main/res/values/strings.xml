@@ -2,14 +2,13 @@
 <resources>
 
     <string name="app_name">WEAMobile</string>
-    <string name="title_activity_main">WEA Mobile</string>
+    <string name="title_activity_main">CMU WEA+</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_alert">AlertActivity</string>
-    <string name="title_alert_list">WEA Mobile</string>
-    <string name="title_alert_detail">Alert Details</string>
+    <string name="title_activity_alert">CMU WEA+</string>
+    <string name="title_alert_list">CMU WEA+</string>
+    <string name="title_alert_detail">CMU WEA+ Alert Details</string>
     <string name="title_activity_alert_dialog">AlertDialogActivity</string>
-    <string name="title_activity_feedback_web_view">FeedbackWebViewActivity</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_feedback_web_view">CMU WEA+ Feedback</string>
 
 </resources>
