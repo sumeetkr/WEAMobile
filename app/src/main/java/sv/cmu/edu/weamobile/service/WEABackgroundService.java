@@ -19,6 +19,7 @@ import sv.cmu.edu.weamobile.Utility.AppConfigurationFactory;
 import sv.cmu.edu.weamobile.Utility.GPSTracker;
 import sv.cmu.edu.weamobile.Utility.Logger;
 import sv.cmu.edu.weamobile.Utility.WEAPointInPoly;
+import sv.cmu.edu.weamobile.Utility.WEAUtil;
 
 public class WEABackgroundService extends Service {
     public static final String FETCH_CONFIGURATION = "sv.cmu.edu.weamobile.service.action.FETCH_CONFIGURATION";
@@ -104,7 +105,9 @@ public class WEABackgroundService extends Service {
             for(Alert alert: alerts){
                 long currentTime = System.currentTimeMillis()/1000;
                 //only show if not shown before in +5 -5 seconds
-                if(currentTime < (Long.parseLong(alert.getScheduledFor())+1*60) && currentTime > (Long.parseLong(alert.getScheduledFor())-1*60)){
+                Logger.log("Alarm expected at: "+ WEAUtil.getTimeString(alert.getScheduledForLong()));
+                if(currentTime < (Long.parseLong(alert.getScheduledFor())+1*30) && currentTime > (Long.parseLong(alert.getScheduledFor())-1*30)){
+                    Logger.log("Its the alarm time");
                     //Now check the locaton range
                     GeoLocation [] locations = alert.getPolygon();
                     double [] longs = new double[locations.length];
@@ -117,19 +120,19 @@ public class WEABackgroundService extends Service {
 
                     Logger.log("Verifying presence in polygon.");
                     boolean inPoly = WEAPointInPoly.pointInPoly(locations.length,lats,longs,Double.parseDouble(location.getLat()), Double.parseDouble(location.getLng()));
-                    broadcastNewAlert(alert.getText(), "1222222233123113", alert.getId());
                     if(inPoly){
                         Logger.log("Presence in polygon: ", String.valueOf(inPoly));
+                        broadcastNewAlert(alert.getText(), "1222222233123113", alert.getId());
 //                        broadcastNewAlert(alert.getText(), "1222222233123113", alert.getId());
                     }else{
                         Logger.log("Not present in polygon: ", String.valueOf(inPoly));
                     }
-                }else if(currentTime < (Long.parseLong(alert.getScheduledFor())-1*60)) {
-                    Logger.log("Scheduling alarm for " + String.valueOf(1000*(Long.parseLong(alert.getScheduledFor())-currentTime-60)));
-                    WEAAlarmManager.setupAlarmToWakeUpApplicationAtScheduledTime(getApplicationContext(), (Long.parseLong(alert.getScheduledFor())-currentTime-59)*1000 );
-
-                }else{
-                    Logger.log("No immediate alert expected");
+//                }else if(currentTime < (Long.parseLong(alert.getScheduledFor())-1*60)) {
+//                    Logger.log("Scheduling alarm for " + String.valueOf(1000*(Long.parseLong(alert.getScheduledFor())-currentTime-60)));
+//                    WEAAlarmManager.setupAlarmToWakeUpApplicationAtScheduledTime(getApplicationContext(), (Long.parseLong(alert.getScheduledFor())-currentTime-59)*1000 );
+//
+//                }else{
+//                    Logger.log("No immediate alert expected");
                 }
             }
         }
@@ -148,10 +151,11 @@ public class WEABackgroundService extends Service {
             Logger.log("NewConfigurationReceiver", intent.getStringExtra("message"));
             AppConfigurationFactory.setStringProperty(context, "lastTimeChecked",String.valueOf(System.currentTimeMillis()));
             String json = intent.getStringExtra("message");
+
             if(json.isEmpty()){
                 json = AppConfigurationFactory.getStringProperty(context, "message");
             }else{
-
+                AppConfigurationFactory.setStringProperty(context, "message", json);
                 WEANewAlertIntent newAlertIntent = new WEANewAlertIntent(json, "");
                 Log.d("WEA", "Broadcast intent: About to broadcast new Alert");
                 getApplicationContext().sendBroadcast(newAlertIntent);

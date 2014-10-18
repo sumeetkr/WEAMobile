@@ -176,6 +176,10 @@ public class Alert {
         return scheduledFor;
     }
 
+    public Long getScheduledForLong(){
+        return Long.parseLong(scheduledFor);
+    }
+
     public void setScheduledFor(String scheduledFor) {
         this.scheduledFor = scheduledFor;
     }

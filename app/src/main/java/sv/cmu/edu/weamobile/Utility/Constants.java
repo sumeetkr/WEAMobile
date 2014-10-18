@@ -6,5 +6,6 @@ package sv.cmu.edu.weamobile.Utility;
 public class Constants {
 //    public static final String URL_TO_GET_CONFIGURATION = "http://code.sumeetkumar.in/config.json";
     public static final String URL_TO_GET_CONFIGURATION = "http://cmu-wea.herokuapp.com/wea/api/heartbeat/";
+//public static final String URL_TO_GET_CONFIGURATION = "http://10.0.17.19:5000/wea/api/heartbeat/";
     public static final String URL_TO_DISPLAY_LOCATION = "http://code.sumeetkumar.in/user_study/WEA/feedback_form.html";
 }

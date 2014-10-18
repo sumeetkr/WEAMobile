@@ -90,7 +90,7 @@ public class AlertDetailFragment extends Fragment {
             Logger.log("Item is there"+ alert.getText());
              ((TextView) rootView.findViewById(R.id.alertText)).setText(getTextWithStyle(alert.getAlertType() + " : "+ alert.toString(),30));
               localTime = WEAUtil.getTimeString(Long.parseLong(alert.getScheduledFor()));
-            ((TextView) rootView.findViewById(R.id.txtLabel)).setText(getTextWithStyle("Time: " + localTime + " You are at distance " + getDistanceFromCentroid(polyCenter) + " miles",25));
+            ((TextView) rootView.findViewById(R.id.txtLabel)).setText(getTextWithStyle("Time: " + localTime + " You are at distance " + String.valueOf(getDistanceFromCentroid(polyCenter)).substring(0,5) + " miles",25));
         }else{
             Logger.log("Item is null");
         }
@@ -164,7 +164,7 @@ public class AlertDetailFragment extends Fragment {
 
         vibrator.vibrate(pattern, -1);
 
-        tts = new TextToSpeech(this.getActivity(), new TTSListener(alert.getText()+ ". You are at distance " + getDistanceFromCentroid(polyCenter) + " miles from center.", 2));
+        tts = new TextToSpeech(this.getActivity(), new TTSListener(alert.getText()+ ". You are at distance " + String.valueOf(getDistanceFromCentroid(polyCenter)).substring(0,5) + " miles from center.", 2));
     }
 
     private void setUpMapIfNeeded() {
