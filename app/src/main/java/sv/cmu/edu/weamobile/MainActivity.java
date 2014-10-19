@@ -12,9 +12,9 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 
 import sv.cmu.edu.weamobile.Utility.AppConfigurationFactory;
+import sv.cmu.edu.weamobile.Utility.Logger;
 import sv.cmu.edu.weamobile.Utility.WEAUtil;
 import sv.cmu.edu.weamobile.service.WEAAlarmManager;
-import sv.cmu.edu.weamobile.service.WEABackgroundService;
 
 public class MainActivity extends FragmentActivity
         implements AlertListFragment.Callbacks {
@@ -26,10 +26,8 @@ public class MainActivity extends FragmentActivity
     private boolean mTwoPane;
     private Handler handler;
     private NewAlertBroadcastReceiver newAlertReciver;
-    private WEABackgroundService mBoundService;
-    private boolean mIsBound;
-    private boolean isAlarmScheduled= false;
     private Switch mySwitch;
+    private int fetchDuration = 1*60*1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,17 +68,27 @@ public class MainActivity extends FragmentActivity
 
         handler = new Handler();
 
+        Log.d("WEA", "scheduling alarm");
+        WEAAlarmManager.setupRepeatingAlarmToWakeUpApplicationToFetchConfiguration(
+                this.getApplicationContext(),
+                fetchDuration);
+
+
     }
 
     @Override
     protected void onStart(){
         super.onStart();
-        //WEAAlarmManager.setupAlarmToWakeUpApplicationAtScheduledTime(this.getApplicationContext(), 60*000);
-//        if(!isAlarmScheduled){
-            Log.d("WEA", "scheduling alarm");
-            WEAAlarmManager.setupRepeatingAlarm(this.getApplicationContext(), 1000*60*1);
-            isAlarmScheduled =  true;
-//        }
+        //WEAAlarmManager.setupAlarmToWakeUpApplicationAtScheduledTime(this.getApplicationContext(), 60*1000);
+//        Log.d("WEA", "scheduling alarm");
+//        WEAAlarmManager.setupRepeatingAlarmToWakeUpApplicationToFetchConfiguration(
+//                this.getApplicationContext(),
+//                fetchDuration);
+
+//        WEAAlarmManager.setupAlarmForAlertAtScheduledTime(
+//                this.getApplicationContext(),
+//                5*60*1000);
+
     }
 
 
@@ -101,7 +109,7 @@ public class MainActivity extends FragmentActivity
 
     private void updateStatus() {
         String time = AppConfigurationFactory.getStringProperty(getApplicationContext(), "lastTimeChecked");
-        if(time != null && !time.isEmpty() && (Long.parseLong(time)-System.currentTimeMillis()<30*60*1000)){
+        if(time != null && !time.isEmpty() && (Long.parseLong(time)-System.currentTimeMillis()< fetchDuration)){
             mySwitch.setChecked(true);
             mySwitch.setText("Synced at: " + WEAUtil.getTimeString(Long.parseLong(time) / 1000));
         }else{
@@ -111,22 +119,17 @@ public class MainActivity extends FragmentActivity
     }
 
     private void fetchConfig() {
+        Logger.log("Scheduling call to fetch configuration");
         WEAAlarmManager.setupAlarmToWakeUpApplicationAtScheduledTime(this.getApplicationContext(), 60*000);
-//
-//        Intent intent = new Intent(getApplicationContext(), WEABackgroundService.class);
-//        intent.setAction(WEABackgroundService.FETCH_CONFIGURATION);
-//        sendBroadcast(intent);
     }
 
     @Override
     protected void onPause(){
         // Register mMessageReceiver to receive messages.
-        if(newAlertReciver!= null){
+        if(newAlertReciver!= null) {
             getApplication().unregisterReceiver(newAlertReciver);
             newAlertReciver = null;
         }
-//        LocalBroadcastManager.getInstance(this).unregisterReceiver(newAlertReciver);
-
         super.onPause();
     }
 

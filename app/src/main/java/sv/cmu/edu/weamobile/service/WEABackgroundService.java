@@ -23,7 +23,7 @@ import sv.cmu.edu.weamobile.Utility.WEAUtil;
 
 public class WEABackgroundService extends Service {
     public static final String FETCH_CONFIGURATION = "sv.cmu.edu.weamobile.service.action.FETCH_CONFIGURATION";
-    public static final String FETCH_ALERT = "sv.cmu.edu.weamobile.service.action.FETCH_ALERT";
+    public static final String SHOW_ALERT = "sv.cmu.edu.weamobile.service.action.SHOW_ALERT";
 
     private final IBinder mBinder = new LocalBinder();
     private BroadcastReceiver newConfigurationHandler;
@@ -36,8 +36,10 @@ public class WEABackgroundService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
-        Log.d("WEA", "WEABackgroundService started" );
+        Log.d("WEA", "WEABackgroundService started at " + WEAUtil.getTimeString(System.currentTimeMillis()/1000) );
+        Log.d("WEA", "Service onStart called with "+ intent);
         if(intent == null){
+            Log.d("WEA", "Intent was null so setting it to FETCH_CONFIGURATION");
             intent = new Intent(getApplicationContext(), WEABackgroundService.class);
             intent.setAction(WEABackgroundService.FETCH_CONFIGURATION);
         }
@@ -48,19 +50,20 @@ public class WEABackgroundService extends Service {
                     new IntentFilter("new-config-event"));
 
         }
-        Log.d("WEA", "Service onStart called with "+ intent.getAction());
+
         onHandleIntent(intent);
 
         return Service.START_NOT_STICKY;
     }
 
     protected void onHandleIntent(Intent intent) {
-
         Log.d("WEA", "called with "+ intent.getAction());
         if (intent != null) {
             final String action = intent.getAction();
             if (FETCH_CONFIGURATION.equals(action)) {
                 fetchConfiguration();
+            }else if(intent.getAction()==SHOW_ALERT){
+                alertUsers();
             }
 
         }
@@ -80,6 +83,14 @@ public class WEABackgroundService extends Service {
 
         AppConfigurationFactory.getConfigurationAsync(getApplicationContext());
 
+    }
+
+    private void alertUsers(){
+        Intent dialogIntent = new Intent(getBaseContext(), AlertDetailActivity.class);
+        dialogIntent.putExtra("item_id", String.valueOf(1));
+        dialogIntent.putExtra("isDialog", true);
+        dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        getApplication().startActivity(dialogIntent);
     }
 
     private void broadcastNewAlert(String message, String polygonEncoded, int alertId){
@@ -106,7 +117,7 @@ public class WEABackgroundService extends Service {
                 long currentTime = System.currentTimeMillis()/1000;
                 //only show if not shown before in +5 -5 seconds
                 Logger.log("Alarm expected at: "+ WEAUtil.getTimeString(alert.getScheduledForLong()));
-                if(currentTime < (Long.parseLong(alert.getScheduledFor())+1*30) && currentTime > (Long.parseLong(alert.getScheduledFor())-1*30)){
+                if(currentTime < (Long.parseLong(alert.getScheduledFor())+1*60) && currentTime > (Long.parseLong(alert.getScheduledFor())-1*60)){
                     Logger.log("Its the alarm time");
                     //Now check the locaton range
                     GeoLocation [] locations = alert.getPolygon();
@@ -148,8 +159,10 @@ public class WEABackgroundService extends Service {
         @Override
         public void onReceive(final Context context, Intent intent) {
             // Extract data included in the Intent
-            Logger.log("NewConfigurationReceiver", intent.getStringExtra("message"));
-            AppConfigurationFactory.setStringProperty(context, "lastTimeChecked",String.valueOf(System.currentTimeMillis()));
+            Logger.log("NewConfigurationReceiver");
+            AppConfigurationFactory.setStringProperty(context,
+                    "lastTimeChecked",
+                    String.valueOf(System.currentTimeMillis()));
             String json = intent.getStringExtra("message");
 
             if(json.isEmpty()){
@@ -159,12 +172,6 @@ public class WEABackgroundService extends Service {
                 WEANewAlertIntent newAlertIntent = new WEANewAlertIntent(json, "");
                 Log.d("WEA", "Broadcast intent: About to broadcast new Alert");
                 getApplicationContext().sendBroadcast(newAlertIntent);
-
-//                Intent configIntent = new Intent("android.intent.action.NEW_ALERT");
-//                configIntent.addCategory(Intent.CATEGORY_DEFAULT);
-//                sendBroadcast(intent);
-//                Logger.log("sent broadcast "+ "android.intent.action.NEW_ALERT");
-//                AppConfigurationFactory.setStringProperty(context, "message", json);
             }
             AppConfiguration configuration = AppConfiguration.fromJson(json);
             newConfigurationReceived(configuration);
