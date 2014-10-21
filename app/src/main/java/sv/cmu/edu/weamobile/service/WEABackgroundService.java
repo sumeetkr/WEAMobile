@@ -102,6 +102,13 @@ public class WEABackgroundService extends Service {
         getApplication().startActivity(dialogIntent);
     }
 
+    private void broadcastOutOfTargetAlert(){
+
+        WEANewAlertIntent newConfigurationIntent = new WEANewAlertIntent("New Alert, but out of target", "");
+        Log.d("WEA", "Broadcast intent: About to broadcast new Alert");
+        getApplicationContext().sendBroadcast(newConfigurationIntent);
+    }
+
     private void newConfigurationReceived(AppConfiguration configuration){
 
         //two things to be done, shown now or schedule for later if in half an hour
@@ -120,23 +127,13 @@ public class WEABackgroundService extends Service {
                 if(currentTime < (Long.parseLong(alert.getScheduledFor())+1*60) && currentTime > (Long.parseLong(alert.getScheduledFor())-1*60)){
                     Logger.log("Its the alarm time");
                     //Now check the locaton range
-                    GeoLocation [] locations = alert.getPolygon();
-                    double [] longs = new double[locations.length];
-                    double [] lats = new double[locations.length];
-
-                    for(int i = 0; i<locations.length; i++){
-                        lats[i]= Double.parseDouble(locations[i].getLat());
-                        longs[i] = Double.parseDouble(locations[i].getLng());
-                    }
-
-                    Logger.log("Verifying presence in polygon.");
-                    boolean inPoly = WEAPointInPoly.pointInPoly(locations.length,lats,longs,Double.parseDouble(location.getLat()), Double.parseDouble(location.getLng()));
-                    if(inPoly){
-                        Logger.log("Presence in polygon: ", String.valueOf(inPoly));
+                    if(isInPolygon(location, alert)){
+                        Logger.log("Present in polygon");
                         broadcastNewAlert(alert.getText(), "1222222233123113", alert.getId());
 //                        broadcastNewAlert(alert.getText(), "1222222233123113", alert.getId());
                     }else{
-                        Logger.log("Not present in polygon: ", String.valueOf(inPoly));
+                        broadcastOutOfTargetAlert();
+                        Logger.log("Not present in polygon");
                     }
 //                }else if(currentTime < (Long.parseLong(alert.getScheduledFor())-1*60)) {
 //                    Logger.log("Scheduling alarm for " + String.valueOf(1000*(Long.parseLong(alert.getScheduledFor())-currentTime-60)));
@@ -147,6 +144,20 @@ public class WEABackgroundService extends Service {
                 }
             }
         }
+    }
+
+    private boolean isInPolygon(GeoLocation location, Alert alert) {
+        GeoLocation [] locations = alert.getPolygon();
+        double [] longs = new double[locations.length];
+        double [] lats = new double[locations.length];
+
+        for(int i = 0; i<locations.length; i++){
+            lats[i]= Double.parseDouble(locations[i].getLat());
+            longs[i] = Double.parseDouble(locations[i].getLng());
+        }
+
+        Logger.log("Verifying presence in polygon.");
+        return WEAPointInPoly.pointInPoly(locations.length, lats, longs, Double.parseDouble(location.getLat()), Double.parseDouble(location.getLng()));
     }
 
     private class NewConfigurationReceiver extends BroadcastReceiver {
@@ -169,9 +180,9 @@ public class WEABackgroundService extends Service {
                 json = AppConfigurationFactory.getStringProperty(context, "message");
             }else{
                 AppConfigurationFactory.setStringProperty(context, "message", json);
-                WEANewAlertIntent newAlertIntent = new WEANewAlertIntent(json, "");
+                WEANewAlertIntent newConfigurationIntent = new WEANewAlertIntent("", "");
                 Log.d("WEA", "Broadcast intent: About to broadcast new Alert");
-                getApplicationContext().sendBroadcast(newAlertIntent);
+                getApplicationContext().sendBroadcast(newConfigurationIntent);
             }
             AppConfiguration configuration = AppConfiguration.fromJson(json);
             newConfigurationReceived(configuration);

@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.widget.CompoundButton;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import sv.cmu.edu.weamobile.Utility.AppConfigurationFactory;
 import sv.cmu.edu.weamobile.Utility.Logger;
@@ -25,7 +26,7 @@ public class MainActivity extends FragmentActivity
      */
     private boolean mTwoPane;
     private Handler handler;
-    private NewAlertBroadcastReceiver newAlertReciver;
+    private NewConfigurationReceivedBroadcastReceiver newAlertReciver;
     private Switch mySwitch;
     private int fetchDuration = 1*60*1000;
 
@@ -55,11 +56,10 @@ public class MainActivity extends FragmentActivity
             public void onCheckedChanged(CompoundButton buttonView,
                                          boolean isChecked) {
 
-                if(isChecked){
+                if (isChecked) {
                     mySwitch.setText("Syncing..");
                     fetchConfig();
-                }else{
-//                    fetchConfig();
+                } else {
                     mySwitch.setText("Alerts disabled");
                 }
 
@@ -96,7 +96,7 @@ public class MainActivity extends FragmentActivity
     protected void onResume(){
         super.onResume();
 
-        if(newAlertReciver ==null) newAlertReciver = new NewAlertBroadcastReceiver(handler);
+        if(newAlertReciver ==null) newAlertReciver = new NewConfigurationReceivedBroadcastReceiver(handler);
         Log.d("WEA", "Alert receiver created in main activity");
         IntentFilter filter = new IntentFilter();
         filter.addAction("android.intent.action.NEW_ALERT");
@@ -120,7 +120,7 @@ public class MainActivity extends FragmentActivity
 
     private void fetchConfig() {
         Logger.log("Scheduling call to fetch configuration");
-        WEAAlarmManager.setupAlarmToWakeUpApplicationAtScheduledTime(this.getApplicationContext(), 60*000);
+        WEAAlarmManager.setupAlarmToWakeUpApplicationAtScheduledTime(this.getApplicationContext(), 60 * 000);
     }
 
     @Override
@@ -170,17 +170,15 @@ public class MainActivity extends FragmentActivity
         }
     }
 
-    public class NewAlertBroadcastReceiver extends BroadcastReceiver {
+    public class NewConfigurationReceivedBroadcastReceiver extends BroadcastReceiver {
         private final Handler handler;
 
-        public NewAlertBroadcastReceiver(Handler handler) {
+        public NewConfigurationReceivedBroadcastReceiver(Handler handler) {
             this.handler = handler;
         }
 
         @Override
         public void onReceive(final Context context, Intent intent) {
-            Log.d("WEA", "Got new alert broadcast2 ");
-            // Extract data included in the Intent
             final String message = intent.getStringExtra("MESSAGE");
 
             // Post the UI updating code to our Handler
@@ -190,7 +188,9 @@ public class MainActivity extends FragmentActivity
                     public void run() {
                         updateStatus();
                         Log.d("WEA", "Got new alert broadcast " );
-//                        Toast.makeText(context, "Alert !!: " + message, Toast.LENGTH_SHORT).show();
+                        if(message!=null && !message.isEmpty()){
+                            Toast.makeText(context, "Alert !!: " + message, Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
 
