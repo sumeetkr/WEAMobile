@@ -2,6 +2,10 @@ package sv.cmu.edu.weamobile.Data;
 
 import com.google.gson.Gson;
 
+import java.util.Date;
+
+import sv.cmu.edu.weamobile.Utility.WEAUtil;
+
 /**
  * Created by sumeet on 9/28/14.
  */
@@ -21,7 +25,7 @@ public class Alert {
 //                "fdbURL": "NWS-120723-220266-154673",
 //                "createdAt": null,
 //                "updatedAt": null,
-//                "polygon": [
+//                "Polygon": [
 //            {
 //                "lng": "-94.71",
 //                    "lat": "29.34",
@@ -130,7 +134,7 @@ public class Alert {
     private String alertType;
     private String scheduledFor;
     private String endingAt;
-    private GeoLocation [] polygon;
+    private GeoLocation [] Polygon;
 
     public int getId() {
         return id;
@@ -157,11 +161,11 @@ public class Alert {
     }
 
     public GeoLocation[] getPolygon() {
-        return polygon;
+        return Polygon;
     }
 
     public void setPolygon(GeoLocation[] polygon) {
-        this.polygon = polygon;
+        this.Polygon = polygon;
     }
 
     public static Alert fromJson(String s) {
@@ -176,8 +180,15 @@ public class Alert {
         return scheduledFor;
     }
 
+    public String getScheduledForString(){
+        Date date = WEAUtil.getTimeStringFromJsonTime(scheduledFor, "UTC");
+        return date.toLocaleString();
+    }
+
     public Long getScheduledForLong(){
-        return Long.parseLong(scheduledFor);
+        Date date = WEAUtil.getTimeStringFromJsonTime(scheduledFor, "UTC");
+        long epoch = date.getTime();
+        return epoch/1000;
     }
 
     public void setScheduledFor(String scheduledFor) {

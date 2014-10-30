@@ -16,10 +16,12 @@ import android.widget.Button;
 
 import java.util.Locale;
 
+import sv.cmu.edu.weamobile.Data.Alert;
+import sv.cmu.edu.weamobile.Data.AlertContent;
 import sv.cmu.edu.weamobile.Utility.Logger;
 
 
-public class AlertDialogActivity extends Activity {
+public class PlainAlertDialogActivity extends Activity {
 
     private Vibrator vibrator;
     private TextToSpeech tts;
@@ -27,15 +29,28 @@ public class AlertDialogActivity extends Activity {
     private String message;
     private boolean isDialogShown;
     private AlertDialog dialog;
+    private Alert alert;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_alert_dialog);
+
+        if(getIntent().getBooleanExtra("isDialog",false)){
+            setTheme(android.R.style.Theme_DeviceDefault_Dialog_NoActionBar);
+        }
+
+        setContentView(R.layout.activity_plain_alert_dialog);
 
         addEventListenersToButtons();
 
-        Logger.log("Create alert dialog");
+        String alertid = getIntent().getStringExtra(AlertDetailFragment.ARG_ITEM_ID);
+        if (alertid != null && alertid.isEmpty()) {
+            Logger.log("AlertDetailFragment key: " + alertid);
+            alert = AlertContent.getAlertsMap().get(Integer.parseInt(alertid));
+            message = alert.getText();
+        }
+
+        Logger.log("Creating alert dialog without map");
         try {
             alertUserWithVibrationAndSpeech();
             //showDialog();
@@ -75,8 +90,7 @@ public class AlertDialogActivity extends Activity {
     }
 
     private void alertUserWithVibrationAndSpeech() {
-        intent = getIntent();
-        message = intent.getStringExtra("Message");
+        message = alert.getText();
 
         vibrator = (Vibrator) this.getBaseContext().getSystemService(Context.VIBRATOR_SERVICE);
         long[] pattern = {200, 200, 200, 200, 200, 200, 200, 400,200,
@@ -92,7 +106,9 @@ public class AlertDialogActivity extends Activity {
     @Override
     protected void onDestroy() {
         vibrator = null;
-        tts.shutdown();
+        if(tts!=null){
+            tts.shutdown();
+        }
         super.onDestroy();
     }
 
@@ -142,8 +158,8 @@ public class AlertDialogActivity extends Activity {
         });
 
         //set the title and message of the alert
-        builder.setTitle("WEA Alert");
-        builder.setMessage(message);
+        builder.setTitle(this.alert.getAlertType());
+        builder.setMessage(this.alert.getText());
 
         alert = builder.create();
         return alert;

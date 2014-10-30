@@ -15,7 +15,9 @@ import sv.cmu.edu.weamobile.AlertDetailActivity;
 import sv.cmu.edu.weamobile.Data.Alert;
 import sv.cmu.edu.weamobile.Data.AppConfiguration;
 import sv.cmu.edu.weamobile.Data.GeoLocation;
+import sv.cmu.edu.weamobile.PlainAlertDialogActivity;
 import sv.cmu.edu.weamobile.Utility.AppConfigurationFactory;
+import sv.cmu.edu.weamobile.Utility.Constants;
 import sv.cmu.edu.weamobile.Utility.GPSTracker;
 import sv.cmu.edu.weamobile.Utility.Logger;
 import sv.cmu.edu.weamobile.Utility.WEAPointInPoly;
@@ -36,7 +38,7 @@ public class WEABackgroundService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
-        Log.d("WEA", "WEABackgroundService started at " + WEAUtil.getTimeString(System.currentTimeMillis()/1000) );
+        Log.d("WEA", "WEABackgroundService started at " + WEAUtil.getTimeStringFromEpoch(System.currentTimeMillis() / 1000) );
         Log.d("WEA", "Service onStart called with "+ intent);
         if(intent == null){
             Log.d("WEA", "Intent was null so setting it to FETCH_CONFIGURATION");
@@ -62,12 +64,11 @@ public class WEABackgroundService extends Service {
             final String action = intent.getAction();
             if (FETCH_CONFIGURATION.equals(action)) {
                 fetchConfiguration();
-            }else if(intent.getAction()==SHOW_ALERT){
-                alertUsers();
+            }else if(SHOW_ALERT.equals(action)){
+                int alertId= intent.getIntExtra(("alertId"),-1);
+                alertUsers(alertId);
             }
-
         }
-
         AlarmBroadcastReceiver.completeWakefulIntent(intent);
     }
 
@@ -85,17 +86,25 @@ public class WEABackgroundService extends Service {
 
     }
 
-    private void alertUsers(){
-        Intent dialogIntent = new Intent(getBaseContext(), AlertDetailActivity.class);
-        dialogIntent.putExtra("item_id", String.valueOf(1));
-        dialogIntent.putExtra("isDialog", true);
-        dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        getApplication().startActivity(dialogIntent);
+    private void alertUsers(int alertid){
+        showAlertIfInTarget(alertid);
     }
 
     private void broadcastNewAlert(String message, String polygonEncoded, int alertId){
 
-        Intent dialogIntent = new Intent(getBaseContext(), AlertDetailActivity.class);
+        showAlert(alertId, 0);
+    }
+
+    private void showAlert(int alertId, int alertTYpe) {
+        Logger.log("Its the alert time");
+        Intent dialogIntent;
+        if(alertTYpe == 0){
+            dialogIntent = new Intent(getBaseContext(), AlertDetailActivity.class);
+        }else
+        {
+            dialogIntent = new Intent(getBaseContext(), PlainAlertDialogActivity.class);
+        }
+
         dialogIntent.putExtra("item_id", String.valueOf(alertId));
         dialogIntent.putExtra("isDialog", true);
         dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -112,52 +121,59 @@ public class WEABackgroundService extends Service {
     private void newConfigurationReceived(AppConfiguration configuration){
 
         //two things to be done, shown now or schedule for later if in half an hour
-        getAlertRelevantForNow(configuration);
+        Alert alert = getAlertRelevantForNow(configuration);
+        if(alert != null){
+            long currentTime = System.currentTimeMillis()/1000;
+            Logger.log("Alarm expected after: "+ (alert.getScheduledForLong() - currentTime)*1000);
+            WEAAlarmManager.setupAlarmForAlertAtScheduledTime(getApplicationContext(), alert.getId(), alert.getScheduledForLong()*1000);
+        }
     }
 
-    private void getAlertRelevantForNow(AppConfiguration config){
+    private Alert getAlertRelevantForNow(AppConfiguration config){
+        Alert relevantAlert= null;
+
         Alert [] alerts = config.getAlerts();
         if(alerts.length >0){
-            GPSTracker tracker = new GPSTracker(this.getApplicationContext());
-            GeoLocation location = tracker.getGeoLocation();
             for(Alert alert: alerts){
-                long currentTime = System.currentTimeMillis()/1000;
-                //only show if not shown before in +5 -5 seconds
-                Logger.log("Alarm expected at: "+ WEAUtil.getTimeString(alert.getScheduledForLong()));
-                if(currentTime < (Long.parseLong(alert.getScheduledFor())+1*60) && currentTime > (Long.parseLong(alert.getScheduledFor())-1*60)){
-                    Logger.log("Its the alarm time");
-                    //Now check the locaton range
-                    if(isInPolygon(location, alert)){
-                        Logger.log("Present in polygon");
-                        broadcastNewAlert(alert.getText(), "1222222233123113", alert.getId());
-//                        broadcastNewAlert(alert.getText(), "1222222233123113", alert.getId());
-                    }else{
-                        broadcastOutOfTargetAlert();
-                        Logger.log("Not present in polygon");
+                try{
+                    long currentTime = System.currentTimeMillis()/1000;
+                    //only show if not shown before in +60 -1 seconds
+                    if((alert.getScheduledForLong()- currentTime) < Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES*60
+                            && (alert.getScheduledForLong() - currentTime) > 30){ //just 30 seconds
+                        relevantAlert = alert;
                     }
-//                }else if(currentTime < (Long.parseLong(alert.getScheduledFor())-1*60)) {
-//                    Logger.log("Scheduling alarm for " + String.valueOf(1000*(Long.parseLong(alert.getScheduledFor())-currentTime-60)));
-//                    WEAAlarmManager.setupAlarmToWakeUpApplicationAtScheduledTime(getApplicationContext(), (Long.parseLong(alert.getScheduledFor())-currentTime-59)*1000 );
-//
-//                }else{
-//                    Logger.log("No immediate alert expected");
+
+                }catch(Exception ex){
+                    Logger.log(ex.getMessage());
+
                 }
             }
         }
+
+        return relevantAlert;
     }
 
-    private boolean isInPolygon(GeoLocation location, Alert alert) {
-        GeoLocation [] locations = alert.getPolygon();
-        double [] longs = new double[locations.length];
-        double [] lats = new double[locations.length];
+    private void showAlertIfInTarget(int alertId) {
+        Logger.log("Show alert if in target for ", String.valueOf(alertId));
+        String json = AppConfigurationFactory.getStringProperty(getApplicationContext(), "message");
+        AppConfiguration configuration = AppConfiguration.fromJson(json);
+        Alert [] alerts = configuration.getAlerts();
 
-        for(int i = 0; i<locations.length; i++){
-            lats[i]= Double.parseDouble(locations[i].getLat());
-            longs[i] = Double.parseDouble(locations[i].getLng());
+        for(Alert alert: alerts){
+            if(alert.getId() == alertId){
+                GPSTracker tracker = new GPSTracker(this.getApplicationContext());
+                GeoLocation location = tracker.getGPSGeoLocation();
+                if( WEAPointInPoly.isInPolygon(location, alert.getPolygon())){
+                    Logger.log("Present in polygon");
+                    broadcastNewAlert(alert.getText(), "1222222233123113", alert.getId());
+                }else{
+                    broadcastOutOfTargetAlert();
+                    Logger.log("Not present in polygon");
+                }
+
+                tracker.stopUsingGPS();
+            }
         }
-
-        Logger.log("Verifying presence in polygon.");
-        return WEAPointInPoly.pointInPoly(locations.length, lats, longs, Double.parseDouble(location.getLat()), Double.parseDouble(location.getLng()));
     }
 
     private class NewConfigurationReceiver extends BroadcastReceiver {
@@ -189,7 +205,4 @@ public class WEABackgroundService extends Service {
         }
 
     };
-
-
-
 }

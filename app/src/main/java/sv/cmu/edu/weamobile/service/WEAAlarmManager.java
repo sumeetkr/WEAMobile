@@ -11,10 +11,11 @@ import android.util.Log;
  * Created by sumeet on 9/24/14.
  */
 public class WEAAlarmManager {
-    public static final int ALARM_REQUEST_CODE = 1111;
+    public static final int ALARM_REQUEST_CODE_FOR_REPEATING = 1111;
+    public static final int ALARM_REQUEST_CODE_FOR_SINGLE = 1112;
 
-    public static void setupAlarmToWakeUpApplicationAtScheduledTime(Context context,
-                                                                    long triggerAfterMilliSeconds){
+    public static void setupAlarmToFetchConfigurationAtScheduledTime(Context context,
+                                                                     long triggerAfterMilliSeconds){
         AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         Log.d("WEA", "setting up alarm to trigger after milliseconds " +
                 String.valueOf(triggerAfterMilliSeconds));
@@ -25,7 +26,7 @@ public class WEAAlarmManager {
 
         PendingIntent alarmIntent = PendingIntent.getService(
                 context,
-                WEAAlarmManager.ALARM_REQUEST_CODE,
+                WEAAlarmManager.ALARM_REQUEST_CODE_FOR_SINGLE,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -33,22 +34,24 @@ public class WEAAlarmManager {
     }
 
     public static void setupAlarmForAlertAtScheduledTime(Context context,
+                                                                    int alertId,
                                                                     long triggerAfterMilliSeconds){
         AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         Log.d("WEA", "setting up alarm to trigger after milliseconds " +
                 String.valueOf(triggerAfterMilliSeconds));
 
         Intent intent = new Intent(context, WEABackgroundService.class);
+        intent.putExtra("alertId", alertId);
         intent.setAction(WEABackgroundService.SHOW_ALERT);
         intent.addCategory(WEABackgroundService.SHOW_ALERT);
 
         PendingIntent alarmIntent = PendingIntent.getService(
                 context,
-                WEAAlarmManager.ALARM_REQUEST_CODE,
+                WEAAlarmManager.ALARM_REQUEST_CODE_FOR_SINGLE,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
-        alarmMgr.setExact(AlarmManager.RTC_WAKEUP, triggerAfterMilliSeconds, alarmIntent);
+        alarmMgr.setWindow(AlarmManager.RTC_WAKEUP, triggerAfterMilliSeconds, 1000, alarmIntent);
     }
 
     public static void setupRepeatingAlarmToWakeUpApplicationToFetchConfiguration(
@@ -66,7 +69,7 @@ public class WEAAlarmManager {
 
         PendingIntent alarmIntent = PendingIntent.getService(
                 context,
-                WEAAlarmManager.ALARM_REQUEST_CODE,
+                WEAAlarmManager.ALARM_REQUEST_CODE_FOR_REPEATING,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 

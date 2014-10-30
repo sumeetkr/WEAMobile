@@ -86,11 +86,14 @@
         </receiver>
 
         <activity
-            android:name="sv.cmu.edu.weamobile.AlertDialogActivity"
-            android:label="@string/title_activity_alert_dialog"
+            android:name="sv.cmu.edu.weamobile.PlainAlertDialogActivity"
+            android:label="@string/title_alert_detail"
+            android:theme="@android:style/Theme.Dialog"
             android:launchMode="singleTop"
-            android:theme="@android:style/Theme.Dialog" >
-            <!--android:theme="@style/Invisible"-->
+            android:parentActivityName="sv.cmu.edu.weamobile.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="sv.cmu.edu.weamobile.MainActivity" />
         </activity>
         <activity
             android:name="sv.cmu.edu.weamobile.FeedbackWebViewActivity"

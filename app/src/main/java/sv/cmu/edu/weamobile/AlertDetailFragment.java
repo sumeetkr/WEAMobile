@@ -38,7 +38,6 @@ import sv.cmu.edu.weamobile.Data.AlertContent;
 import sv.cmu.edu.weamobile.Data.GeoLocation;
 import sv.cmu.edu.weamobile.Utility.GPSTracker;
 import sv.cmu.edu.weamobile.Utility.Logger;
-import sv.cmu.edu.weamobile.Utility.WEAUtil;
 
 
 /**
@@ -68,9 +67,6 @@ public class AlertDetailFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         if (getArguments().containsKey(ARG_ITEM_ID)) {
-            // Load the dummy content specified by the fragment
-            // arguments. In a real-world scenario, use a Loader
-            // to load content from a content provider.
             String key = getArguments().getString(ARG_ITEM_ID);
             Logger.log("AlertDetailFragment key: " + key);
             alert = AlertContent.getAlertsMap().get(Integer.parseInt(key));
@@ -89,8 +85,9 @@ public class AlertDetailFragment extends Fragment {
         if (alert != null) {
             Logger.log("Item is there"+ alert.getText());
              ((TextView) rootView.findViewById(R.id.alertText)).setText(getTextWithStyle(alert.getAlertType() + " : "+ alert.toString(),30));
-              localTime = WEAUtil.getTimeString(Long.parseLong(alert.getScheduledFor()));
-            ((TextView) rootView.findViewById(R.id.txtLabel)).setText(getTextWithStyle("Time: " + localTime + " You are at distance " + String.valueOf(getDistanceFromCentroid(polyCenter)).substring(0,5) + " miles",25));
+            localTime = alert.getScheduledForString();
+            String textToShow = getTextToShow();
+            ((TextView) rootView.findViewById(R.id.txtLabel)).setText(getTextWithStyle("Time: " + localTime + textToShow,25));
         }else{
             Logger.log("Item is null");
         }
@@ -113,9 +110,14 @@ public class AlertDetailFragment extends Fragment {
         return rootView;
     }
 
+    private String getTextToShow() {
+        String distance = String.valueOf(getDistanceFromCentroid(polyCenter)).substring(0,3);
+        return " You are at distance " + distance + " miles";
+    }
+
     private void updateMyLocation() {
         GPSTracker tracker = new GPSTracker(this.getActivity().getApplicationContext());
-        myLocation = tracker.getLocation();
+        myLocation = tracker.getNetworkLocation();
         Logger.log("my location: " + myLocation.toString());
     }
 
@@ -164,7 +166,10 @@ public class AlertDetailFragment extends Fragment {
 
         vibrator.vibrate(pattern, -1);
 
-        tts = new TextToSpeech(this.getActivity(), new TTSListener(alert.getText()+ ". You are at distance " + String.valueOf(getDistanceFromCentroid(polyCenter)).substring(0,5) + " miles from center.", 2));
+        String messageToSay = alert.getText()+ getTextToShow();
+
+        tts = new TextToSpeech(this.getActivity(),
+                new TTSListener(messageToSay , 2));
     }
 
     private void setUpMapIfNeeded() {
@@ -212,13 +217,24 @@ public class AlertDetailFragment extends Fragment {
     }
 
     private void calculatePolyCenter() {
-        polyCenter = getCentroid(Arrays.asList(alert.getPolygon()));
+        try{
+            polyCenter = getCentroid(Arrays.asList(alert.getPolygon()));
+        }
+        catch(Exception ex){
+            Logger.log(ex.getMessage());
+        }
     }
 
     private double getDistanceFromCentroid(double[] polyCenter) {
-        float [] results= new float[2];
-        Location.distanceBetween(polyCenter[0], polyCenter[1], myLocation.getLatitude(), myLocation.getLongitude(), results);
-        return results[0]/1000;
+        float center = 0000;
+        try{
+            float [] results= new float[2];
+            Location.distanceBetween(polyCenter[0], polyCenter[1], myLocation.getLatitude(), myLocation.getLongitude(), results);
+            center= results[0]/1000;
+        }catch(Exception ex){
+
+        }
+        return center;
     }
 
     private void setCenter(double lat, double lng){

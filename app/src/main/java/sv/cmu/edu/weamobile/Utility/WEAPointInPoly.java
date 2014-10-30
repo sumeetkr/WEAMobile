@@ -1,4 +1,7 @@
 package sv.cmu.edu.weamobile.Utility;//30.57,-90.86 30.65,-90.75 30.65,-90.57 30.39,-90.6 30.39,-90.9 30.57,-90.86
+
+import sv.cmu.edu.weamobile.Data.GeoLocation;
+
 public class WEAPointInPoly {
     public static void main(String args[]) {
         double[] lats = {30.57, 30.65, 30.65, 30.39, 30.39, 30,57};
@@ -32,4 +35,18 @@ public class WEAPointInPoly {
         }
         return inside;
     }
+
+    public static boolean isInPolygon(GeoLocation location, GeoLocation [] polygon) {
+        double [] longs = new double[polygon.length];
+        double [] lats = new double[polygon.length];
+
+        for(int i = 0; i<polygon.length; i++){
+            lats[i]= Double.parseDouble(polygon[i].getLat());
+            longs[i] = Double.parseDouble(polygon[i].getLng());
+        }
+
+        Logger.log("Verifying presence in polygon.");
+        return WEAPointInPoly.pointInPoly(polygon.length, lats, longs, Double.parseDouble(location.getLat()), Double.parseDouble(location.getLng()));
+    }
+
 }
