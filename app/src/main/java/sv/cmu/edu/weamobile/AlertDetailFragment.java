@@ -4,16 +4,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.app.Fragment;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.style.AbsoluteSizeSpan;
-import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +31,7 @@ import java.util.Locale;
 import sv.cmu.edu.weamobile.Data.Alert;
 import sv.cmu.edu.weamobile.Data.AlertContent;
 import sv.cmu.edu.weamobile.Data.GeoLocation;
+import sv.cmu.edu.weamobile.Utility.AlertHelper;
 import sv.cmu.edu.weamobile.Utility.GPSTracker;
 import sv.cmu.edu.weamobile.Utility.Logger;
 
@@ -84,10 +80,10 @@ public class AlertDetailFragment extends Fragment {
         // Show the dummy content as text in a TextView.
         if (alert != null) {
             Logger.log("Item is there"+ alert.getText());
-             ((TextView) rootView.findViewById(R.id.alertText)).setText(getTextWithStyle(alert.getAlertType() + " : "+ alert.toString(),30));
+             ((TextView) rootView.findViewById(R.id.alertText)).setText(AlertHelper.getTextWithStyle(alert.getAlertType() + " : "+ alert.toString(),30));
             localTime = alert.getScheduledForString();
             String textToShow = getTextToShow();
-            ((TextView) rootView.findViewById(R.id.txtLabel)).setText(getTextWithStyle("Time: " + localTime + textToShow,25));
+            ((TextView) rootView.findViewById(R.id.txtLabel)).setText(AlertHelper.getTextWithStyle("Scheduled For: " + localTime + "\n" + textToShow, 25));
         }else{
             Logger.log("Item is null");
         }
@@ -107,12 +103,22 @@ public class AlertDetailFragment extends Fragment {
 
         }
 
+//        if(getArguments().containsKey("isMapHidden")) {
+//            boolean isMapHidden = getArguments().getBoolean("isMapHidden");
+//            if(isMapHidden){
+//                LinearLayout linearLayout = (LinearLayout) rootView.findViewById(R.id.mapLayout);
+//                linearLayout.setVisibility(View.GONE);
+////                Fragment fragment = getFragmentManager().findFragmentById(R.id.map);
+////                fragment.visi(false);
+//            }
+//        }
+
         return rootView;
     }
 
     private String getTextToShow() {
-        String distance = String.valueOf(getDistanceFromCentroid(polyCenter)).substring(0,3);
-        return " You are at distance " + distance + " miles";
+        String distance = String.valueOf(AlertHelper.getDistanceFromCentroid(myLocation, polyCenter)).substring(0,3);
+        return "You are at a distance " + distance + " miles";
     }
 
     private void updateMyLocation() {
@@ -225,18 +231,6 @@ public class AlertDetailFragment extends Fragment {
         }
     }
 
-    private double getDistanceFromCentroid(double[] polyCenter) {
-        float center = 0000;
-        try{
-            float [] results= new float[2];
-            Location.distanceBetween(polyCenter[0], polyCenter[1], myLocation.getLatitude(), myLocation.getLongitude(), results);
-            center= results[0]/1000;
-        }catch(Exception ex){
-
-        }
-        return center;
-    }
-
     private void setCenter(double lat, double lng){
         CameraUpdate center=
                 CameraUpdateFactory.newLatLng(new LatLng(lat,lng));
@@ -259,13 +253,6 @@ public class AlertDetailFragment extends Fragment {
         centroid[1] = centroid[1] / totalPoints;
 
         return centroid;
-    }
-
-    private SpannableString getTextWithStyle(String text, int fontSize){
-        SpannableString spanString = new SpannableString(text);
-        spanString.setSpan(new StyleSpan(Typeface.BOLD), 0, spanString.length(), 0);
-        spanString.setSpan (new AbsoluteSizeSpan(fontSize), 0, spanString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        return spanString;
     }
 
     protected class TTSListener implements TextToSpeech.OnInitListener {

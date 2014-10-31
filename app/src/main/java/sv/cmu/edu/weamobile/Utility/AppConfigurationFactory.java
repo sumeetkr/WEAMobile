@@ -3,7 +3,6 @@ package sv.cmu.edu.weamobile.Utility;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.telephony.TelephonyManager;
 
 import sv.cmu.edu.weamobile.Data.GeoLocation;
 
@@ -19,11 +18,8 @@ public class AppConfigurationFactory {
         Logger.log("Sending lat " + location.getLatitude());
         Logger.log("Sending lng " + location.getLongitude());
 
-        TelephonyManager telephoneMananger = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        String imsi = telephoneMananger.getSimSerialNumber();
-
         //fetch application configuration from server
-        WEAHttpClient.sendHeartbeat(location.getJson(), context, Constants.URL_TO_GET_CONFIGURATION + imsi.substring(0, 6));
+        WEAHttpClient.sendHeartbeat(location.getJson(), context, Constants.URL_TO_GET_CONFIGURATION + WEAUtil.getIMSI(context));
     }
 
     public static String getStringProperty(Context context, String key) {

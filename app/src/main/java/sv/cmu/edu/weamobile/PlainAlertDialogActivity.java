@@ -13,11 +13,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import java.util.Locale;
 
 import sv.cmu.edu.weamobile.Data.Alert;
 import sv.cmu.edu.weamobile.Data.AlertContent;
+import sv.cmu.edu.weamobile.Utility.AlertHelper;
 import sv.cmu.edu.weamobile.Utility.Logger;
 
 
@@ -44,10 +46,12 @@ public class PlainAlertDialogActivity extends Activity {
         addEventListenersToButtons();
 
         String alertid = getIntent().getStringExtra(AlertDetailFragment.ARG_ITEM_ID);
-        if (alertid != null && alertid.isEmpty()) {
+        if (alertid != null && !alertid.isEmpty()) {
             Logger.log("AlertDetailFragment key: " + alertid);
             alert = AlertContent.getAlertsMap().get(Integer.parseInt(alertid));
             message = alert.getText();
+
+            updateText(alert);
         }
 
         Logger.log("Creating alert dialog without map");
@@ -59,6 +63,15 @@ public class PlainAlertDialogActivity extends Activity {
         }
     }
 
+    private void updateText(Alert alert){
+        if (alert != null) {
+            Logger.log("Item is there"+ alert.getText());
+
+            ((TextView) findViewById(R.id.description)).setText(AlertHelper.getTextWithStyle(alert.getAlertType() + " : " + alert.toString(), 30));
+        }else{
+            Logger.log("Item is null");
+        }
+    }
     private void addEventListenersToButtons() {
         Button close_button = (Button) findViewById(R.id.buttonOk);
         close_button.setOnClickListener(new View.OnClickListener() {

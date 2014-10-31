@@ -7,7 +7,9 @@ import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import sv.cmu.edu.weamobile.Utility.AppConfigurationFactory;
 import sv.cmu.edu.weamobile.Utility.Constants;
+import sv.cmu.edu.weamobile.Utility.Logger;
 
 
 public class FeedbackWebViewActivity extends Activity {
@@ -16,13 +18,14 @@ public class FeedbackWebViewActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feedback_web_view);
-        if (Constants.URL_TO_DISPLAY_LOCATION != null) {
-
+        if (Constants.FEEDBACK_URL_ROOT != null) {
             WebView wv = (WebView) this.findViewById(R.id.webView);
             wv.getSettings().setJavaScriptEnabled(true);
             wv.setWebViewClient(new MyBrowser());
-            wv.loadUrl(Constants.URL_TO_DISPLAY_LOCATION);
 
+            String url = AppConfigurationFactory.getStringProperty(getApplicationContext(), "feedback_url");
+            Logger.log(url);
+            wv.loadUrl(url);
         }
     }
 

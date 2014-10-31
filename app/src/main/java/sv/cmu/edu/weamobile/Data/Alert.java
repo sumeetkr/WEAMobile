@@ -135,6 +135,7 @@ public class Alert {
     private String scheduledFor;
     private String endingAt;
     private GeoLocation [] Polygon;
+    private int options;
 
     public int getId() {
         return id;
@@ -202,5 +203,13 @@ public class Alert {
     @Override
     public String toString(){
         return getText();
+    }
+
+    public int getOptions() {
+        return options;
+    }
+
+    public void setOptions(int options) {
+        this.options = options;
     }
 }

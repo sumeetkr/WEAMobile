@@ -1,5 +1,8 @@
 package sv.cmu.edu.weamobile.Utility;
 
+import android.content.Context;
+import android.telephony.TelephonyManager;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -33,5 +36,11 @@ public class WEAUtil {
             throw new RuntimeException(e);
         }
         return  myDate;
+    }
+
+    public static String getIMSI(Context context){
+        TelephonyManager telephoneMananger = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        String imsi = telephoneMananger.getSimSerialNumber();
+        return imsi.substring(0, 6);
     }
 }

@@ -90,22 +90,33 @@ public class WEABackgroundService extends Service {
         showAlertIfInTarget(alertid);
     }
 
-    private void broadcastNewAlert(String message, String polygonEncoded, int alertId){
+    private void broadcastNewAlert(Alert alert){
 
-        showAlert(alertId, 0);
+        showAlert(alert);
     }
 
-    private void showAlert(int alertId, int alertTYpe) {
+    private void showAlert(Alert alert) {
         Logger.log("Its the alert time");
+        int alertFilter = alert.getOptions();
         Intent dialogIntent;
-        if(alertTYpe == 0){
+        if(alertFilter == 1){
             dialogIntent = new Intent(getBaseContext(), AlertDetailActivity.class);
+            Logger.log("Showing alert with map");
         }else
         {
             dialogIntent = new Intent(getBaseContext(), PlainAlertDialogActivity.class);
+            Logger.log("Showing alert without map");
+            dialogIntent.putExtra("Message", alert.getText());
         }
 
-        dialogIntent.putExtra("item_id", String.valueOf(alertId));
+        //to be used when feedback button is clicked
+        AppConfigurationFactory.setStringProperty(
+                    getApplicationContext(),
+                    "feedback_url",
+                    Constants.FEEDBACK_URL_ROOT + alert.getId()+
+                     "/" +WEAUtil.getIMSI(getApplicationContext()));
+
+        dialogIntent.putExtra("item_id", String.valueOf(alert.getId()));
         dialogIntent.putExtra("isDialog", true);
         dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         getApplication().startActivity(dialogIntent);
@@ -165,7 +176,7 @@ public class WEABackgroundService extends Service {
                 GeoLocation location = tracker.getGPSGeoLocation();
                 if( WEAPointInPoly.isInPolygon(location, alert.getPolygon())){
                     Logger.log("Present in polygon");
-                    broadcastNewAlert(alert.getText(), "1222222233123113", alert.getId());
+                    broadcastNewAlert(alert);
                 }else{
                     broadcastOutOfTargetAlert();
                     Logger.log("Not present in polygon");
@@ -200,6 +211,7 @@ public class WEABackgroundService extends Service {
                 Log.d("WEA", "Broadcast intent: About to broadcast new Alert");
                 getApplicationContext().sendBroadcast(newConfigurationIntent);
             }
+
             AppConfiguration configuration = AppConfiguration.fromJson(json);
             newConfigurationReceived(configuration);
         }
