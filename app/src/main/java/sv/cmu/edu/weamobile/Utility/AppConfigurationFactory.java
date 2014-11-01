@@ -13,18 +13,20 @@ public class AppConfigurationFactory {
     public static void getConfigurationAsync(Context context){
 
         GPSTracker tracker = new GPSTracker(context);
-        GeoLocation location = new GeoLocation("0.00", "0.00");
+        GeoLocation location ;
         if(tracker.canGetLocation()){
-            tracker.getNetworkGeoLocation();
-
+            location = tracker.getNetworkGeoLocation();
             Logger.log("Sending lat " + location.getLatitude());
             Logger.log("Sending lng " + location.getLongitude());
+            WEAHttpClient.sendHeartbeat(location.getJson(), context, Constants.URL_TO_GET_CONFIGURATION + WEAUtil.getIMSI(context));
         }else{
+            location = new GeoLocation("0.00", "0.00");
             Logger.log("Cannot get location for heartbeat");
+            WEAHttpClient.sendHeartbeat(location.getJson(), context, Constants.URL_TO_GET_CONFIGURATION + WEAUtil.getIMSI(context));
         }
 
         //fetch application configuration from server
-        WEAHttpClient.sendHeartbeat(location.getJson(), context, Constants.URL_TO_GET_CONFIGURATION + WEAUtil.getIMSI(context));
+
     }
 
     public static String getStringProperty(Context context, String key) {
