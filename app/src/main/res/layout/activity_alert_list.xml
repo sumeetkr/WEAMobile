@@ -9,6 +9,24 @@
     tools:context="sv.cmu.edu.weamobile.MainActivity">
 
     <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:id="@+id/linear_layout_alerts_header"
+        android:focusableInTouchMode="true">
+        <Switch
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Application Status"
+            android:id="@+id/switch2"
+            android:layout_centerHorizontal="true"
+            android:layout_marginRight="20dp" />
+    </LinearLayout>
+
+    <LinearLayout
         android:orientation="vertical"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -33,28 +51,21 @@
             android:id="@+id/alert_list"
             android:name="sv.cmu.edu.weamobile.AlertListFragment"
             android:layout_width="match_parent"
-            android:layout_height="fill_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             tools:context="sv.cmu.edu.weamobile.MainActivity"
-            tools:layout="@android:layout/list_content" />
-    </LinearLayout>
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:id="@+id/linear_layout_alerts_header"
-        android:focusableInTouchMode="true">
-        <Switch
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="Application Status"
-            android:id="@+id/switch2"
-            android:layout_centerHorizontal="true"
-            android:layout_marginRight="20dp" />
-        </LinearLayout>
+            tools:layout="@android:layout/list_content" >
+            <!--<TextView-->
+                <!--android:layout_width="fill_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:textAppearance="?android:attr/textAppearanceMedium"-->
+                <!--android:text="Scheduled for: "-->
+                <!--android:layout_marginTop="20dp"-->
+                <!--android:layout_marginLeft="16dp"-->
+                <!--android:id="@+id/scheduledFor" />-->
+            </fragment>
 
+    </LinearLayout>
 </RelativeLayout>

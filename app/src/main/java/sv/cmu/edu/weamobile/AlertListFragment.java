@@ -14,6 +14,7 @@ import java.util.Map;
 
 import sv.cmu.edu.weamobile.Data.Alert;
 import sv.cmu.edu.weamobile.Data.AppConfiguration;
+import sv.cmu.edu.weamobile.Utility.AlertListAdapter;
 import sv.cmu.edu.weamobile.Utility.Logger;
 
 public class AlertListFragment extends ListFragment {
@@ -57,11 +58,10 @@ public class AlertListFragment extends ListFragment {
         alertItems = new ArrayList<Alert>();
         alertsMap = new HashMap<Integer, Alert>();
 
-        setListAdapter(new ArrayAdapter<Alert>(
+        setListAdapter(new AlertListAdapter(
                 getActivity(),
-                android.R.layout.simple_list_item_activated_1,
-                android.R.id.text1,
-                alertItems));
+                R.id.username,
+                (ArrayList<Alert>) alertItems));
 
 
         if(getArguments() != null && getArguments().containsKey(AlertDetailFragment.ALERTS_JSON)) {

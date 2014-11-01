@@ -62,14 +62,12 @@ public class MainActivity extends FragmentActivity
             @Override
             public void onCheckedChanged(CompoundButton buttonView,
                                          boolean isChecked) {
-
                 if (isChecked) {
                     mySwitch.setText("Syncing..");
                     fetchConfig();
                 } else {
                     mySwitch.setText("Alerts disabled");
                 }
-
             }
         });
 
@@ -79,10 +77,7 @@ public class MainActivity extends FragmentActivity
         WEAAlarmManager.setupRepeatingAlarmToWakeUpApplicationToFetchConfiguration(
                 this.getApplicationContext(),
                 Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES*60*1000);
-
-
     }
-
 
     @Override
     protected void onResume(){
