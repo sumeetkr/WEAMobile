@@ -186,7 +186,7 @@ public class Alert {
         return date.toLocaleString();
     }
 
-    public Long getScheduledForLong(){
+    public Long getScheduledEpochInSeconds(){
         Date date = WEAUtil.getTimeStringFromJsonTime(scheduledFor, "UTC");
         long epoch = date.getTime();
         return epoch/1000;

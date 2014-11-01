@@ -52,25 +52,24 @@ public class GPSTracker extends Service implements LocationListener {
         isNetworkEnabled = locationManager
                 .isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
+        if (!isGPSEnabled && !isNetworkEnabled) {
+            // No network provider is enabled
+            Logger.log("GPS or NETWORK provider location manager is not available");
+        } else {
+            this.canGetLocation = true;
+        }
+
         updateLocation();
     }
 
     private Location updateLocation() {
         try {
-
-            if (!isGPSEnabled && !isNetworkEnabled) {
-                // No network provider is enabled
-                Logger.log("GPS or NETWORK provider location manager is not available");
-            } else {
-                this.canGetLocation = true;
-
-                if (isNetworkEnabled) {
-                    location = getNetworkLocation();
-                }
-                // If GPS enabled, get latitude/longitude using GPS Services
-                if (location == null && isGPSEnabled) {
-                    location = getGPSLocation();
-                }
+            if (isNetworkEnabled) {
+                location = getNetworkLocation();
+            }
+            // If GPS enabled, get latitude/longitude using GPS Services
+            if (location == null && isGPSEnabled) {
+                location = getGPSLocation();
             }
         }
         catch (Exception e) {
@@ -83,33 +82,40 @@ public class GPSTracker extends Service implements LocationListener {
 
     public Location getGPSLocation() {
         Location loc = null;
-        locationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER,
-                MIN_TIME_BW_UPDATES,
-                MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-        Logger.log("Asking for GPS location");
-        if (locationManager != null) {
-            loc = locationManager
-                    .getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            if (loc != null) {
-                location = loc;
+        if(isGPSEnabled)
+        {
+            locationManager.requestLocationUpdates(
+                    LocationManager.GPS_PROVIDER,
+                    MIN_TIME_BW_UPDATES,
+                    MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+            Logger.log("Asking for GPS location");
+            if (locationManager != null) {
+                loc = locationManager
+                        .getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                if (loc != null) {
+                    location = loc;
+                }
             }
+
+            stopUsingGPS();
         }
         return loc;
     }
 
     public Location getNetworkLocation() {
         Location loc = null;
-        locationManager.requestLocationUpdates(
-                LocationManager.NETWORK_PROVIDER,
-                MIN_TIME_BW_UPDATES,
-                MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-        Logger.log("Asking for network location");
-        if (locationManager != null) {
-            loc = locationManager
-                    .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            if (loc != null) {
-                location = loc;
+        if(isNetworkEnabled){
+            locationManager.requestLocationUpdates(
+                    LocationManager.NETWORK_PROVIDER,
+                    MIN_TIME_BW_UPDATES,
+                    MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+            Logger.log("Asking for network location");
+            if (locationManager != null) {
+                loc = locationManager
+                        .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                if (loc != null) {
+                    location = loc;
+                }
             }
         }
         return loc;
@@ -126,30 +132,6 @@ public class GPSTracker extends Service implements LocationListener {
         }
     }
 
-
-    /**
-     * Function to get latitude
-     * */
-    public double getLatitude(){
-        if(location == null){
-            location = getNetworkLocation();
-        }
-
-        return location.getLatitude();
-    }
-
-
-    /**
-     * Function to get longitude
-     * */
-    public double getLongitude(){
-        if(location == null){
-            location = getNetworkLocation();
-        }
-
-        return location.getLongitude();
-    }
-
     /**
      * Function to check GPS/Wi-Fi enabled
      * @return boolean
@@ -160,12 +142,26 @@ public class GPSTracker extends Service implements LocationListener {
 
     public GeoLocation getNetworkGeoLocation(){
         updateLocation();
-        return new GeoLocation(Double.toString(location.getLatitude()),Double.toString(location.getLongitude()));
+        GeoLocation loc;
+        if(location != null){
+            loc = new GeoLocation(Double.toString(location.getLatitude()),Double.toString(location.getLongitude()));
+        }else{
+            loc = getGPSGeoLocation();
+        }
+        return loc;
     }
 
     public GeoLocation getGPSGeoLocation(){
         location = getGPSLocation();
-        return new GeoLocation(Double.toString(location.getLatitude()),Double.toString(location.getLongitude()));
+        GeoLocation loc = null;
+        if(location == null){
+            updateLocation();
+        }
+        if(location != null){
+            loc = new GeoLocation(Double.toString(location.getLatitude()),Double.toString(location.getLongitude()));
+        }
+
+        return loc;
     }
 
     @Override

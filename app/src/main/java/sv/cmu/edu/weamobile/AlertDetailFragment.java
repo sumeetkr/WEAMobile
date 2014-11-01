@@ -124,8 +124,11 @@ public class AlertDetailFragment extends Fragment {
 
     private void updateMyLocation() {
         GPSTracker tracker = new GPSTracker(this.getActivity().getApplicationContext());
-        myLocation = tracker.getNetworkLocation();
-        Logger.log("my location: " + myLocation.toString());
+        if(tracker.canGetLocation()){
+            myLocation = tracker.getNetworkLocation();
+        }
+
+        if(myLocation != null) Logger.log("my location: " + myLocation.toString());
     }
 
     @Override
@@ -202,9 +205,12 @@ public class AlertDetailFragment extends Fragment {
     private void setUpMap() {
         mMap.clear();
         mMap.setMyLocationEnabled(true);
-        mMap.addMarker(new MarkerOptions().position(
-                new LatLng(myLocation.getLatitude(), myLocation.getLongitude()))
-                .title("Your location"));
+
+        if(myLocation != null){
+            mMap.addMarker(new MarkerOptions().position(
+                    new LatLng(myLocation.getLatitude(), myLocation.getLongitude()))
+                    .title("Your location"));
+        }
         drawPolygon();
     }
 

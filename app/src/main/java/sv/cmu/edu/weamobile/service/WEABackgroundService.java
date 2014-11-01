@@ -138,12 +138,12 @@ public class WEABackgroundService extends Service {
         Alert alert = getAlertRelevantForNow(configuration);
         if(alert != null){
             long currentTime = System.currentTimeMillis()/1000;
-            String message = "Alarm expected after: "+ (alert.getScheduledForLong() - currentTime) + " secs";
+            String message = "Alarm expected after: "+ (alert.getScheduledEpochInSeconds() - currentTime) + " secs";
             Logger.log(message);
             if(message!=null && !message.isEmpty()){
                 Toast.makeText(getApplicationContext(), "Alert Time!!: " + message, Toast.LENGTH_SHORT).show();
             }
-            WEAAlarmManager.setupAlarmForAlertAtScheduledTime(getApplicationContext(), alert.getId(), alert.getScheduledForLong()*1000);
+            WEAAlarmManager.setupAlarmForAlertAtScheduledTime(getApplicationContext(), alert.getId(), alert.getScheduledEpochInSeconds()*1000);
         }
     }
 
@@ -156,8 +156,8 @@ public class WEABackgroundService extends Service {
                 try{
                     long currentTime = System.currentTimeMillis()/1000;
                     //only show if not shown before in +60 -1 seconds
-                    if((alert.getScheduledForLong()- currentTime) < Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES*60
-                            && (alert.getScheduledForLong() - currentTime) > 30){ //just 30 seconds
+                    if((alert.getScheduledEpochInSeconds()- currentTime) < Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES*60
+                            && (alert.getScheduledEpochInSeconds() - currentTime) > -5){ //just 2 seconds
                         relevantAlert = alert;
                     }
 
@@ -180,21 +180,28 @@ public class WEABackgroundService extends Service {
         for(Alert alert: alerts){
             if(alert.getId() == alertId){
                 GPSTracker tracker = new GPSTracker(this.getApplicationContext());
-                GeoLocation location = tracker.getGPSGeoLocation();
-                if( WEAPointInPoly.isInPolygon(location, alert.getPolygon())){
-                    Logger.log("Present in polygon");
-                    broadcastNewAlert(alert, configuration);
-                }else{
-                    broadcastOutOfTargetAlert();
-                    String message ="But you are not inside the polygon.";
-                    Logger.log(message);
-                    if(message!=null && !message.isEmpty()){
+                if(tracker.canGetLocation()){
+                    GeoLocation location = tracker.getGPSGeoLocation();
+                    if(location == null || WEAPointInPoly.isInPolygon(location, alert.getPolygon())){
+                        Logger.log("Present in polygon or location not known");
+                        broadcastNewAlert(alert, configuration);
+                    }else{
+                        broadcastOutOfTargetAlert();
+                        String message ="But you are not inside the polygon.";
+                        Logger.log(message);
                         Toast.makeText(getApplicationContext(),
                                 "Alert Time!!: " + message, Toast.LENGTH_SHORT).show();
                     }
-                }
 
-                tracker.stopUsingGPS();
+                    tracker.stopUsingGPS();
+                }else{
+                    Logger.log("Location not known");
+                    String message ="Location not know, Geo-filtering failed.";
+                    Logger.log(message);
+                    Toast.makeText(getApplicationContext(),
+                            "Alert Time!!: " + message, Toast.LENGTH_SHORT).show();
+                    broadcastNewAlert(alert, configuration);
+                }
             }
         }
     }

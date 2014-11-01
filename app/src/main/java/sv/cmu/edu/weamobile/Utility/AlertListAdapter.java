@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -41,7 +42,14 @@ public class AlertListAdapter extends ArrayAdapter<Alert> {
             }
 
             if (email != null) {
-                email.setText("Type: " + alert.getAlertType() + " " + alert.getScheduledForString());
+                email.setText(alert.getAlertType()  + " Alert " + alert.getScheduledForString());
+            }
+
+            ImageView imView = (ImageView)v.findViewById(R.id.avatar);
+            if(alert.getScheduledEpochInSeconds() > System.currentTimeMillis()/1000){
+                imView.setImageResource(R.drawable.alert_green);
+            }else{
+                imView.setImageResource(R.drawable.alert_red);
             }
         }
         return v;
