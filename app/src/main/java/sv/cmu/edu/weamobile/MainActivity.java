@@ -12,11 +12,13 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import sv.cmu.edu.weamobile.Data.AppConfiguration;
 import sv.cmu.edu.weamobile.Utility.AppConfigurationFactory;
 import sv.cmu.edu.weamobile.Utility.Constants;
 import sv.cmu.edu.weamobile.Utility.Logger;
 import sv.cmu.edu.weamobile.Utility.WEAUtil;
 import sv.cmu.edu.weamobile.service.WEAAlarmManager;
+import sv.cmu.edu.weamobile.service.WEANewAlertIntent;
 
 public class MainActivity extends FragmentActivity
         implements AlertListFragment.Callbacks {
@@ -29,6 +31,8 @@ public class MainActivity extends FragmentActivity
     private Handler handler;
     private NewConfigurationReceivedBroadcastReceiver newAlertReciver;
     private Switch mySwitch;
+    private AppConfiguration configuration;
+    private AlertListFragment listFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +40,9 @@ public class MainActivity extends FragmentActivity
         setContentView(R.layout.activity_alert_list);
 
         Logger.log("Main on create called");
+        listFragment = ((AlertListFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.alert_list));
+
         if (findViewById(R.id.alert_detail_container) != null) {
             // The detail container view will be present only in the
             // large-screen layouts (res/values-large and
@@ -45,9 +52,8 @@ public class MainActivity extends FragmentActivity
 
             // In two-pane mode, list items should be given the
             // 'activated' state when touched.
-            ((AlertListFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.alert_list))
-                    .setActivateOnItemClick(true);
+
+            listFragment.setActivateOnItemClick(true);
         }
 
         mySwitch = (Switch) findViewById(R.id.switch2);
@@ -152,8 +158,10 @@ public class MainActivity extends FragmentActivity
         } else {
             // In single-pane mode, simply start the detail activity
             // for the selected item ID.
+
             Intent detailIntent = new Intent(this, AlertDetailActivity.class);
             detailIntent.putExtra(AlertDetailFragment.ARG_ITEM_ID, id);
+            detailIntent.putExtra(AlertDetailFragment.ALERTS_JSON, configuration.getJson());
             startActivity(detailIntent);
         }
     }
@@ -166,8 +174,11 @@ public class MainActivity extends FragmentActivity
         }
 
         @Override
-        public void onReceive(final Context context, Intent intent) {
+        public void onReceive(final Context context, final Intent intent) {
             final String message = intent.getStringExtra("MESSAGE");
+            String json = intent.getStringExtra(WEANewAlertIntent.CONFIG_JSON);
+            configuration = AppConfiguration.fromJson(json);
+            listFragment.updateList(configuration.getAlerts());
 
             // Post the UI updating code to our Handler
             if(handler!= null){

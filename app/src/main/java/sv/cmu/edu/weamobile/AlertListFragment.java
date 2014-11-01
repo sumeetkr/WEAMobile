@@ -7,77 +7,72 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import sv.cmu.edu.weamobile.Data.Alert;
-import sv.cmu.edu.weamobile.Data.AlertContent;
+import sv.cmu.edu.weamobile.Data.AppConfiguration;
 import sv.cmu.edu.weamobile.Utility.Logger;
 
-
-/**
- * A list fragment representing a list of Alerts. This fragment
- * also supports tablet devices by allowing list items to be given an
- * 'activated' state upon selection. This helps indicate which item is
- * currently being viewed in a {@link AlertDetailFragment}.
- * <p>
- * Activities containing this fragment MUST implement the {@link Callbacks}
- * interface.
- */
 public class AlertListFragment extends ListFragment {
 
-    /**
-     * The serialization (saved instance state) Bundle key representing the
-     * activated item position. Only used on tablets.
-     */
     private static final String STATE_ACTIVATED_POSITION = "activated_position";
-
-    /**
-     * The fragment's current callback object, which is notified of list item
-     * clicks.
-     */
-    private Callbacks mCallbacks = sDummyCallbacks;
-
-    /**
-     * The current activated item position. Only used on tablets.
-     */
+    private Callbacks mCallbacks;
     private int mActivatedPosition = ListView.INVALID_POSITION;
+    private List<Alert> alertItems;
+    private Map<Integer, Alert> alertsMap;
 
-    /**
-     * A callback interface that all activities containing this fragment must
-     * implement. This mechanism allows activities to be notified of item
-     * selections.
-     */
     public interface Callbacks {
-        /**
-         * Callback for when an item has been selected.
-         */
         public void onItemSelected(String id);
     }
 
-    /**
-     * A dummy implementation of the {@link Callbacks} interface that does
-     * nothing. Used only when this fragment is not attached to an activity.
-     */
-    private static Callbacks sDummyCallbacks = new Callbacks() {
+    private Callbacks sDummyCallbacks = new Callbacks() {
         @Override
         public void onItemSelected(String id) {
         }
     };
 
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
-    public AlertListFragment() {
+    public void updateList(Alert[] alerts) {
+        if(alertItems == null)
+        {
+            alertItems = new ArrayList<Alert>();
+            alertsMap = new HashMap<Integer, Alert>();
+        }
+        alertItems.clear();
+        alertsMap.clear();
+        for(Alert alert:alerts){
+            addItem(alert);
+        }
+
+        if(getListAdapter()!= null) ((ArrayAdapter)getListAdapter()).notifyDataSetChanged();
+
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        alertItems = new ArrayList<Alert>();
+        alertsMap = new HashMap<Integer, Alert>();
+
         setListAdapter(new ArrayAdapter<Alert>(
                 getActivity(),
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1,
-                AlertContent.getAlerts(getActivity().getApplicationContext())));
+                alertItems));
+
+
+        if(getArguments() != null && getArguments().containsKey(AlertDetailFragment.ALERTS_JSON)) {
+            AppConfiguration configuration = AppConfiguration.fromJson(getArguments().getString(AlertDetailFragment.ALERTS_JSON));
+
+            for(Alert alert:configuration.getAlerts()){
+                addItem(alert);
+            }
+
+            ((ArrayAdapter)getListAdapter()).notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -117,7 +112,7 @@ public class AlertListFragment extends ListFragment {
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
-        Alert alert = AlertContent.getAlerts(getActivity().getApplicationContext()).get(position);
+        Alert alert = alertItems.get(position);
         Logger.log(alert.toString());
         String idStr = String.valueOf(alert.getId());
         mCallbacks.onItemSelected(idStr);
@@ -152,5 +147,10 @@ public class AlertListFragment extends ListFragment {
         }
 
         mActivatedPosition = position;
+    }
+
+    private void addItem(Alert item) {
+        alertItems.add(item);
+        alertsMap.put(item.getId(), item);
     }
 }

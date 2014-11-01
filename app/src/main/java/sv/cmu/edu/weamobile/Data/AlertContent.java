@@ -1,14 +1,9 @@
 package sv.cmu.edu.weamobile.Data;
 
-import android.content.Context;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import sv.cmu.edu.weamobile.Utility.AppConfigurationFactory;
 
 /**
  * Created by sumeet on 9/24/14.
@@ -23,25 +18,25 @@ public class AlertContent {
         alertsMap.put(item.getId(), item);
     }
 
-    public static List<Alert> getAlerts(Context context){
+//    public static List<Alert> getAlerts(Context context){
+//
+//        alertItems.clear();
+//        alertsMap.clear();
+//
+//        String json = AppConfigurationFactory.getStringProperty(context, "message");
+//        AppConfiguration configuration = AppConfiguration.fromJson(json);
+//
+//        if(configuration != null && configuration.getAlerts().length>0){
+//            List<Alert> alerts = Arrays.asList(configuration.getAlerts());
+//            for(Alert alert:alerts){
+//                addItem(alert);
+//            }
+//        }
+//        return alertItems;
+//    }
 
-        alertItems.clear();
-        alertsMap.clear();
-
-        String json = AppConfigurationFactory.getStringProperty(context, "message");
-        AppConfiguration configuration = AppConfiguration.fromJson(json);
-
-        if(configuration != null && configuration.getAlerts().length>0){
-            List<Alert> alerts = Arrays.asList(configuration.getAlerts());
-            for(Alert alert:alerts){
-                addItem(alert);
-            }
-        }
-        return alertItems;
-    }
-
-    public static Map<Integer, Alert> getAlertsMap(){
-        return alertsMap;
-    }
+//    public static Map<Integer, Alert> getAlertsMap(){
+//        return alertsMap;
+//    }
 
 }

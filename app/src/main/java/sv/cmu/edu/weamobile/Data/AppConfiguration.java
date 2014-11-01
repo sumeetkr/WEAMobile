@@ -146,6 +146,7 @@ public class AppConfiguration {
     private String polygonType;
     private String feebackURL;
     private Alert [] alerts;
+    private String json;
 
 
     public AppConfiguration(){
@@ -241,6 +242,7 @@ public class AppConfiguration {
                 Logger.log(ex.getMessage());
             }
         }
+        configuration.setJson(s);
         return configuration;
     }
 
@@ -258,5 +260,13 @@ public class AppConfiguration {
 
     public void setAlerts(Alert[] alerts) {
         this.alerts = alerts;
+    }
+
+    public String getJson() {
+        return json;
+    }
+
+    public void setJson(String json) {
+        this.json = json;
     }
 }

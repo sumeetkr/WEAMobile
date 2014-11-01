@@ -51,6 +51,10 @@ public class AlertDetailActivity extends FragmentActivity {
             Bundle arguments = new Bundle();
             arguments.putString(AlertDetailFragment.ARG_ITEM_ID,
                     getIntent().getStringExtra(AlertDetailFragment.ARG_ITEM_ID));
+
+            arguments.putString(AlertDetailFragment.ALERTS_JSON,
+                    getIntent().getStringExtra(AlertDetailFragment.ALERTS_JSON));
+
             arguments.putBoolean("isDialog", getIntent().getBooleanExtra("isDialog",false));
 //            arguments.putBoolean("isMapHidden", getIntent().getBooleanExtra("isMapHidden",true));
             AlertDetailFragment fragment = new AlertDetailFragment();

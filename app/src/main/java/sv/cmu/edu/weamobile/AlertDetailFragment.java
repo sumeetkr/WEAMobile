@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Locale;
 
 import sv.cmu.edu.weamobile.Data.Alert;
-import sv.cmu.edu.weamobile.Data.AlertContent;
+import sv.cmu.edu.weamobile.Data.AppConfiguration;
 import sv.cmu.edu.weamobile.Data.GeoLocation;
 import sv.cmu.edu.weamobile.Utility.AlertHelper;
 import sv.cmu.edu.weamobile.Utility.GPSTracker;
@@ -45,6 +45,7 @@ import sv.cmu.edu.weamobile.Utility.Logger;
 public class AlertDetailFragment extends Fragment {
     private GoogleMap mMap;
     public static final String ARG_ITEM_ID = "item_id";
+    public static final String ALERTS_JSON = "alert_json";
     private Alert alert;
     private String localTime;
     private View rootView;
@@ -54,33 +55,45 @@ public class AlertDetailFragment extends Fragment {
     private TextToSpeech tts;
     private double [] polyCenter;
 
-
-    public AlertDetailFragment() {
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments().containsKey(ARG_ITEM_ID)) {
-            String key = getArguments().getString(ARG_ITEM_ID);
-            Logger.log("AlertDetailFragment key: " + key);
-            alert = AlertContent.getAlertsMap().get(Integer.parseInt(key));
-            updateMyLocation();
-            calculatePolyCenter();
-            setUpMapIfNeeded();
-        }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_alert_detail, container, false);
+        return rootView;
+    }
 
-        // Show the dummy content as text in a TextView.
+    private void setupView(){
+
+        if (getArguments().containsKey(ARG_ITEM_ID)) {
+            if(getArguments().containsKey(ALERTS_JSON)){
+                AppConfiguration configuration = AppConfiguration.fromJson(getArguments().getString(ALERTS_JSON));
+                String key = getArguments().getString(ARG_ITEM_ID);
+                Logger.log("AlertDetailFragment key: " + key);
+
+                Alert selectedAlert = null;
+                for(Alert alert:configuration.getAlerts()){
+                    if(alert.getId() == Integer.parseInt(key)){
+                        selectedAlert = alert;
+                    }
+                }
+                alert = selectedAlert;
+
+
+                updateMyLocation();
+                calculatePolyCenter();
+                setUpMapIfNeeded();
+
+            }
+        }
+
         if (alert != null) {
             Logger.log("Item is there"+ alert.getText());
-             ((TextView) rootView.findViewById(R.id.alertText)).setText(AlertHelper.getTextWithStyle(alert.getAlertType() + " : "+ alert.toString(),30));
+            ((TextView) rootView.findViewById(R.id.alertText)).setText(AlertHelper.getTextWithStyle(alert.getAlertType() + " : " + alert.toString(), 30));
             localTime = alert.getScheduledForString();
             String textToShow = getTextToShow();
             ((TextView) rootView.findViewById(R.id.txtLabel)).setText(AlertHelper.getTextWithStyle("Scheduled For: " + localTime + "\n" + textToShow, 25));
@@ -102,21 +115,9 @@ public class AlertDetailFragment extends Fragment {
             }
 
         }
-
-//        if(getArguments().containsKey("isMapHidden")) {
-//            boolean isMapHidden = getArguments().getBoolean("isMapHidden");
-//            if(isMapHidden){
-//                LinearLayout linearLayout = (LinearLayout) rootView.findViewById(R.id.mapLayout);
-//                linearLayout.setVisibility(View.GONE);
-////                Fragment fragment = getFragmentManager().findFragmentById(R.id.map);
-////                fragment.visi(false);
-//            }
-//        }
-
-        return rootView;
     }
-
     private String getTextToShow() {
+
         String distance = String.valueOf(AlertHelper.getDistanceFromCentroid(myLocation, polyCenter)).substring(0,3);
         return "You are at a distance " + distance + " miles";
     }
@@ -130,6 +131,7 @@ public class AlertDetailFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        setupView();
         setUpMapIfNeeded();
     }
 
@@ -172,10 +174,12 @@ public class AlertDetailFragment extends Fragment {
 
         vibrator.vibrate(pattern, -1);
 
-        String messageToSay = alert.getText()+ getTextToShow();
+        if(alert != null){
+            String messageToSay = alert.getText() + getTextToShow();
 
-        tts = new TextToSpeech(this.getActivity(),
-                new TTSListener(messageToSay , 2));
+            tts = new TextToSpeech(this.getActivity(),
+                    new TTSListener(messageToSay , 2));
+        }
     }
 
     private void setUpMapIfNeeded() {

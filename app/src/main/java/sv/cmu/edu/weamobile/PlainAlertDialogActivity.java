@@ -18,7 +18,6 @@ import android.widget.TextView;
 import java.util.Locale;
 
 import sv.cmu.edu.weamobile.Data.Alert;
-import sv.cmu.edu.weamobile.Data.AlertContent;
 import sv.cmu.edu.weamobile.Utility.AlertHelper;
 import sv.cmu.edu.weamobile.Utility.Logger;
 
@@ -48,7 +47,7 @@ public class PlainAlertDialogActivity extends Activity {
         String alertid = getIntent().getStringExtra(AlertDetailFragment.ARG_ITEM_ID);
         if (alertid != null && !alertid.isEmpty()) {
             Logger.log("AlertDetailFragment key: " + alertid);
-            alert = AlertContent.getAlertsMap().get(Integer.parseInt(alertid));
+//            alert = AlertContent.getAlertsMap().get(Integer.parseInt(alertid));
             message = alert.getText();
 
             updateText(alert);

@@ -10,12 +10,12 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import sv.cmu.edu.weamobile.AlertDetailActivity;
 import sv.cmu.edu.weamobile.Data.Alert;
 import sv.cmu.edu.weamobile.Data.AppConfiguration;
 import sv.cmu.edu.weamobile.Data.GeoLocation;
-import sv.cmu.edu.weamobile.PlainAlertDialogActivity;
 import sv.cmu.edu.weamobile.Utility.AppConfigurationFactory;
 import sv.cmu.edu.weamobile.Utility.Constants;
 import sv.cmu.edu.weamobile.Utility.GPSTracker;
@@ -99,15 +99,17 @@ public class WEABackgroundService extends Service {
         Logger.log("Its the alert time");
         int alertFilter = alert.getOptions();
         Intent dialogIntent;
-        if(alertFilter == 1){
-            dialogIntent = new Intent(getBaseContext(), AlertDetailActivity.class);
-            Logger.log("Showing alert with map");
-        }else
-        {
-            dialogIntent = new Intent(getBaseContext(), PlainAlertDialogActivity.class);
-            Logger.log("Showing alert without map");
-            dialogIntent.putExtra("Message", alert.getText());
-        }
+        dialogIntent = new Intent(getBaseContext(), AlertDetailActivity.class);
+// ToDo need to enable later
+//        if(alertFilter == 1){
+//            dialogIntent = new Intent(getBaseContext(), AlertDetailActivity.class);
+//            Logger.log("Showing alert with map");
+//        }else
+//        {
+//            dialogIntent = new Intent(getBaseContext(), PlainAlertDialogActivity.class);
+//            Logger.log("Showing alert without map");
+//            dialogIntent.putExtra("Message", alert.getText());
+//        }
 
         //to be used when feedback button is clicked
         AppConfigurationFactory.setStringProperty(
@@ -129,13 +131,17 @@ public class WEABackgroundService extends Service {
         getApplicationContext().sendBroadcast(newConfigurationIntent);
     }
 
-    private void newConfigurationReceived(AppConfiguration configuration){
+    private void setupAlarmToShowAlertAtRightTime(AppConfiguration configuration){
 
         //two things to be done, shown now or schedule for later if in half an hour
         Alert alert = getAlertRelevantForNow(configuration);
         if(alert != null){
             long currentTime = System.currentTimeMillis()/1000;
-            Logger.log("Alarm expected after: "+ (alert.getScheduledForLong() - currentTime)*1000);
+            String message = "Alarm expected after: "+ (alert.getScheduledForLong() - currentTime) + " secs";
+            Logger.log(message);
+            if(message!=null && !message.isEmpty()){
+                Toast.makeText(getApplicationContext(), "Alert Time!!: " + message, Toast.LENGTH_SHORT).show();
+            }
             WEAAlarmManager.setupAlarmForAlertAtScheduledTime(getApplicationContext(), alert.getId(), alert.getScheduledForLong()*1000);
         }
     }
@@ -179,7 +185,12 @@ public class WEABackgroundService extends Service {
                     broadcastNewAlert(alert);
                 }else{
                     broadcastOutOfTargetAlert();
-                    Logger.log("Not present in polygon");
+                    String message ="You are not inside the polygon.";
+                    Logger.log(message);
+                    if(message!=null && !message.isEmpty()){
+                        Toast.makeText(getApplicationContext(),
+                                "Alert Time!!: " + message, Toast.LENGTH_SHORT).show();
+                    }
                 }
 
                 tracker.stopUsingGPS();
@@ -198,22 +209,27 @@ public class WEABackgroundService extends Service {
         public void onReceive(final Context context, Intent intent) {
             // Extract data included in the Intent
             Logger.log("NewConfigurationReceiver");
-            AppConfigurationFactory.setStringProperty(context,
-                    "lastTimeChecked",
-                    String.valueOf(System.currentTimeMillis()));
             String json = intent.getStringExtra("message");
+//            Logger.log(json);
 
             if(json.isEmpty()){
+                Logger.log("Received empty json");
                 json = AppConfigurationFactory.getStringProperty(context, "message");
+
             }else{
+                AppConfigurationFactory.clearSavedConfiguration(context);
                 AppConfigurationFactory.setStringProperty(context, "message", json);
-                WEANewAlertIntent newConfigurationIntent = new WEANewAlertIntent("", "");
+                AppConfigurationFactory.setStringProperty(context,
+                        "lastTimeChecked",
+                        String.valueOf(System.currentTimeMillis()));
+
+                WEANewAlertIntent newConfigurationIntent = new WEANewAlertIntent("Received new config", json);
                 Log.d("WEA", "Broadcast intent: About to broadcast new Alert");
                 getApplicationContext().sendBroadcast(newConfigurationIntent);
             }
 
             AppConfiguration configuration = AppConfiguration.fromJson(json);
-            newConfigurationReceived(configuration);
+            setupAlarmToShowAlertAtRightTime(configuration);
         }
 
     };

@@ -40,4 +40,14 @@ public class AppConfigurationFactory {
             Logger.log("Set " + key + " property = " + value);
         }
     }
+
+    public static void clearSavedConfiguration(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("preferences", Activity.MODE_PRIVATE);
+        if (sharedPreferences != null) {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.clear();
+            editor.commit();
+            Logger.log("cleard preferences");
+        }
+    }
 }
