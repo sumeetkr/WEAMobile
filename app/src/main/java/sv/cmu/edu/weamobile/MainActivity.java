@@ -188,7 +188,7 @@ public class MainActivity extends FragmentActivity
                         updateStatus();
                         Log.d("WEA", "Got new alert broadcast " );
                         if(message!=null && !message.isEmpty()){
-                            Toast.makeText(context, "Alert !!: " + message, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

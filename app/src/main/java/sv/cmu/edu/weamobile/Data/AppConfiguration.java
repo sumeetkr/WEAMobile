@@ -238,11 +238,11 @@ public class AppConfiguration {
         if(isValidJson(s)){
             try {
                 configuration= new Gson().fromJson(s, AppConfiguration.class);
+                configuration.setJson(s);
             }catch (Exception ex){
                 Logger.log(ex.getMessage());
             }
         }
-        configuration.setJson(s);
         return configuration;
     }
 

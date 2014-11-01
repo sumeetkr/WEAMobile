@@ -13,6 +13,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import sv.cmu.edu.weamobile.AlertDetailActivity;
+import sv.cmu.edu.weamobile.AlertDetailFragment;
 import sv.cmu.edu.weamobile.Data.Alert;
 import sv.cmu.edu.weamobile.Data.AppConfiguration;
 import sv.cmu.edu.weamobile.Data.GeoLocation;
@@ -90,12 +91,11 @@ public class WEABackgroundService extends Service {
         showAlertIfInTarget(alertid);
     }
 
-    private void broadcastNewAlert(Alert alert){
-
-        showAlert(alert);
+    private void broadcastNewAlert(Alert alert, AppConfiguration configuration){
+        showAlert(alert, configuration);
     }
 
-    private void showAlert(Alert alert) {
+    private void showAlert(Alert alert, AppConfiguration configuration) {
         Logger.log("Its the alert time");
         int alertFilter = alert.getOptions();
         Intent dialogIntent;
@@ -120,6 +120,7 @@ public class WEABackgroundService extends Service {
 
         dialogIntent.putExtra("item_id", String.valueOf(alert.getId()));
         dialogIntent.putExtra("isDialog", true);
+        dialogIntent.putExtra(AlertDetailFragment.ALERTS_JSON, configuration.getJson());
         dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         getApplication().startActivity(dialogIntent);
     }
@@ -182,10 +183,10 @@ public class WEABackgroundService extends Service {
                 GeoLocation location = tracker.getGPSGeoLocation();
                 if( WEAPointInPoly.isInPolygon(location, alert.getPolygon())){
                     Logger.log("Present in polygon");
-                    broadcastNewAlert(alert);
+                    broadcastNewAlert(alert, configuration);
                 }else{
                     broadcastOutOfTargetAlert();
-                    String message ="You are not inside the polygon.";
+                    String message ="But you are not inside the polygon.";
                     Logger.log(message);
                     if(message!=null && !message.isEmpty()){
                         Toast.makeText(getApplicationContext(),
@@ -223,7 +224,7 @@ public class WEABackgroundService extends Service {
                         "lastTimeChecked",
                         String.valueOf(System.currentTimeMillis()));
 
-                WEANewAlertIntent newConfigurationIntent = new WEANewAlertIntent("Received new config", json);
+                WEANewAlertIntent newConfigurationIntent = new WEANewAlertIntent("Received new Configuration !!", json);
                 Log.d("WEA", "Broadcast intent: About to broadcast new Alert");
                 getApplicationContext().sendBroadcast(newConfigurationIntent);
             }

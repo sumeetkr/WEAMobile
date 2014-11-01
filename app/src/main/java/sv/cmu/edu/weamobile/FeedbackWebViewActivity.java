@@ -1,6 +1,7 @@
 package sv.cmu.edu.weamobile;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -49,6 +50,12 @@ public class FeedbackWebViewActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
     }
 
     private class MyBrowser extends WebViewClient {

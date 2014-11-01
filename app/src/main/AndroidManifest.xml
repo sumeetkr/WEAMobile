@@ -97,7 +97,12 @@
         </activity>
         <activity
             android:name="sv.cmu.edu.weamobile.FeedbackWebViewActivity"
-            android:label="@string/title_activity_feedback_web_view" >
+            android:label="@string/title_activity_feedback_web_view"
+            android:launchMode="singleTop"
+            android:parentActivityName="sv.cmu.edu.weamobile.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="sv.cmu.edu.weamobile.MainActivity" />
         </activity>
 
         <meta-data
