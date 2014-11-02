@@ -25,6 +25,7 @@ public class AppConfigurationFactory {
             WEAHttpClient.sendHeartbeat(location.getJson(), context, Constants.URL_TO_GET_CONFIGURATION + WEAUtil.getIMSI(context));
         }
 
+        tracker.stopUsingGPS();
         //fetch application configuration from server
 
     }

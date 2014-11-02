@@ -1,5 +1,10 @@
 package sv.cmu.edu.weamobile.Utility;//30.57,-90.86 30.65,-90.75 30.65,-90.57 30.39,-90.6 30.39,-90.9 30.57,-90.86
 
+import android.location.Location;
+
+import java.util.Arrays;
+import java.util.List;
+
 import sv.cmu.edu.weamobile.Data.GeoLocation;
 
 public class WEAPointInPoly {
@@ -49,4 +54,39 @@ public class WEAPointInPoly {
         return WEAPointInPoly.pointInPoly(polygon.length, lats, longs, Double.parseDouble(location.getLat()), Double.parseDouble(location.getLng()));
     }
 
+    public static double []  calculatePolyCenter(GeoLocation [] polygon) {
+        double [] polyCenter= null;
+        try{
+            polyCenter = getCentroid(Arrays.asList(polygon));
+        }
+        catch(Exception ex){
+            Logger.log(ex.getMessage());
+        }
+
+        return polyCenter;
+    }
+
+    public static double getDistance(GeoLocation [] polygon, Location location){
+        double distance= AlertHelper.getDistanceFromCentroid(
+                location,
+                calculatePolyCenter(polygon)
+        );
+
+        return distance;
+    }
+
+    private static double[] getCentroid(List<GeoLocation> points) {
+        double[] centroid = { 0.0, 0.0 };
+
+        for (int i = 0; i < points.size(); i++) {
+            centroid[0] += points.get(i).getLatitude();
+            centroid[1] += points.get(i).getLongitude();
+        }
+
+        int totalPoints = points.size();
+        centroid[0] = centroid[0] / totalPoints;
+        centroid[1] = centroid[1] / totalPoints;
+
+        return centroid;
+    }
 }

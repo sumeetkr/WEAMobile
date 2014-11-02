@@ -24,8 +24,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolygonOptions;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 
 import sv.cmu.edu.weamobile.Data.Alert;
@@ -34,6 +32,7 @@ import sv.cmu.edu.weamobile.Data.GeoLocation;
 import sv.cmu.edu.weamobile.Utility.AlertHelper;
 import sv.cmu.edu.weamobile.Utility.GPSTracker;
 import sv.cmu.edu.weamobile.Utility.Logger;
+import sv.cmu.edu.weamobile.Utility.WEAPointInPoly;
 
 
 /**
@@ -53,7 +52,6 @@ public class AlertDetailFragment extends Fragment {
     private boolean isDialog = false;
     private Vibrator vibrator;
     private TextToSpeech tts;
-    private double [] polyCenter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -83,9 +81,7 @@ public class AlertDetailFragment extends Fragment {
                 }
                 alert = selectedAlert;
 
-
                 updateMyLocation();
-                calculatePolyCenter();
                 setUpMapIfNeeded();
 
             }
@@ -93,10 +89,15 @@ public class AlertDetailFragment extends Fragment {
 
         if (alert != null) {
             Logger.log("Item is there"+ alert.getText());
-            ((TextView) rootView.findViewById(R.id.alertText)).setText(AlertHelper.getTextWithStyle(alert.getAlertType() + " : " + alert.toString(), 30));
+            ((TextView) rootView.findViewById(R.id.alertText)).setText(AlertHelper.getTextWithStyle(
+                    alert.getAlertType() +
+                    " : " + alert.toString(), 30));
+
             localTime = alert.getScheduledForString();
             String textToShow = getTextToShow();
-            ((TextView) rootView.findViewById(R.id.txtLabel)).setText(AlertHelper.getTextWithStyle("Scheduled For: " + localTime + "\n" + textToShow, 25));
+            ((TextView) rootView.findViewById(R.id.txtLabel)).setText(
+                    AlertHelper.getTextWithStyle("Scheduled For: " + localTime + "\n" + textToShow,
+                            25));
         }else{
             Logger.log("Item is null");
         }
@@ -117,9 +118,8 @@ public class AlertDetailFragment extends Fragment {
         }
     }
     private String getTextToShow() {
-
-        String distance = String.valueOf(AlertHelper.getDistanceFromCentroid(myLocation, polyCenter)).substring(0,3);
-        return "You are at a distance " + distance + " miles";
+        double distance = WEAPointInPoly.getDistance(alert.getPolygon(), myLocation);
+        return "You are at a distance " + String.valueOf(distance).substring(0,3) + " miles";
     }
 
     private void updateMyLocation() {
@@ -129,6 +129,7 @@ public class AlertDetailFragment extends Fragment {
         }
 
         if(myLocation != null) Logger.log("my location: " + myLocation.toString());
+        tracker.stopUsingGPS();
     }
 
     @Override
@@ -228,41 +229,19 @@ public class AlertDetailFragment extends Fragment {
 
 
             mMap.addPolygon(polyOptions);
-            setCenter(polyCenter[0],polyCenter[1]);
+            setCenter();
         }
     }
 
-    private void calculatePolyCenter() {
-        try{
-            polyCenter = getCentroid(Arrays.asList(alert.getPolygon()));
-        }
-        catch(Exception ex){
-            Logger.log(ex.getMessage());
-        }
-    }
+    private void setCenter(){
+        double [] location = WEAPointInPoly.calculatePolyCenter(alert.getPolygon());
 
-    private void setCenter(double lat, double lng){
         CameraUpdate center=
-                CameraUpdateFactory.newLatLng(new LatLng(lat,lng));
+                CameraUpdateFactory.newLatLng(new LatLng(location[0],location[1]));
         CameraUpdate zoom=CameraUpdateFactory.zoomTo(17);
 
         mMap.moveCamera(center);
         mMap.animateCamera(zoom);
-    }
-
-    private static double[] getCentroid(List<GeoLocation> points) {
-        double[] centroid = { 0.0, 0.0 };
-
-        for (int i = 0; i < points.size(); i++) {
-            centroid[0] += points.get(i).getLatitude();
-            centroid[1] += points.get(i).getLongitude();
-        }
-
-        int totalPoints = points.size();
-        centroid[0] = centroid[0] / totalPoints;
-        centroid[1] = centroid[1] / totalPoints;
-
-        return centroid;
     }
 
     protected class TTSListener implements TextToSpeech.OnInitListener {

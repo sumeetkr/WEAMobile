@@ -170,24 +170,28 @@ public class MainActivity extends FragmentActivity
 
         @Override
         public void onReceive(final Context context, final Intent intent) {
-            final String message = intent.getStringExtra("MESSAGE");
-            String json = intent.getStringExtra(WEANewAlertIntent.CONFIG_JSON);
-            configuration = AppConfiguration.fromJson(json);
-            listFragment.updateList(configuration.getAlerts());
+            try{
+                final String message = intent.getStringExtra("MESSAGE");
+                String json = intent.getStringExtra(WEANewAlertIntent.CONFIG_JSON);
+                configuration = AppConfiguration.fromJson(json);
+                if(listFragment != null) listFragment.updateList(configuration.getAlerts());
 
-            // Post the UI updating code to our Handler
-            if(handler!= null){
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        updateStatus();
-                        Log.d("WEA", "Got new alert broadcast " );
-                        if(message!=null && !message.isEmpty()){
-                            Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+                // Post the UI updating code to our Handler
+                if(handler!= null){
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateStatus();
+                            Log.d("WEA", "Got new alert broadcast " );
+                            if(message!=null && !message.isEmpty()){
+                                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+                            }
                         }
-                    }
-                });
+                    });
 
+                }
+            }catch(Exception ex){
+                Logger.log(ex.getMessage());
             }
         }
     }

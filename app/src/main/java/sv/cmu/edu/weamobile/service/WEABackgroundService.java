@@ -12,16 +12,12 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import sv.cmu.edu.weamobile.AlertDetailActivity;
-import sv.cmu.edu.weamobile.AlertDetailFragment;
 import sv.cmu.edu.weamobile.Data.Alert;
 import sv.cmu.edu.weamobile.Data.AppConfiguration;
-import sv.cmu.edu.weamobile.Data.GeoLocation;
+import sv.cmu.edu.weamobile.Utility.AlertHelper;
 import sv.cmu.edu.weamobile.Utility.AppConfigurationFactory;
 import sv.cmu.edu.weamobile.Utility.Constants;
-import sv.cmu.edu.weamobile.Utility.GPSTracker;
 import sv.cmu.edu.weamobile.Utility.Logger;
-import sv.cmu.edu.weamobile.Utility.WEAPointInPoly;
 import sv.cmu.edu.weamobile.Utility.WEAUtil;
 
 public class WEABackgroundService extends Service {
@@ -67,7 +63,7 @@ public class WEABackgroundService extends Service {
                 fetchConfiguration();
             }else if(SHOW_ALERT.equals(action)){
                 int alertId= intent.getIntExtra(("alertId"),-1);
-                alertUsers(alertId);
+                AlertHelper.showAlertIfInTarget(getApplicationContext(), alertId);
             }
         }
         AlarmBroadcastReceiver.completeWakefulIntent(intent);
@@ -85,51 +81,6 @@ public class WEABackgroundService extends Service {
 
         AppConfigurationFactory.getConfigurationAsync(getApplicationContext());
 
-    }
-
-    private void alertUsers(int alertid){
-        showAlertIfInTarget(alertid);
-    }
-
-    private void broadcastNewAlert(Alert alert, AppConfiguration configuration){
-        showAlert(alert, configuration);
-    }
-
-    private void showAlert(Alert alert, AppConfiguration configuration) {
-        Logger.log("Its the alert time");
-        int alertFilter = alert.getOptions();
-        Intent dialogIntent;
-        dialogIntent = new Intent(getBaseContext(), AlertDetailActivity.class);
-// ToDo need to enable later
-//        if(alertFilter == 1){
-//            dialogIntent = new Intent(getBaseContext(), AlertDetailActivity.class);
-//            Logger.log("Showing alert with map");
-//        }else
-//        {
-//            dialogIntent = new Intent(getBaseContext(), PlainAlertDialogActivity.class);
-//            Logger.log("Showing alert without map");
-//            dialogIntent.putExtra("Message", alert.getText());
-//        }
-
-        //to be used when feedback button is clicked
-        AppConfigurationFactory.setStringProperty(
-                    getApplicationContext(),
-                    "feedback_url",
-                    Constants.FEEDBACK_URL_ROOT + alert.getId()+
-                     "/" +WEAUtil.getIMSI(getApplicationContext()));
-
-        dialogIntent.putExtra("item_id", String.valueOf(alert.getId()));
-        dialogIntent.putExtra("isDialog", true);
-        dialogIntent.putExtra(AlertDetailFragment.ALERTS_JSON, configuration.getJson());
-        dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        getApplication().startActivity(dialogIntent);
-    }
-
-    private void broadcastOutOfTargetAlert(){
-
-        WEANewAlertIntent newConfigurationIntent = new WEANewAlertIntent("New Alert, but out of target", "");
-        Log.d("WEA", "Broadcast intent: About to broadcast new Alert");
-        getApplicationContext().sendBroadcast(newConfigurationIntent);
     }
 
     private void setupAlarmToShowAlertAtRightTime(AppConfiguration configuration){
@@ -171,41 +122,6 @@ public class WEABackgroundService extends Service {
         return relevantAlert;
     }
 
-    private void showAlertIfInTarget(int alertId) {
-        Logger.log("Show alert if in target for ", String.valueOf(alertId));
-        String json = AppConfigurationFactory.getStringProperty(getApplicationContext(), "message");
-        AppConfiguration configuration = AppConfiguration.fromJson(json);
-        Alert [] alerts = configuration.getAlerts();
-
-        for(Alert alert: alerts){
-            if(alert.getId() == alertId){
-                GPSTracker tracker = new GPSTracker(this.getApplicationContext());
-                if(tracker.canGetLocation()){
-                    GeoLocation location = tracker.getGPSGeoLocation();
-                    if(location == null || WEAPointInPoly.isInPolygon(location, alert.getPolygon())){
-                        Logger.log("Present in polygon or location not known");
-                        broadcastNewAlert(alert, configuration);
-                    }else{
-                        broadcastOutOfTargetAlert();
-                        String message ="But you are not inside the polygon.";
-                        Logger.log(message);
-                        Toast.makeText(getApplicationContext(),
-                                "Alert Time!!: " + message, Toast.LENGTH_SHORT).show();
-                    }
-
-                    tracker.stopUsingGPS();
-                }else{
-                    Logger.log("Location not known");
-                    String message ="Location not know, Geo-filtering failed.";
-                    Logger.log(message);
-                    Toast.makeText(getApplicationContext(),
-                            "Alert Time!!: " + message, Toast.LENGTH_SHORT).show();
-                    broadcastNewAlert(alert, configuration);
-                }
-            }
-        }
-    }
-
     private class NewConfigurationReceiver extends BroadcastReceiver {
         private final Handler handler;
 
@@ -215,10 +131,8 @@ public class WEABackgroundService extends Service {
 
         @Override
         public void onReceive(final Context context, Intent intent) {
-            // Extract data included in the Intent
             Logger.log("NewConfigurationReceiver");
             String json = intent.getStringExtra("message");
-//            Logger.log(json);
 
             if(json.isEmpty()){
                 Logger.log("Received empty json");
