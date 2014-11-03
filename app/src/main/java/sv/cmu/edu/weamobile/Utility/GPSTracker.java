@@ -42,7 +42,7 @@ public class GPSTracker extends Service implements LocationListener {
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 0; // 10 meters
 
     // The minimum time between updates in milliseconds
-    private static final long MIN_TIME_BW_UPDATES = 1000 * 1; // 10 sec
+    private static final long MIN_TIME_BW_UPDATES = 1000 * 2; // 10 sec
 
     // Declaring a Location Manager
     protected LocationManager locationManager;
@@ -68,17 +68,17 @@ public class GPSTracker extends Service implements LocationListener {
             this.canGetLocation = true;
         }
 
-        updateLocation();
+//        ReceiveBothNetworkAndGPSLocationUpdates();
     }
 
-    private Location updateLocation() {
+    private Location ReceiveBothNetworkAndGPSLocationUpdates() {
         try {
             if (isNetworkEnabled) {
-                location = getNetworkLocation();
+                location = getNetworkLocationUpdates();
             }
             // If GPS enabled, get latitude/longitude using GPS Services
-            if (location == null && isGPSEnabled) {
-                location = getGPSLocation();
+            if (isGPSEnabled) {
+                location = getGPSLocationUpdates();
             }
         }
         catch (Exception e) {
@@ -89,7 +89,7 @@ public class GPSTracker extends Service implements LocationListener {
         return location;
     }
 
-    public Location getGPSLocation() {
+    private Location getGPSLocationUpdates() {
         Location loc = null;
         if(isGPSEnabled)
         {
@@ -105,13 +105,11 @@ public class GPSTracker extends Service implements LocationListener {
                     location = loc;
                 }
             }
-
-            stopUsingGPS();
         }
         return loc;
     }
 
-    public Location getNetworkLocation() {
+    private Location getNetworkLocationUpdates() {
         Location loc = null;
         if(isNetworkEnabled){
             locationManager.requestLocationUpdates(
@@ -149,27 +147,36 @@ public class GPSTracker extends Service implements LocationListener {
         return this.canGetLocation;
     }
 
+
     public GeoLocation getNetworkGeoLocation(){
-        updateLocation();
-        GeoLocation loc;
-        if(location != null){
-            loc = new GeoLocation(Double.toString(location.getLatitude()),Double.toString(location.getLongitude()));
-        }else{
-            loc = getGPSGeoLocation();
+        location = getNetworkLocationUpdates();
+        if(location == null){
+            location = getGPSLocationUpdates();
         }
+
+        GeoLocation loc = new GeoLocation(Double.toString(location.getLatitude()),Double.toString(location.getLongitude()));
+        stopUsingGPS();
         return loc;
     }
 
-    public GeoLocation getGPSGeoLocation(){
-        location = getGPSLocation();
-        GeoLocation loc = null;
+    public Location getNetworkLocation(){
+        location = getNetworkLocationUpdates();
         if(location == null){
-            updateLocation();
-        }
-        if(location != null){
-            loc = new GeoLocation(Double.toString(location.getLatitude()),Double.toString(location.getLongitude()));
+            location = getGPSLocationUpdates();
         }
 
+        stopUsingGPS();
+        return location;
+    }
+
+    private GeoLocation getGPSGeoLocation(){
+        location = getGPSLocationUpdates();
+        if(location == null){
+            location = getNetworkLocationUpdates();
+        }
+
+        GeoLocation loc = new GeoLocation(Double.toString(location.getLatitude()),Double.toString(location.getLongitude()));
+        stopUsingGPS();
         return loc;
     }
 
@@ -177,6 +184,7 @@ public class GPSTracker extends Service implements LocationListener {
     public void onLocationChanged(Location location) {
         Logger.log(location.toString());
         this.countOfUpdates  = this.countOfUpdates +1;
+        Logger.log("Received another GPS location update");
 
         if(isBetterLocation(location, this.location)){
             this.location = location;
@@ -295,6 +303,8 @@ public class GPSTracker extends Service implements LocationListener {
         this.alert = alert;
         this.configuration = configuration;
         countOfUpdates = 0;
+
+        ReceiveBothNetworkAndGPSLocationUpdates();
 
     }
 }

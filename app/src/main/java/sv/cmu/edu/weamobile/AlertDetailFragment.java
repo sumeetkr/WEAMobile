@@ -129,7 +129,6 @@ public class AlertDetailFragment extends Fragment {
         }
 
         if(myLocation != null) Logger.log("my location: " + myLocation.toString());
-        tracker.stopUsingGPS();
     }
 
     @Override

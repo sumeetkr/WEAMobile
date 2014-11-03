@@ -92,6 +92,7 @@ public class AlertHelper {
             if(alert.getId() == alertId){
                 GPSTracker tracker = new GPSTracker(context);
                 if(tracker.canGetLocation()){
+                    Logger.log("The phone can get location, will check if in target");
                     tracker.keepLookingForPresenceInPolygonAndShowAlertIfNecessary(context, alert, configuration);
                 }else{
                     Logger.log("Location not known");
