@@ -10,4 +10,5 @@ public class Constants {
 //    public static final String FEEDBACK_URL_ROOT = "http://code.sumeetkumar.in/user_study/WEA/feedback_form.html";
     public static final String FEEDBACK_URL_ROOT = "http://cmu-wea.herokuapp.com/feedback/"; //alertid/phoneid
     public static final int TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES = 5;
+    public static final String SMS_CODE_FOR_WEA_MESSAGES = "myPAWS1";
 }

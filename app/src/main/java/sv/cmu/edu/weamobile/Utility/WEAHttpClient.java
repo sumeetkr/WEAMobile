@@ -14,6 +14,8 @@ import org.apache.http.Header;
 import org.apache.http.entity.StringEntity;
 import org.json.JSONObject;
 
+import sv.cmu.edu.weamobile.Data.GeoLocation;
+
 /**
  * Created by sumeet on 9/24/14.
  */
@@ -141,5 +143,25 @@ public class WEAHttpClient {
         });
 
         return  response;
+    }
+
+    public static void getConfigurationAsync(Context context){
+
+        GPSTracker tracker = new GPSTracker(context);
+        GeoLocation location ;
+        if(tracker.canGetLocation()){
+            location = tracker.getNetworkGeoLocation();
+            Logger.log("Sending lat " + location.getLatitude());
+            Logger.log("Sending lng " + location.getLongitude());
+            sendHeartbeat(location.getJson(), context, Constants.URL_TO_GET_CONFIGURATION + WEAUtil.getIMSI(context));
+        }else{
+            location = new GeoLocation("0.00", "0.00");
+            Logger.log("Cannot get location for heartbeat");
+            sendHeartbeat(location.getJson(), context, Constants.URL_TO_GET_CONFIGURATION + WEAUtil.getIMSI(context));
+        }
+
+        tracker.stopUsingGPS();
+        //fetch application configuration from server
+
     }
 }

@@ -4,31 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import sv.cmu.edu.weamobile.Data.GeoLocation;
-
 /**
  * Created by sumeet on 10/7/14.
  */
 public class AppConfigurationFactory {
-    public static void getConfigurationAsync(Context context){
-
-        GPSTracker tracker = new GPSTracker(context);
-        GeoLocation location ;
-        if(tracker.canGetLocation()){
-            location = tracker.getNetworkGeoLocation();
-            Logger.log("Sending lat " + location.getLatitude());
-            Logger.log("Sending lng " + location.getLongitude());
-            WEAHttpClient.sendHeartbeat(location.getJson(), context, Constants.URL_TO_GET_CONFIGURATION + WEAUtil.getIMSI(context));
-        }else{
-            location = new GeoLocation("0.00", "0.00");
-            Logger.log("Cannot get location for heartbeat");
-            WEAHttpClient.sendHeartbeat(location.getJson(), context, Constants.URL_TO_GET_CONFIGURATION + WEAUtil.getIMSI(context));
-        }
-
-        tracker.stopUsingGPS();
-        //fetch application configuration from server
-
-    }
 
     public static String getStringProperty(Context context, String key) {
         SharedPreferences sharedPreferences = context.getSharedPreferences("preferences", Activity.MODE_PRIVATE);

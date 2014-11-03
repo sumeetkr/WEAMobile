@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.telephony.SmsMessage;
 import android.util.Log;
 
+import sv.cmu.edu.weamobile.Utility.Constants;
+import sv.cmu.edu.weamobile.Utility.WEAHttpClient;
+
 public class SMSBroadcastReceiver extends BroadcastReceiver {
     public SMSBroadcastReceiver() {
     }
@@ -37,7 +40,11 @@ public class SMSBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent)
     {
-        Log.w("smsreceiver", "Received an intent, action: " + intent.getAction() + "; type: " + intent.getType() + "; categories: " + intent.getCategories());
+        Log.w("smsreceiver", "Received an intent, action: " +
+                intent.getAction() + "; type: " +
+                intent.getType() + "; categories: " +
+                intent.getCategories());
+
         String action = intent.getAction();
         if(action != null && action.equals("android.provider.Telephony.SMS_RECEIVED")) {
             Bundle bundle = intent.getExtras();
@@ -56,11 +63,12 @@ public class SMSBroadcastReceiver extends BroadcastReceiver {
                     //messageReceived += "\n";
                 }
 
-                Integer start_index = messageReceived.indexOf("myPAWS1");
+                Integer start_index = messageReceived.indexOf(Constants.SMS_CODE_FOR_WEA_MESSAGES);
                 Log.w("smsreceiver", "Raw message: " + messageReceived.replace("\n", "").replace("  ", ""));
                 if (start_index != -1) {
-                    String meaningful_part = messageReceived.substring(start_index);
-                    process_meaningful_part(context, meaningful_part);
+                    WEAHttpClient.getConfigurationAsync(context);
+//                    String meaningful_part = messageReceived.substring(start_index);
+//                    process_meaningful_part(context, meaningful_part);
                 }
             }
         } else {

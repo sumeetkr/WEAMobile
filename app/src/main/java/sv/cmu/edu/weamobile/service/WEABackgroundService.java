@@ -18,6 +18,7 @@ import sv.cmu.edu.weamobile.Utility.AlertHelper;
 import sv.cmu.edu.weamobile.Utility.AppConfigurationFactory;
 import sv.cmu.edu.weamobile.Utility.Constants;
 import sv.cmu.edu.weamobile.Utility.Logger;
+import sv.cmu.edu.weamobile.Utility.WEAHttpClient;
 import sv.cmu.edu.weamobile.Utility.WEAUtil;
 
 public class WEABackgroundService extends Service {
@@ -79,7 +80,7 @@ public class WEABackgroundService extends Service {
         //read configuration and setup up new alarm
         //if problem in getting/receiving configuration, set default alarm
 
-        AppConfigurationFactory.getConfigurationAsync(getApplicationContext());
+        WEAHttpClient.getConfigurationAsync(getApplicationContext());
 
     }
 

@@ -40,13 +40,8 @@
             android:name="sv.cmu.edu.weamobile.service.SMSBroadcastReceiver"
             android:enabled="true"
             android:exported="true" >
-            <intent-filter android:priority="999" >
-                <action android:name="crossmobile_wea" />
-                <action android:name="sv.cmu.edu.weamobile.service.NOTIFICATION_RECEIVER" />
-            </intent-filter>
-            <intent-filter>
+            <intent-filter android:priority="999">
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
-                <action android:name="sv.cmu.edu.weamobile.service.NOTIFICATION_RECEIVER" />
             </intent-filter>
         </receiver>
 
@@ -78,11 +73,6 @@
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
-        </receiver>
-        <receiver
-            android:name="sv.cmu.edu.weamobile.NewAlertBroadcastReceiver"
-            android:enabled="true"
-            android:exported="true" >
         </receiver>
 
         <activity

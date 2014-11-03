@@ -108,6 +108,7 @@ public class AlertDetailFragment extends Fragment {
                 LinearLayout buttonLayout = (LinearLayout) rootView.findViewById(R.id.alertDialogButtons);
                 buttonLayout.setVisibility(View.VISIBLE);
 
+
                 addEventListenersToButtons();
                 alertUserWithVibrationAndSpeech();
             }else{
