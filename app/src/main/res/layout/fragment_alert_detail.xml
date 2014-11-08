@@ -3,7 +3,7 @@
     android:id="@+id/alert_detail"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="sv.cmu.edu.weamobile.AlertDetailActivity"
+    tools:context="sv.cmu.edu.weamobile.Activities.AlertDetailActivity"
     tools:ignore="MergeRootFrame">
     <LinearLayout
         android:orientation="vertical"
@@ -35,7 +35,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="5dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginBottom="4dp"
                 android:text="Label:"
@@ -61,27 +61,28 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="fill_parent"
-        android:layout_height="40dp"
+        android:layout_height="60dp"
         android:layout_centerHorizontal="true"
         android:id="@+id/alertDialogButtons"
-        android:layout_alignParentBottom="true"
         android:weightSum="1"
-        android:gravity="center_horizontal">
+        android:gravity="center_horizontal"
+        android:layout_alignParentBottom="true">
+
+        <!--<Button-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:text="OK"-->
+            <!--android:id="@+id/buttonOk"-->
+            <!--android:layout_alignParentLeft="true"-->
+            <!--android:layout_weight="0.20" />-->
 
         <Button
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="OK"
-            android:id="@+id/buttonOk"
-            android:layout_alignParentLeft="true"
-            android:layout_weight="0.20" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:text="Feedback"
             android:id="@+id/buttonFeedback"
             android:layout_alignParentRight="true"
-            android:layout_weight="0.20" />
+            android:layout_weight="0.20"
+            android:background="#ffff120d" />
     </LinearLayout>
 </RelativeLayout>

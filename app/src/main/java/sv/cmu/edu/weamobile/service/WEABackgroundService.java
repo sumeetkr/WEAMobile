@@ -15,10 +15,10 @@ import android.widget.Toast;
 import sv.cmu.edu.weamobile.Data.Alert;
 import sv.cmu.edu.weamobile.Data.AppConfiguration;
 import sv.cmu.edu.weamobile.Utility.AlertHelper;
-import sv.cmu.edu.weamobile.Utility.AppConfigurationFactory;
 import sv.cmu.edu.weamobile.Utility.Constants;
 import sv.cmu.edu.weamobile.Utility.Logger;
 import sv.cmu.edu.weamobile.Utility.WEAHttpClient;
+import sv.cmu.edu.weamobile.Utility.WEASharedPreferences;
 import sv.cmu.edu.weamobile.Utility.WEAUtil;
 
 public class WEABackgroundService extends Service {
@@ -84,10 +84,19 @@ public class WEABackgroundService extends Service {
 
     }
 
+    private void addOrUpdatedAlertsStateToSharedPreferences(AppConfiguration configuration) {
+        Alert [] alerts = configuration.getAlertsFromJSON();
+        if(alerts.length >0){
+            for(Alert alert: alerts) {
+                WEASharedPreferences.addAlertStateToPreferences(getApplicationContext(), alert);
+            }
+        }
+    }
+
     private void setupAlarmToShowAlertAtRightTime(AppConfiguration configuration){
 
         //two things to be done, shown now or schedule for later if in half an hour
-        Alert alert = getAlertRelevantForNow(configuration);
+        Alert alert = getAlertRelevantBetweenNowAndNextScheduledCheck(configuration);
         if(alert != null){
             long currentTime = System.currentTimeMillis()/1000;
             String message = "Alarm expected after: "+ (alert.getScheduledEpochInSeconds() - currentTime) + " secs";
@@ -99,17 +108,17 @@ public class WEABackgroundService extends Service {
         }
     }
 
-    private Alert getAlertRelevantForNow(AppConfiguration config){
+    private Alert getAlertRelevantBetweenNowAndNextScheduledCheck(AppConfiguration config){
         Alert relevantAlert= null;
 
-        Alert [] alerts = config.getAlerts();
+        Alert [] alerts = config.getAlertsFromJSON();
         if(alerts.length >0){
             for(Alert alert: alerts){
                 try{
                     long currentTime = System.currentTimeMillis()/1000;
                     //only show if not shown before in +60 -1 seconds
                     if((alert.getScheduledEpochInSeconds()- currentTime) < Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES*60
-                            && (alert.getScheduledEpochInSeconds() - currentTime) > -5){ //just 2 seconds
+                            && (alert.getScheduledEpochInSeconds() - currentTime) > -1* Constants.TIME_THRESHOLD_TO_SHOW_ALERT_IN_SECONDS){ //just 2 seconds
                         relevantAlert = alert;
                     }
 
@@ -137,23 +146,21 @@ public class WEABackgroundService extends Service {
 
             if(json.isEmpty()){
                 Logger.log("Received empty json");
-                json = AppConfigurationFactory.getStringProperty(context, "message");
+                json = WEASharedPreferences.readApplicationConfiguration(context);
 
             }else{
-                AppConfigurationFactory.clearSavedConfiguration(context);
-                AppConfigurationFactory.setStringProperty(context, "message", json);
-                AppConfigurationFactory.setStringProperty(context,
-                        "lastTimeChecked",
-                        String.valueOf(System.currentTimeMillis()));
+                WEASharedPreferences.saveApplicationConfiguration(context, json);
 
+                //update if new alerts
                 WEANewAlertIntent newConfigurationIntent = new WEANewAlertIntent("Received new Configuration !!", json);
-                Log.d("WEA", "Broadcast intent: About to broadcast new Alert");
+                Log.d("WEA", "Broadcast intent: About to broadcast new configuration");
                 getApplicationContext().sendBroadcast(newConfigurationIntent);
             }
 
             AppConfiguration configuration = AppConfiguration.fromJson(json);
+            addOrUpdatedAlertsStateToSharedPreferences(configuration);
             setupAlarmToShowAlertAtRightTime(configuration);
         }
 
-    };
+    }
 }

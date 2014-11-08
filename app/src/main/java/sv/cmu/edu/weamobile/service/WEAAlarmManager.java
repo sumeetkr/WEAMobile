@@ -4,7 +4,6 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.os.SystemClock;
 import android.util.Log;
 
 /**
@@ -65,7 +64,6 @@ public class WEAAlarmManager {
         Intent intent = new Intent(context, WEABackgroundService.class);
         intent.setAction(WEABackgroundService.FETCH_CONFIGURATION);
 
-        long firstTime = SystemClock.elapsedRealtime();
 
         PendingIntent alarmIntent = PendingIntent.getService(
                 context,
@@ -74,7 +72,7 @@ public class WEAAlarmManager {
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                0,
+                timeBetweenRepeatsInMilliSeconds,
                 timeBetweenRepeatsInMilliSeconds,
                 alarmIntent);
     }

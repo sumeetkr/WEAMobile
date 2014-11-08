@@ -1,5 +1,7 @@
 package sv.cmu.edu.weamobile.Data;
 
+import android.location.Location;
+
 import com.google.gson.Gson;
 
 /**
@@ -51,5 +53,9 @@ public class GeoLocation {
 
     public static GeoLocation fromJson(String s) {
         return new Gson().fromJson(s, GeoLocation.class);
+    }
+
+    public static GeoLocation getGeoLocationFromAndroidLocation(Location location){
+        return new GeoLocation(String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
     }
 }

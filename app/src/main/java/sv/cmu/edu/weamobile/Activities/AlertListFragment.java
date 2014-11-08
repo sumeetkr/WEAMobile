@@ -1,4 +1,4 @@
-package sv.cmu.edu.weamobile;
+package sv.cmu.edu.weamobile.Activities;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -13,8 +13,11 @@ import java.util.List;
 import java.util.Map;
 
 import sv.cmu.edu.weamobile.Data.Alert;
+import sv.cmu.edu.weamobile.Data.AlertState;
 import sv.cmu.edu.weamobile.Data.AppConfiguration;
+import sv.cmu.edu.weamobile.R;
 import sv.cmu.edu.weamobile.Utility.AlertListAdapter;
+import sv.cmu.edu.weamobile.Utility.Constants;
 import sv.cmu.edu.weamobile.Utility.Logger;
 
 public class AlertListFragment extends ListFragment {
@@ -24,6 +27,9 @@ public class AlertListFragment extends ListFragment {
     private int mActivatedPosition = ListView.INVALID_POSITION;
     private List<Alert> alertItems;
     private Map<Integer, Alert> alertsMap;
+    private List<AlertState> alertStates;
+    private Map<Integer, AlertState> alertStateMap;
+
 
     public interface Callbacks {
         public void onItemSelected(String id);
@@ -35,7 +41,17 @@ public class AlertListFragment extends ListFragment {
         }
     };
 
-    public void updateList(Alert[] alerts) {
+    public Alert updateListAndReturnAnyActiveAlertNotShown(Alert[] alerts, AlertState [] alertsStates) {
+
+        Alert activeButNotShown = null;
+
+        if(this.alertStates == null){
+            this.alertStates = new ArrayList<AlertState>();
+            alertStateMap = new HashMap<Integer, AlertState>();
+        }
+        this.alertStates.clear();
+        alertStateMap.clear();
+
         if(alertItems == null)
         {
             alertItems = new ArrayList<Alert>();
@@ -43,11 +59,26 @@ public class AlertListFragment extends ListFragment {
         }
         alertItems.clear();
         alertsMap.clear();
+
+        for(AlertState state : alertsStates){
+            alertStates.add(state);
+            alertStateMap.put(state.getId(), state);
+        }
+
         for(Alert alert:alerts){
-            addItem(alert);
+            if(alert.getScheduledEpochInSeconds() <= System.currentTimeMillis()/1000){
+                addItem(alert);
+            }
+
+            if(alert.getScheduledEpochInSeconds()<System.currentTimeMillis()/1000 && alert.getEndingAtEpochInSeconds()>System.currentTimeMillis()/1000){
+                AlertState state = alertStateMap.get(alert.getId());
+                if(state!=null && !state.isAlreadyShown()) activeButNotShown = alert;
+            }
         }
 
         if(getListAdapter()!= null) ((ArrayAdapter)getListAdapter()).notifyDataSetChanged();
+
+        return  activeButNotShown;
 
     }
 
@@ -64,10 +95,10 @@ public class AlertListFragment extends ListFragment {
                 (ArrayList<Alert>) alertItems));
 
 
-        if(getArguments() != null && getArguments().containsKey(AlertDetailFragment.ALERTS_JSON)) {
-            AppConfiguration configuration = AppConfiguration.fromJson(getArguments().getString(AlertDetailFragment.ALERTS_JSON));
+        if(getArguments() != null && getArguments().containsKey(Constants.CONFIG_JSON)) {
+            AppConfiguration configuration = AppConfiguration.fromJson(getArguments().getString(Constants.CONFIG_JSON));
 
-            for(Alert alert:configuration.getAlerts()){
+            for(Alert alert:configuration.getAlerts(getActivity().getApplicationContext())){
                 addItem(alert);
             }
 

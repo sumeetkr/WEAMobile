@@ -45,13 +45,19 @@ public class AlertListAdapter extends ArrayAdapter<Alert> {
                 email.setText(alert.getAlertType()  + " Alert " + alert.getScheduledForString());
             }
 
-            ImageView imView = (ImageView)v.findViewById(R.id.avatar);
-            if(alert.getScheduledEpochInSeconds() > System.currentTimeMillis()/1000){
-                imView.setImageResource(R.drawable.alert_green);
-            }else{
-                imView.setImageResource(R.drawable.alert_red);
+            if(alert.getScheduledEpochInSeconds() < System.currentTimeMillis()/1000){
+
+                ImageView imView = (ImageView)v.findViewById(R.id.avatar);
+                //if recent show in green
+                if(System.currentTimeMillis()/1000 <  alert.getEndingAtEpochInSeconds() ){
+                    imView.setImageResource(R.drawable.alert_green);
+                }else{
+                    imView.setImageResource(R.drawable.alert_red);
+                }
+                v.setVisibility(View.VISIBLE);
             }
         }
+
         return v;
     }
 }

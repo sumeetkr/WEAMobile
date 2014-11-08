@@ -192,9 +192,9 @@ public class GPSTracker extends Service implements LocationListener {
             if(alert != null && configuration != null){
                 if(geoLocation == null || WEAPointInPoly.isInPolygon(geoLocation, alert.getPolygon())){
                     Logger.log("Present in polygon or location not known");
-                    AlertHelper.broadcastNewAlert(mContext, alert, configuration);
+                    AlertHelper.showAlert(mContext, alert, geoLocation, configuration);
                     stopUsingGPS();
-                }else if(WEAPointInPoly.getDistance(alert.getPolygon(), location) < 0.1){
+                }else if(WEAPointInPoly.getDistance(alert.getPolygon(), geoLocation) < 0.1){
                     noOfTimesToCheck = 60;
                     String message ="You are close, but not inside the polygon, remaining times to check "
                             + (noOfTimesToCheck -countOfUpdates);
@@ -202,7 +202,7 @@ public class GPSTracker extends Service implements LocationListener {
                     Toast.makeText(mContext,
                             "Alert Time!!: " + message, Toast.LENGTH_SHORT).show();
 
-                }else if(WEAPointInPoly.getDistance(alert.getPolygon(), location) < 0.2){
+                }else if(WEAPointInPoly.getDistance(alert.getPolygon(), geoLocation) < 0.2){
                     noOfTimesToCheck = 20;
                     String message ="You are close, but not inside the polygon, remaining times to check "
                             + (noOfTimesToCheck -countOfUpdates);
@@ -212,7 +212,8 @@ public class GPSTracker extends Service implements LocationListener {
 
                 }else{
 //                    AlertHelper.broadcastOutOfTargetAlert(mContext);
-                    String message ="But you are not inside the polygon.";
+                    String message ="But you are not inside the polygon, remaining times to check"
+                                                     + (noOfTimesToCheck - countOfUpdates);
                     Logger.log(message);
                     Toast.makeText(mContext,
                             "Alert Time!!: " + message, Toast.LENGTH_SHORT).show();

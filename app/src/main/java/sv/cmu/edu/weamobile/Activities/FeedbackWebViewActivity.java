@@ -1,4 +1,4 @@
-package sv.cmu.edu.weamobile;
+package sv.cmu.edu.weamobile.Activities;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -8,7 +8,9 @@ import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import sv.cmu.edu.weamobile.Utility.AppConfigurationFactory;
+import sv.cmu.edu.weamobile.Data.Alert;
+import sv.cmu.edu.weamobile.R;
+import sv.cmu.edu.weamobile.Utility.AlertHelper;
 import sv.cmu.edu.weamobile.Utility.Constants;
 import sv.cmu.edu.weamobile.Utility.Logger;
 
@@ -19,14 +21,19 @@ public class FeedbackWebViewActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feedback_web_view);
-        if (Constants.FEEDBACK_URL_ROOT != null) {
-            WebView wv = (WebView) this.findViewById(R.id.webView);
-            wv.getSettings().setJavaScriptEnabled(true);
-            wv.setWebViewClient(new MyBrowser());
 
-            String url = AppConfigurationFactory.getStringProperty(getApplicationContext(), "feedback_url");
-            Logger.log(url);
-            wv.loadUrl(url);
+        int alertId = getIntent().getIntExtra(Constants.ALERT_ID, -1);
+        if (alertId != -1 ) {
+            Alert alert = AlertHelper.getAlertFromId(getApplicationContext(), String.valueOf(alertId));
+            if(alert != null){
+                WebView wv = (WebView) this.findViewById(R.id.webView);
+                wv.getSettings().setJavaScriptEnabled(true);
+                wv.setWebViewClient(new MyBrowser());
+
+                String url = AlertHelper.getFedbackURL(getApplicationContext(),alert);
+                Logger.log(url);
+                wv.loadUrl(url);
+            }
         }
     }
 

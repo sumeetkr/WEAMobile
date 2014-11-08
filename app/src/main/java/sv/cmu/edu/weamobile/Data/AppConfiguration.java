@@ -1,6 +1,11 @@
 package sv.cmu.edu.weamobile.Data;
 
+import android.content.Context;
+
 import com.google.gson.Gson;
+
+import java.util.Arrays;
+import java.util.Comparator;
 
 import sv.cmu.edu.weamobile.Utility.Logger;
 
@@ -254,12 +259,18 @@ public class AppConfiguration {
         return System.currentTimeMillis();
     }
 
-    public Alert[] getAlerts() {
+    public Alert[] getAlertsFromJSON() {
         return alerts;
     }
 
-    public void setAlerts(Alert[] alerts) {
-        this.alerts = alerts;
+    public  Alert[] getAlerts(Context context) {
+        Arrays.sort(alerts, new Comparator<Alert>() {
+            public int compare(Alert o1, Alert o2) {
+                return o2.getScheduledEpochInSeconds().compareTo(o1.getScheduledEpochInSeconds());
+            }
+        } );
+
+        return alerts;
     }
 
     public String getJson() {

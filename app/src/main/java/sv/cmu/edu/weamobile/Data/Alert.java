@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 
 import java.util.Date;
 
+import sv.cmu.edu.weamobile.Utility.Constants;
 import sv.cmu.edu.weamobile.Utility.WEAUtil;
 
 /**
@@ -136,6 +137,9 @@ public class Alert {
     private String endingAt;
     private GeoLocation [] Polygon;
     private int options;
+    private boolean isMapToBeShown = true;
+    private boolean isPhoneExpectedToVibrate = true;
+    private boolean isTextToSpeechExpected = true;
 
     public int getId() {
         return id;
@@ -187,8 +191,20 @@ public class Alert {
     }
 
     public Long getScheduledEpochInSeconds(){
+        long epoch = 0;
         Date date = WEAUtil.getTimeStringFromJsonTime(scheduledFor, "UTC");
-        long epoch = date.getTime();
+        if(date != null){
+            epoch = date.getTime();
+        }
+        return epoch/1000;
+    }
+
+    public Long getEndingAtEpochInSeconds(){
+        long epoch = 0;
+        Date date = WEAUtil.getTimeStringFromJsonTime(endingAt, "UTC");
+        if(date != null){
+            epoch = date.getTime();
+        }
         return epoch/1000;
     }
 
@@ -211,5 +227,49 @@ public class Alert {
 
     public void setOptions(int options) {
         this.options = options;
+    }
+
+    public boolean isMapToBeShown() {
+        return isMapToBeShown;
+    }
+
+    public void setMapToBeShown(boolean isMapToBeShown) {
+        this.isMapToBeShown = isMapToBeShown;
+    }
+
+    public boolean isPhoneExpectedToVibrate() {
+        return isPhoneExpectedToVibrate;
+    }
+
+    public void setPhoneExpectedToVibrate(boolean isPhoneExpectedToVibrate) {
+        this.isPhoneExpectedToVibrate = isPhoneExpectedToVibrate;
+    }
+
+    public boolean isTextToSpeechExpected() {
+        return isTextToSpeechExpected;
+    }
+
+    public void setTextToSpeechExpected(boolean isTextToSpeechExpected) {
+        this.isTextToSpeechExpected = isTextToSpeechExpected;
+    }
+
+    public String getJson(){
+        Gson gson = new Gson();
+        return gson.toJson(this);
+    }
+
+    public boolean isActive(){
+        boolean isActive = false;
+        long time = System.currentTimeMillis()/1000;
+        if(getEndingAtEpochInSeconds() > time
+        && ((getScheduledEpochInSeconds() - time) > -1* Constants.TIME_THRESHOLD_TO_SHOW_ALERT_IN_SECONDS)){
+            isActive = true;
+        }
+        return  isActive;
+    }
+
+    public String getEndingAtString() {
+        Date date = WEAUtil.getTimeStringFromJsonTime(endingAt, "UTC");
+        return date.toLocaleString();
     }
 }

@@ -3,36 +3,22 @@ package sv.cmu.edu.weamobile.Utility;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
-import android.location.Location;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.StyleSpan;
-import android.util.Log;
 import android.widget.Toast;
 
-import sv.cmu.edu.weamobile.AlertDetailActivity;
-import sv.cmu.edu.weamobile.AlertDetailFragment;
+import sv.cmu.edu.weamobile.Activities.MainActivity;
 import sv.cmu.edu.weamobile.Data.Alert;
+import sv.cmu.edu.weamobile.Data.AlertState;
 import sv.cmu.edu.weamobile.Data.AppConfiguration;
-import sv.cmu.edu.weamobile.service.WEANewAlertIntent;
+import sv.cmu.edu.weamobile.Data.GeoLocation;
 
 /**
  * Created by sumeet on 10/30/14.
  */
 public class AlertHelper {
-
-    public static double getDistanceFromCentroid(Location myLocation, double[] polyCenter) {
-        float center = 0000;
-        try{
-            float [] results= new float[2];
-            Location.distanceBetween(polyCenter[0], polyCenter[1], myLocation.getLatitude(), myLocation.getLongitude(), results);
-            center= results[0]/1000;
-        }catch(Exception ex){
-
-        }
-        return center;
-    }
 
     public static SpannableString getTextWithStyle(String text, int fontSize){
         SpannableString spanString = new SpannableString(text);
@@ -41,55 +27,35 @@ public class AlertHelper {
         return spanString;
     }
 
-    public static void broadcastNewAlert(Context context, Alert alert, AppConfiguration configuration){
-        showAlert(context, alert, configuration);
-    }
-
-    private static void showAlert( Context context, Alert alert, AppConfiguration configuration) {
+    public static void showAlert( Context context,
+                                   Alert alert,
+                                   GeoLocation location,
+                                   AppConfiguration configuration) {
         Logger.log("Its the alert time");
-        int alertFilter = alert.getOptions();
-        Intent dialogIntent;
-        dialogIntent = new Intent(context, AlertDetailActivity.class);
-        // ToDo need to enable later
-        //        if(alertFilter == 1){
-        //            dialogIntent = new Intent(getBaseContext(), AlertDetailActivity.class);
-        //            Logger.log("Showing alert with map");
-        //        }else
-        //        {
-        //            dialogIntent = new Intent(getBaseContext(), PlainAlertDialogActivity.class);
-        //            Logger.log("Showing alert without map");
-        //            dialogIntent.putExtra("Message", alert.getText());
-        //        }
 
-        //to be used when feedback button is clicked
-        AppConfigurationFactory.setStringProperty(
-                context,
-                "feedback_url",
-                Constants.FEEDBACK_URL_ROOT + alert.getId()+
-                        "/" +WEAUtil.getIMSI(context));
+        if(alert.isActive()){
+            AlertState state = WEASharedPreferences.getAlertState(context, String.valueOf(alert.getId()));
+            state.setInPolygon(true);
+            state.setLocationWhenShown(location);
+            WEASharedPreferences.saveAlertState(context, state);
 
-        dialogIntent.putExtra("item_id", String.valueOf(alert.getId()));
-        dialogIntent.putExtra("isDialog", true);
-        dialogIntent.putExtra(AlertDetailFragment.ALERTS_JSON, configuration.getJson());
-        dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(dialogIntent);
-    }
+            Intent dialogIntent = new Intent(context, MainActivity.class);
+            dialogIntent.putExtra("item_id", String.valueOf(alert.getId()));
+            dialogIntent.putExtra(Constants.CONFIG_JSON, configuration.getJson());
+            dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-    public static void broadcastOutOfTargetAlert(Context context){
-
-        WEANewAlertIntent outOfTargetAlertIntent = new WEANewAlertIntent("New Alert, but out of target", "");
-        Log.d("WEA", "Broadcast intent: About to broadcast new Alert");
-        context.sendBroadcast(outOfTargetAlertIntent);
+            context.startActivity(dialogIntent);
+        }
     }
 
     public static void showAlertIfInTarget(Context context, int alertId) {
         Logger.log("Show alert if in target for ", String.valueOf(alertId));
-        String json = AppConfigurationFactory.getStringProperty(context, "message");
+        String json = WEASharedPreferences.readApplicationConfiguration(context);
         AppConfiguration configuration = AppConfiguration.fromJson(json);
-        Alert [] alerts = configuration.getAlerts();
+        Alert [] alerts = configuration.getAlerts(context);
 
         for(Alert alert: alerts){
-            if(alert.getId() == alertId){
+            if(alert.getId() == alertId && alert.isActive()){
                 GPSTracker tracker = new GPSTracker(context);
                 if(tracker.canGetLocation()){
                     Logger.log("The phone can get location, will check if in target");
@@ -100,9 +66,46 @@ public class AlertHelper {
                     Logger.log(message);
                     Toast.makeText(context,
                             "Alert Time!!: " + message, Toast.LENGTH_SHORT).show();
-                    broadcastNewAlert(context, alert, configuration);
+                    showAlert(context, alert, null, configuration);
                 }
             }
         }
+    }
+
+    public static Alert getAlertFromId(Context context, String id) {
+
+//        return WEASharedPreferences.getAlertState(context,id);
+
+
+        AppConfiguration configuration = AppConfiguration.fromJson(WEASharedPreferences.readApplicationConfiguration(context));
+        Logger.log("AlertDetailFragment key: " + id);
+
+        Alert selectedAlert = null;
+        for(Alert alert:configuration.getAlerts(context)){
+            if(alert.getId() == Integer.parseInt(id)){
+                selectedAlert = alert;
+            }
+        }
+        return selectedAlert;
+    }
+
+    public static AlertState [] getAlertStates(Context context, Alert [] alerts){
+        AlertState [] alertStates = new AlertState[alerts.length];
+
+        for(int i=0; i<alerts.length;i++){
+            alertStates[i] = WEASharedPreferences.getAlertState(context, String.valueOf(alerts[i].getId()));
+        }
+
+        return  alertStates;
+    }
+
+    public static String getFedbackURL( Context context, Alert alert){
+        return Constants.FEEDBACK_URL_ROOT + alert.getId()+
+                "/" +WEAUtil.getIMSI(context);
+    }
+
+    public static String getContextTextToShow(Alert alert, GeoLocation myLocation) {
+        double distance = WEAPointInPoly.getDistance(alert.getPolygon(), myLocation);
+        return "You are at a distance " + String.valueOf(distance).substring(0,3) + " miles";
     }
 }

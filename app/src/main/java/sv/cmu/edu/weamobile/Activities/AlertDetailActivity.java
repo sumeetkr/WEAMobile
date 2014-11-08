@@ -1,4 +1,4 @@
-package sv.cmu.edu.weamobile;
+package sv.cmu.edu.weamobile.Activities;
 
 import android.app.FragmentManager;
 import android.content.Intent;
@@ -6,6 +6,13 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
+
+import sv.cmu.edu.weamobile.Data.Alert;
+import sv.cmu.edu.weamobile.Data.AlertState;
+import sv.cmu.edu.weamobile.R;
+import sv.cmu.edu.weamobile.Utility.AlertHelper;
+import sv.cmu.edu.weamobile.Utility.Constants;
+import sv.cmu.edu.weamobile.Utility.WEASharedPreferences;
 
 
 /**
@@ -25,7 +32,11 @@ public class AlertDetailActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if(getIntent().getBooleanExtra("isDialog",false)){
+        String alertId = getIntent().getStringExtra(Constants.ARG_ITEM_ID);
+        Alert alert = AlertHelper.getAlertFromId(getApplicationContext(), alertId);
+        AlertState state = WEASharedPreferences.getAlertState(getApplicationContext(),alertId );
+
+        if(state != null && !state.isAlreadyShown() && alert.isActive() && state.isInPolygon()){
             setTheme(android.R.style.Theme_DeviceDefault_Dialog_NoActionBar);
         }else{
             setTheme(android.R.style.Theme_DeviceDefault);
@@ -48,15 +59,8 @@ public class AlertDetailActivity extends FragmentActivity {
         if (savedInstanceState == null) {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
-            Bundle arguments = new Bundle();
-            arguments.putString(AlertDetailFragment.ARG_ITEM_ID,
-                    getIntent().getStringExtra(AlertDetailFragment.ARG_ITEM_ID));
+            Bundle arguments = setArguments();
 
-            arguments.putString(AlertDetailFragment.ALERTS_JSON,
-                    getIntent().getStringExtra(AlertDetailFragment.ALERTS_JSON));
-
-            arguments.putBoolean("isDialog", getIntent().getBooleanExtra("isDialog",false));
-//            arguments.putBoolean("isMapHidden", getIntent().getBooleanExtra("isMapHidden",true));
             AlertDetailFragment fragment = new AlertDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
@@ -81,4 +85,32 @@ public class AlertDetailActivity extends FragmentActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setArguments();
+     }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+    }
+
+    private Bundle setArguments() {
+        Bundle arguments = new Bundle();
+        arguments.putString(Constants.ARG_ITEM_ID,
+                getIntent().getStringExtra(Constants.ARG_ITEM_ID));
+
+        arguments.putString(Constants.CONFIG_JSON,
+                getIntent().getStringExtra(Constants.CONFIG_JSON));
+
+        arguments.putBoolean("isDialog", getIntent().getBooleanExtra("isDialog",false));
+//            arguments.putBoolean("isMapHidden", getIntent().getBooleanExtra("isMapHidden",true));
+        arguments.putBoolean("isAlertTime", getIntent().getBooleanExtra("isAlertTime", false));
+        arguments.putString("feedback_url", getIntent().getStringExtra("feedback_url"));
+        return arguments;
+    }
+
 }

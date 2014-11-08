@@ -46,7 +46,7 @@ public class WEAHttpClient {
             // TODO Auto-generated catch block
             e.printStackTrace();
             result = "failed : + " + e.getMessage();
-            Log.d("IPS JsonSender",e.getMessage());
+            Log.d("WEA JsonSender",e.getMessage());
         }
 
 //        data.Clean();
@@ -58,14 +58,19 @@ public class WEAHttpClient {
         String response = "";
         try {
 
-            Log.w("IPS getDataFromServer ", server_url);
+            Logger.log("sendHeartbeat ", server_url);
             AsyncHttpClient client = new AsyncHttpClient();
             StringEntity entity = new StringEntity(data);
 
             client.put(ctxt, server_url, entity, "application/json", new AsyncHttpResponseHandler() {
                 @Override
                 public void onSuccess(String response) {
-                    Log.w("IPS JsonSender", "Success - ");
+
+                    WEASharedPreferences.setStringProperty(ctxt,
+                            "lastTimeChecked",
+                            String.valueOf(System.currentTimeMillis()));
+
+                    Logger.log("JsonSender", "Success - ");
                     Intent intent = new Intent("new-config-event");
                     intent.putExtra("message", response);
                     LocalBroadcastManager.getInstance(ctxt).sendBroadcast(intent);
@@ -74,7 +79,7 @@ public class WEAHttpClient {
                 @Override
                 public void onFailure(int statusCode, org.apache.http.Header[] headers, byte[] errorResponse, Throwable e) {
                     // called when response HTTP status is "4XX" (eg. 401, 403, 404)
-                    Log.w("IPS JsonSender", "Failure in sending - " + "Status code -" + statusCode + " Error response -" + errorResponse);
+                    Log.w("WEA JsonSender", "Failure in sending - " + "Status code -" + statusCode + " Error response -" + errorResponse);
                     Intent intent = new Intent("new-config-event");
                     intent.putExtra("message", "");
                     LocalBroadcastManager.getInstance(ctxt).sendBroadcast(intent);
@@ -84,7 +89,7 @@ public class WEAHttpClient {
             // TODO Auto-generated catch block
             e.printStackTrace();
             response = "failed : + " + e.getMessage();
-            Log.d("IPS JsonSender",e.getMessage());
+            Log.d("WEA JsonSender",e.getMessage());
         }
     }
 
@@ -92,13 +97,13 @@ public class WEAHttpClient {
         String response = "";
         try {
 
-            Log.w("IPS getDataFromServer ", server_url);
+            Log.w("WEA getDataFromServer ", server_url);
             AsyncHttpClient client = new AsyncHttpClient();
 
             client.get(context, server_url, new AsyncHttpResponseHandler() {
                 @Override
                 public void onSuccess(String response) {
-                    Log.w("IPS JsonSender", "Success - " + response);
+                    Log.w("WEA JsonSender", "Success - " + response);
                     Intent intent = new Intent("new-config-event");
                     intent.putExtra("message", response);
                     LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
@@ -107,14 +112,14 @@ public class WEAHttpClient {
                 @Override
                 public void onFailure(int statusCode, org.apache.http.Header[] headers, byte[] errorResponse, Throwable e) {
                     // called when response HTTP status is "4XX" (eg. 401, 403, 404)
-                    Log.w("IPS JsonSender", "Failure in sending - " + "Status code -" + statusCode + " Error response -" + errorResponse);
+                    Log.w("WEA JsonSender", "Failure in sending - " + "Status code -" + statusCode + " Error response -" + errorResponse);
                 }
             });
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             response = "failed : + " + e.getMessage();
-            Log.d("IPS JsonSender",e.getMessage());
+            Log.d("WEA JsonSender",e.getMessage());
         }
 
         return response;

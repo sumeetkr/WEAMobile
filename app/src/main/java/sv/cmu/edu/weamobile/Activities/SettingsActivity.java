@@ -1,4 +1,4 @@
-package sv.cmu.edu.weamobile;
+package sv.cmu.edu.weamobile.Activities;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -19,6 +19,8 @@ import android.text.TextUtils;
 
 
 import java.util.List;
+
+import sv.cmu.edu.weamobile.R;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On

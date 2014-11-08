@@ -66,8 +66,20 @@ public class WEAPointInPoly {
         return polyCenter;
     }
 
-    public static double getDistance(GeoLocation [] polygon, Location location){
-        double distance= AlertHelper.getDistanceFromCentroid(
+    public static double getDistanceFromCentroid(GeoLocation myLocation, double[] polyCenter) {
+        float center = 0000;
+        try{
+            float [] results= new float[2];
+            Location.distanceBetween(polyCenter[0], polyCenter[1], myLocation.getLatitude(), myLocation.getLongitude(), results);
+            center= results[0]/1000;
+        }catch(Exception ex){
+
+        }
+        return center;
+    }
+
+    public static double getDistance(GeoLocation [] polygon, GeoLocation location){
+        double distance= getDistanceFromCentroid(
                 location,
                 calculatePolyCenter(polygon)
         );
