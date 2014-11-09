@@ -46,6 +46,7 @@
         <activity
             android:name=".Activities.MainActivity"
             android:label="@string/title_alert_list"
+            android:screenOrientation="portrait"
             android:theme="@android:style/Theme.DeviceDefault">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -57,6 +58,7 @@
             android:name=".Activities.AlertDetailActivity"
             android:label="@string/title_alert_detail"
             android:launchMode="singleTop"
+            android:screenOrientation="portrait"
             android:parentActivityName=".Activities.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -74,6 +76,7 @@
         </receiver>
         <activity
             android:name=".Activities.FeedbackWebViewActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_feedback_web_view"
             android:launchMode="singleTop"
             android:parentActivityName=".Activities.MainActivity" >
