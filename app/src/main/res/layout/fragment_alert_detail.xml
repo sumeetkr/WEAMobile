@@ -83,6 +83,6 @@
             android:id="@+id/buttonFeedback"
             android:layout_alignParentRight="true"
             android:layout_weight="0.20"
-            android:background="#ffff120d" />
+            android:background="#ffff5052" />
     </LinearLayout>
 </RelativeLayout>

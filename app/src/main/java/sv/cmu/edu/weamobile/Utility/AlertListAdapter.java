@@ -34,15 +34,15 @@ public class AlertListAdapter extends ArrayAdapter<Alert> {
 
         Alert alert = alerts.get(position);
         if (alert != null) {
-            TextView username = (TextView) v.findViewById(R.id.username);
-            TextView email = (TextView) v.findViewById(R.id.email);
+            TextView alertMessage = (TextView) v.findViewById(R.id.username);
+            TextView alertType = (TextView) v.findViewById(R.id.email);
 
-            if (username != null) {
-                username.setText(alert.getText());
+            if (alertMessage != null) {
+                alertMessage.setText(AlertHelper.getTextWithStyle(alert.getText(), 35));
             }
 
-            if (email != null) {
-                email.setText(alert.getAlertType()  + " Alert " + alert.getScheduledForString());
+            if (alertType != null) {
+                alertType.setText(alert.getAlertType() + " Alert " + alert.getScheduledForString());
             }
 
             if(alert.getScheduledEpochInSeconds() < System.currentTimeMillis()/1000){

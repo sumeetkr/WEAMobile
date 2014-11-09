@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 
 import java.util.Date;
 
-import sv.cmu.edu.weamobile.Utility.Constants;
 import sv.cmu.edu.weamobile.Utility.WEAUtil;
 
 /**
@@ -261,8 +260,7 @@ public class Alert {
     public boolean isActive(){
         boolean isActive = false;
         long time = System.currentTimeMillis()/1000;
-        if(getEndingAtEpochInSeconds() > time
-        && ((getScheduledEpochInSeconds() - time) > -1* Constants.TIME_THRESHOLD_TO_SHOW_ALERT_IN_SECONDS)){
+        if(getEndingAtEpochInSeconds() > time && time >= getScheduledEpochInSeconds()){
             isActive = true;
         }
         return  isActive;

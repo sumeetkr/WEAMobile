@@ -46,6 +46,7 @@ public class MainActivity extends FragmentActivity
     private AppConfiguration configuration;
     private AlertListFragment listFragment;
     private boolean isDialogShown = false;
+    private boolean programTryingToChangeSwitch = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +70,7 @@ public class MainActivity extends FragmentActivity
             listFragment.setActivateOnItemClick(true);
         }
 
-        updateSwitch();
+        setSwitchEvents();
 
         handler = new Handler();
 
@@ -79,18 +80,27 @@ public class MainActivity extends FragmentActivity
                 Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES*60*1000);
     }
 
-    private void updateSwitch() {
+    private void setSwitchEvents() {
         mySwitch = (Switch) findViewById(R.id.switch2);
+
         mySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
             @Override
             public void onCheckedChanged(CompoundButton buttonView,
                                          boolean isChecked) {
-                if (isChecked) {
-                    mySwitch.setText("Syncing..");
-                    fetchConfig();
-                } else {
-                    mySwitch.setText("Alerts disabled");
+                if (!programTryingToChangeSwitch) {
+                    if (isChecked) {
+                        mySwitch.setText("Syncing..");
+                        //ToDO: only for debugging
+                        if (Constants.IS_IN_DEBUG_MODE && configuration != null) {
+                            AlertHelper.clearAlertStates(getApplicationContext(), configuration.getAlerts(getApplicationContext()));
+                        }
+                        fetchConfig();
+                    } else {
+                        mySwitch.setText("Alerts disabled");
+                    }
+                }else{
+                    programTryingToChangeSwitch = false;
                 }
             }
         });
@@ -100,12 +110,11 @@ public class MainActivity extends FragmentActivity
     protected void onResume(){
         super.onResume();
 
-        if(newAlertReciver ==null) newAlertReciver = new NewConfigurationReceivedBroadcastReceiver(handler);
-        Log.d("WEA", "Alert receiver created in main activity");
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("android.intent.action.NEW_ALERT");
-        filter.addCategory(Intent.CATEGORY_DEFAULT);
-        getApplicationContext().registerReceiver(newAlertReciver, filter);
+        registerNewConfigurationReceiver();
+
+
+        String json = WEASharedPreferences.readApplicationConfiguration(getApplicationContext());
+        AppConfiguration configuration = AppConfiguration.fromJson(json);
 
         if(listFragment != null && configuration!= null) {
             Alert [] alerts = configuration.getAlerts(getApplicationContext());
@@ -114,13 +123,22 @@ public class MainActivity extends FragmentActivity
         }
 
         updateStatus();
-        if(getIntent().hasExtra(Constants.ALERT_ID)){
-            String json = getIntent().getStringExtra(Constants.CONFIG_JSON);
-            configuration = AppConfiguration.fromJson(json);
 
+        if(getIntent().hasExtra(Constants.ALERT_ID)){
             String alertId = getIntent().getStringExtra(Constants.ALERT_ID);
             onItemSelected(alertId);
         }
+    }
+
+    private void registerNewConfigurationReceiver() {
+        if(newAlertReciver ==null) {
+            newAlertReciver = new NewConfigurationReceivedBroadcastReceiver(handler);
+        }
+        Log.d("WEA", "New configuration receiver created in main activity");
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("android.intent.action.NEW_ALERT");
+        filter.addCategory(Intent.CATEGORY_DEFAULT);
+        getApplicationContext().registerReceiver(newAlertReciver, filter);
     }
 
     private void updateStatus() {
@@ -244,20 +262,21 @@ public class MainActivity extends FragmentActivity
 
         if(!alertState.isFeedbackGiven()){
             //set the cancel button
-            AlertDialog.Builder feedbackBtn = builder.setNegativeButton("Feedback", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.cancel();
-                    if(textToSpeech!= null) textToSpeech.shutdown();
-                    isDialogShown = false;
+            AlertDialog.Builder feedbackBtn = builder.setNegativeButton("Feedback",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                            if(textToSpeech!= null) textToSpeech.shutdown();
+                            isDialogShown = false;
 
-                    alertState.setFeedbackGiven(true);
-                    WEASharedPreferences.saveAlertState(context, alertState);
+                            alertState.setFeedbackGiven(true);
+                            WEASharedPreferences.saveAlertState(context, alertState);
 
-                    Intent intent = new Intent(activity, FeedbackWebViewActivity.class);
-                    intent.putExtra(Constants.ALERT_ID, alert.getId());
-                    startActivity(intent);
-                }
+                            Intent intent = new Intent(activity, FeedbackWebViewActivity.class);
+                            intent.putExtra(Constants.ALERT_ID, alert.getId());
+                            startActivity(intent);
+                        }
             });
         }
 
@@ -269,7 +288,8 @@ public class MainActivity extends FragmentActivity
         alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialog) {
-                if(alertState == null || (alertState!= null && !alertState.isAlreadyShown())){
+                if(alertState!= null && !alertState.isAlreadyShown() && alert.isActive()){
+
                     alertState.setAlreadyShown(true);
                     alertState.setTimeWhenShownInEpoch(System.currentTimeMillis());
                     WEASharedPreferences.saveAlertState(getApplicationContext(), alertState);
@@ -282,6 +302,13 @@ public class MainActivity extends FragmentActivity
                         textToSpeech.say(alert.getText(), 2);
                     }
                 }
+            }
+        });
+
+        alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                isDialogShown = false;
             }
         });
 
@@ -323,6 +350,7 @@ public class MainActivity extends FragmentActivity
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
+                            programTryingToChangeSwitch = true;
                             setUpToDate(String.valueOf(System.currentTimeMillis()));
                             Log.d("WEA", "Got new congiguration broadcast " );
                             if(message!=null && !message.isEmpty()){

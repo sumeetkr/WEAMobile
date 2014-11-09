@@ -5,10 +5,14 @@
     <!-- Example General settings -->
     <string name="pref_header_general">General</string>
 
-    <string name="pref_title_social_recommendations">Enable location tracking</string>
+    <string name="pref_title_enable_location_tracking">Enable location tracking</string>
+    <string name="pref_description_enable_location_tracking">Periodically sends your location to server.</string>
     <string name="pref_debug_messages">Enable debug messages</string>
 
-    <string name="pref_description_social_recommendations">Periodically sends your location to server.</string>
+
+    <string name="pref_title_clear_alerts_history">Clear alerts history</string>
+    <string name="pref_description_clear_alerts_history">Clears history, forgets if an alert has been shown.</string>
+
 
     <string name="pref_title_display_name">Your name</string>
     <string name="pref_default_display_name">John Smith</string>

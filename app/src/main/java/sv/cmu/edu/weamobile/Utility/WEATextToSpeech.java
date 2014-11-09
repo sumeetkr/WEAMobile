@@ -24,7 +24,12 @@ public class WEATextToSpeech{
     }
 
     public void say(String messageToSay, Integer times) {
-        tts = new TextToSpeech(context, new TTSListener(messageToSay , times));
+        if(tts == null){
+            tts = new TextToSpeech(context, new TTSListener(messageToSay , times));
+        }else{
+            tts.shutdown();
+            tts = new TextToSpeech(context, new TTSListener(messageToSay , times));
+        }
     }
 
     protected class TTSListener implements TextToSpeech.OnInitListener {

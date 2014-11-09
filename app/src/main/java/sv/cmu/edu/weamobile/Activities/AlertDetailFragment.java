@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -76,9 +77,13 @@ public class AlertDetailFragment extends Fragment {
 
         if (alert != null) {
             Logger.log("Item is there"+ alert.getText());
-            ((TextView) rootView.findViewById(R.id.alertText)).setText(AlertHelper.getTextWithStyle(
-//                    alert.getAlertType() + " Alert \n" +
+            TextView view = ((TextView) rootView.findViewById(R.id.alertText));
+
+            view.setText(
+                    AlertHelper.getTextWithStyle(
                     alert.toString(), 40));
+
+            view.setMovementMethod(LinkMovementMethod.getInstance());
 
             startTime = alert.getScheduledForString();
             endTime = alert.getEndingAtString();
@@ -170,7 +175,8 @@ public class AlertDetailFragment extends Fragment {
 
     private void alertUserWithVibrationAndSpeech() {
 
-        if(alertState!= null && !alertState.isAlreadyShown()){
+        if(alertState!= null && !alertState.isAlreadyShown() && alert.isActive()){
+
             alertState.setAlreadyShown(true);
             alertState.setTimeWhenShownInEpoch(System.currentTimeMillis());
             WEASharedPreferences.saveAlertState(getActivity().getApplicationContext(), alertState);

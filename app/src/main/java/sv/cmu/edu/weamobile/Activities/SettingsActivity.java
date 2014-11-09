@@ -13,6 +13,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
 
@@ -79,10 +80,10 @@ public class SettingsActivity extends PreferenceActivity {
         // Bind the summaries of EditText/List/Dialog/Ringtone preferences to
         // their values. When their values change, their summaries are updated
         // to reflect the new value, per the Android Design guidelines.
-        bindPreferenceSummaryToValue(findPreference("example_text"));
-        bindPreferenceSummaryToValue(findPreference("example_list"));
-        bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
-        bindPreferenceSummaryToValue(findPreference("sync_frequency"));
+//        bindPreferenceSummaryToValue(findPreference("pref_title_enable_location_tracking"));
+//        bindPreferenceSummaryToValue(findPreference("pref_title_clear_alerts_history"));
+//        bindPreferenceSummaryToValue(findPreference("pref_debug_messages"));
+//        bindPreferenceSummaryToValue(findPreference("sync_frequency"));
     }
 
     /** {@inheritDoc} */
@@ -185,14 +186,14 @@ public class SettingsActivity extends PreferenceActivity {
      */
     private static void bindPreferenceSummaryToValue(Preference preference) {
         // Set the listener to watch for value changes.
-        //preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+        preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
 
         // Trigger the listener immediately with the preference's
         // current value.
-//        sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-//                PreferenceManager
-//                        .getDefaultSharedPreferences(preference.getContext())
-//                        .getString(preference.getKey(), ""));
+        sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
+                PreferenceManager
+                        .getDefaultSharedPreferences(preference.getContext())
+                        .getString(preference.getKey(), ""));
     }
 
     /**

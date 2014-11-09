@@ -2,9 +2,15 @@
 
     <CheckBoxPreference
         android:key="example_checkbox"
-        android:title="@string/pref_title_social_recommendations"
-        android:summary="@string/pref_description_social_recommendations"
+        android:title="@string/pref_title_enable_location_tracking"
+        android:summary="@string/pref_description_enable_location_tracking"
         android:defaultValue="true" />
+
+    <CheckBoxPreference
+        android:key="history_checkbox"
+        android:title="@string/pref_title_clear_alerts_history"
+        android:summary="@string/pref_description_clear_alerts_history"
+        android:defaultValue="false" />
 
     <!-- NOTE: EditTextPreference accepts EditText attributes. -->
     <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->

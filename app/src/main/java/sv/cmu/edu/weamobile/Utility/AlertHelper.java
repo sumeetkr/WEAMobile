@@ -3,6 +3,7 @@ package sv.cmu.edu.weamobile.Utility;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.text.Html;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
@@ -21,7 +22,8 @@ import sv.cmu.edu.weamobile.Data.GeoLocation;
 public class AlertHelper {
 
     public static SpannableString getTextWithStyle(String text, int fontSize){
-        SpannableString spanString = new SpannableString(text);
+        Spanned spannedText = Html.fromHtml(text);
+        SpannableString spanString = new SpannableString(spannedText);
         spanString.setSpan(new StyleSpan(Typeface.BOLD), 0, spanString.length(), 0);
         spanString.setSpan (new AbsoluteSizeSpan(fontSize), 0, spanString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return spanString;
@@ -107,5 +109,14 @@ public class AlertHelper {
     public static String getContextTextToShow(Alert alert, GeoLocation myLocation) {
         double distance = WEAPointInPoly.getDistance(alert.getPolygon(), myLocation);
         return "You are at a distance " + String.valueOf(distance).substring(0,3) + " miles";
+    }
+
+    public static void clearAlertStates(Context context, Alert [] alerts) {
+
+        if(alerts!= null){
+            for(int i=0; i<alerts.length;i++){
+                WEASharedPreferences.deleteAlertState(context, String.valueOf(alerts[i].getId()));
+            }
+        }
     }
 }

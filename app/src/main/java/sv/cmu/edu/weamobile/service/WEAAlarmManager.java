@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import sv.cmu.edu.weamobile.Utility.Logger;
+
 /**
  * Created by sumeet on 9/24/14.
  */
@@ -64,12 +66,15 @@ public class WEAAlarmManager {
         Intent intent = new Intent(context, WEABackgroundService.class);
         intent.setAction(WEABackgroundService.FETCH_CONFIGURATION);
 
-
         PendingIntent alarmIntent = PendingIntent.getService(
                 context,
                 WEAAlarmManager.ALARM_REQUEST_CODE_FOR_REPEATING,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+        Logger.log("Alarm is already active");
+
 
         alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                 timeBetweenRepeatsInMilliSeconds,

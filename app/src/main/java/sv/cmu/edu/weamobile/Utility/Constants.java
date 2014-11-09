@@ -19,5 +19,6 @@ public class Constants {
     public static final String WEA_CONFIG_FILE_NAME_ON_DISK = "WEA_Configuration.json";
     public static final String SHARED_PREFERENCES = "preferences";
     public static final String ALERT_STATE = "alert_state";
+    public  static  final boolean IS_IN_DEBUG_MODE = false;
 
 }
