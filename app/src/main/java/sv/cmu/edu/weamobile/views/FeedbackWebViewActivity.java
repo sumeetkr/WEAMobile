@@ -1,4 +1,4 @@
-package sv.cmu.edu.weamobile.Activities;
+package sv.cmu.edu.weamobile.views;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -8,11 +8,11 @@ import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import sv.cmu.edu.weamobile.Data.Alert;
+import sv.cmu.edu.weamobile.data.Alert;
 import sv.cmu.edu.weamobile.R;
-import sv.cmu.edu.weamobile.Utility.AlertHelper;
-import sv.cmu.edu.weamobile.Utility.Constants;
-import sv.cmu.edu.weamobile.Utility.Logger;
+import sv.cmu.edu.weamobile.utility.AlertHelper;
+import sv.cmu.edu.weamobile.utility.Constants;
+import sv.cmu.edu.weamobile.utility.Logger;
 
 
 public class FeedbackWebViewActivity extends Activity {

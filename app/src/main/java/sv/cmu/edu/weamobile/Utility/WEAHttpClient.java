@@ -1,4 +1,4 @@
-package sv.cmu.edu.weamobile.Utility;
+package sv.cmu.edu.weamobile.utility;
 
 import android.content.Context;
 import android.content.Intent;
@@ -14,7 +14,7 @@ import org.apache.http.Header;
 import org.apache.http.entity.StringEntity;
 import org.json.JSONObject;
 
-import sv.cmu.edu.weamobile.Data.GeoLocation;
+import sv.cmu.edu.weamobile.data.GeoLocation;
 
 /**
  * Created by sumeet on 9/24/14.

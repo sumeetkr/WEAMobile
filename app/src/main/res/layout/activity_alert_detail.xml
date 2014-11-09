@@ -3,6 +3,6 @@
     android:id="@+id/alert_detail_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context="sv.cmu.edu.weamobile.Activities.AlertDetailActivity"
+    tools:context="sv.cmu.edu.weamobile.views.AlertDetailActivity"
     tools:ignore="MergeRootFrame">
 </RelativeLayout>

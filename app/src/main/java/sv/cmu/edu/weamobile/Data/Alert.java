@@ -1,10 +1,10 @@
-package sv.cmu.edu.weamobile.Data;
+package sv.cmu.edu.weamobile.data;
 
 import com.google.gson.Gson;
 
 import java.util.Date;
 
-import sv.cmu.edu.weamobile.Utility.WEAUtil;
+import sv.cmu.edu.weamobile.utility.WEAUtil;
 
 /**
  * Created by sumeet on 9/28/14.
@@ -136,7 +136,7 @@ public class Alert {
     private String endingAt;
     private GeoLocation [] Polygon;
     private int options;
-    private boolean isMapToBeShown = false;
+    private boolean isMapToBeShown = true;
     private boolean isPhoneExpectedToVibrate = true;
     private boolean isTextToSpeechExpected = true;
 

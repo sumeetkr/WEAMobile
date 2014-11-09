@@ -1,4 +1,4 @@
-package sv.cmu.edu.weamobile.Data;
+package sv.cmu.edu.weamobile.data;
 
 import android.content.Context;
 
@@ -7,7 +7,7 @@ import com.google.gson.Gson;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import sv.cmu.edu.weamobile.Utility.Logger;
+import sv.cmu.edu.weamobile.utility.Logger;
 
 /**
  * Created by sumeet on 10/7/14.

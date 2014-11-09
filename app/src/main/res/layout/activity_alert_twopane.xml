@@ -8,7 +8,7 @@
     android:divider="?android:attr/dividerHorizontal"
     android:orientation="horizontal"
     android:showDividers="middle"
-    tools:context="sv.cmu.edu.weamobile.Activities.MainActivity">
+    tools:context="sv.cmu.edu.weamobile.views.MainActivity">
 
     <!--
     This layout is a two-pane layout for the Alerts
@@ -23,7 +23,7 @@
 
     <fragment
         android:id="@+id/alert_list"
-        android:name="sv.cmu.edu.weamobile.Activities.AlertListFragment"
+        android:name="sv.cmu.edu.weamobile.views.AlertListFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"

@@ -1,4 +1,4 @@
-package sv.cmu.edu.weamobile.Utility;
+package sv.cmu.edu.weamobile.utility;
 
 import android.content.Context;
 import android.telephony.TelephonyManager;

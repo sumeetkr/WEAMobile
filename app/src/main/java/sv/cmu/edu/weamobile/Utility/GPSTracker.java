@@ -1,4 +1,4 @@
-package sv.cmu.edu.weamobile.Utility;
+package sv.cmu.edu.weamobile.utility;
 
 import android.app.Service;
 import android.content.Context;
@@ -10,9 +10,9 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.widget.Toast;
 
-import sv.cmu.edu.weamobile.Data.Alert;
-import sv.cmu.edu.weamobile.Data.AppConfiguration;
-import sv.cmu.edu.weamobile.Data.GeoLocation;
+import sv.cmu.edu.weamobile.data.Alert;
+import sv.cmu.edu.weamobile.data.AppConfiguration;
+import sv.cmu.edu.weamobile.data.GeoLocation;
 
 /**
  * Created by sumeet on 9/24/14.
@@ -72,6 +72,7 @@ public class GPSTracker extends Service implements LocationListener {
     }
 
     private Location ReceiveBothNetworkAndGPSLocationUpdates() {
+        Logger.log("Register to get both network and GPS location.");
         try {
             if (isNetworkEnabled) {
                 location = getNetworkLocationUpdates();
@@ -223,6 +224,7 @@ public class GPSTracker extends Service implements LocationListener {
 
         if(countOfUpdates > noOfTimesToCheck){
             stopUsingGPS();
+            Logger.log("Stopping GPS usage");
         }
     }
 

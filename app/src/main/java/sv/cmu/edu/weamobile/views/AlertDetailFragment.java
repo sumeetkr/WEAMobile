@@ -1,4 +1,4 @@
-package sv.cmu.edu.weamobile.Activities;
+package sv.cmu.edu.weamobile.views;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -21,18 +21,18 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolygonOptions;
 
-import sv.cmu.edu.weamobile.Data.Alert;
-import sv.cmu.edu.weamobile.Data.AlertState;
-import sv.cmu.edu.weamobile.Data.GeoLocation;
+import sv.cmu.edu.weamobile.data.Alert;
+import sv.cmu.edu.weamobile.data.AlertState;
+import sv.cmu.edu.weamobile.data.GeoLocation;
 import sv.cmu.edu.weamobile.R;
-import sv.cmu.edu.weamobile.Utility.AlertHelper;
-import sv.cmu.edu.weamobile.Utility.Constants;
-import sv.cmu.edu.weamobile.Utility.GPSTracker;
-import sv.cmu.edu.weamobile.Utility.Logger;
-import sv.cmu.edu.weamobile.Utility.WEAPointInPoly;
-import sv.cmu.edu.weamobile.Utility.WEASharedPreferences;
-import sv.cmu.edu.weamobile.Utility.WEATextToSpeech;
-import sv.cmu.edu.weamobile.Utility.WEAVibrator;
+import sv.cmu.edu.weamobile.utility.AlertHelper;
+import sv.cmu.edu.weamobile.utility.Constants;
+import sv.cmu.edu.weamobile.utility.GPSTracker;
+import sv.cmu.edu.weamobile.utility.Logger;
+import sv.cmu.edu.weamobile.utility.WEAPointInPoly;
+import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
+import sv.cmu.edu.weamobile.utility.WEATextToSpeech;
+import sv.cmu.edu.weamobile.utility.WEAVibrator;
 
 
 /**
@@ -79,9 +79,13 @@ public class AlertDetailFragment extends Fragment {
             Logger.log("Item is there"+ alert.getText());
             TextView view = ((TextView) rootView.findViewById(R.id.alertText));
 
+            String text = alert.toString();
+            if(!alertState.isAlreadyShown() && alert.isActive() && alertState.isInPolygon()){
+                text = alert.getAlertType() + " Alert : "+ text;
+            }
             view.setText(
-                    AlertHelper.getTextWithStyle(
-                    alert.toString(), 40));
+                    AlertHelper.getTextWithStyle(text
+                    , 40));
 
             view.setMovementMethod(LinkMovementMethod.getInstance());
 
@@ -94,6 +98,7 @@ public class AlertDetailFragment extends Fragment {
                             25));
 
             getActivity().setTitle("CMU WEA+ " + alert.getAlertType() + " Alert");
+
         }else{
             Logger.log("Item is null");
         }

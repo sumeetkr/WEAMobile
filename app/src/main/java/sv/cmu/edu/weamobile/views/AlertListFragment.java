@@ -1,4 +1,4 @@
-package sv.cmu.edu.weamobile.Activities;
+package sv.cmu.edu.weamobile.views;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -12,13 +12,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import sv.cmu.edu.weamobile.Data.Alert;
-import sv.cmu.edu.weamobile.Data.AlertState;
-import sv.cmu.edu.weamobile.Data.AppConfiguration;
+import sv.cmu.edu.weamobile.data.Alert;
+import sv.cmu.edu.weamobile.data.AlertState;
+import sv.cmu.edu.weamobile.data.AppConfiguration;
 import sv.cmu.edu.weamobile.R;
-import sv.cmu.edu.weamobile.Utility.AlertListAdapter;
-import sv.cmu.edu.weamobile.Utility.Constants;
-import sv.cmu.edu.weamobile.Utility.Logger;
+import sv.cmu.edu.weamobile.utility.AlertListAdapter;
+import sv.cmu.edu.weamobile.utility.Constants;
+import sv.cmu.edu.weamobile.utility.Logger;
 
 public class AlertListFragment extends ListFragment {
 

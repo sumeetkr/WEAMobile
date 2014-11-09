@@ -6,7 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import sv.cmu.edu.weamobile.Utility.Logger;
+import sv.cmu.edu.weamobile.utility.Logger;
 
 /**
  * Created by sumeet on 9/24/14.

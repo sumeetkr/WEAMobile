@@ -1,4 +1,4 @@
-package sv.cmu.edu.weamobile.Utility;
+package sv.cmu.edu.weamobile.utility;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,11 +10,11 @@ import android.text.style.AbsoluteSizeSpan;
 import android.text.style.StyleSpan;
 import android.widget.Toast;
 
-import sv.cmu.edu.weamobile.Activities.MainActivity;
-import sv.cmu.edu.weamobile.Data.Alert;
-import sv.cmu.edu.weamobile.Data.AlertState;
-import sv.cmu.edu.weamobile.Data.AppConfiguration;
-import sv.cmu.edu.weamobile.Data.GeoLocation;
+import sv.cmu.edu.weamobile.views.MainActivity;
+import sv.cmu.edu.weamobile.data.Alert;
+import sv.cmu.edu.weamobile.data.AlertState;
+import sv.cmu.edu.weamobile.data.AppConfiguration;
+import sv.cmu.edu.weamobile.data.GeoLocation;
 
 /**
  * Created by sumeet on 10/30/14.

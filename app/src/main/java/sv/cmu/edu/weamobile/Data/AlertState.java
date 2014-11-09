@@ -1,4 +1,4 @@
-package sv.cmu.edu.weamobile.Data;
+package sv.cmu.edu.weamobile.data;
 
 import com.google.gson.Gson;
 

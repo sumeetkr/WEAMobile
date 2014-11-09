@@ -1,11 +1,11 @@
-package sv.cmu.edu.weamobile.Utility;//30.57,-90.86 30.65,-90.75 30.65,-90.57 30.39,-90.6 30.39,-90.9 30.57,-90.86
+package sv.cmu.edu.weamobile.utility;//30.57,-90.86 30.65,-90.75 30.65,-90.57 30.39,-90.6 30.39,-90.9 30.57,-90.86
 
 import android.location.Location;
 
 import java.util.Arrays;
 import java.util.List;
 
-import sv.cmu.edu.weamobile.Data.GeoLocation;
+import sv.cmu.edu.weamobile.data.GeoLocation;
 
 public class WEAPointInPoly {
     public static void main(String args[]) {

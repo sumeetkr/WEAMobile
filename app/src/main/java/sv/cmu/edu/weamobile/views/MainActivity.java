@@ -1,4 +1,4 @@
-package sv.cmu.edu.weamobile.Activities;
+package sv.cmu.edu.weamobile.views;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -21,19 +21,20 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import sv.cmu.edu.weamobile.Data.Alert;
-import sv.cmu.edu.weamobile.Data.AlertState;
-import sv.cmu.edu.weamobile.Data.AppConfiguration;
+import sv.cmu.edu.weamobile.data.Alert;
+import sv.cmu.edu.weamobile.data.AlertState;
+import sv.cmu.edu.weamobile.data.AppConfiguration;
 import sv.cmu.edu.weamobile.R;
-import sv.cmu.edu.weamobile.Utility.AlertHelper;
-import sv.cmu.edu.weamobile.Utility.Constants;
-import sv.cmu.edu.weamobile.Utility.Logger;
-import sv.cmu.edu.weamobile.Utility.WEASharedPreferences;
-import sv.cmu.edu.weamobile.Utility.WEATextToSpeech;
-import sv.cmu.edu.weamobile.Utility.WEAUtil;
-import sv.cmu.edu.weamobile.Utility.WEAVibrator;
+import sv.cmu.edu.weamobile.utility.AlertHelper;
+import sv.cmu.edu.weamobile.utility.Constants;
+import sv.cmu.edu.weamobile.utility.Logger;
+import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
+import sv.cmu.edu.weamobile.utility.WEATextToSpeech;
+import sv.cmu.edu.weamobile.utility.WEAUtil;
+import sv.cmu.edu.weamobile.utility.WEAVibrator;
 import sv.cmu.edu.weamobile.service.WEAAlarmManager;
 import sv.cmu.edu.weamobile.service.WEABackgroundService;
+import sv.cmu.edu.weamobile.service.WEANewConfigurationIntent;
 
 public class MainActivity extends FragmentActivity
         implements AlertListFragment.Callbacks {
@@ -117,7 +118,7 @@ public class MainActivity extends FragmentActivity
 
 
         String json = WEASharedPreferences.readApplicationConfiguration(getApplicationContext());
-        AppConfiguration configuration = AppConfiguration.fromJson(json);
+        configuration = AppConfiguration.fromJson(json);
 
         if(listFragment != null && configuration!= null) {
             Alert [] alerts = configuration.getAlerts(getApplicationContext());
@@ -147,16 +148,19 @@ public class MainActivity extends FragmentActivity
     private void updateStatus() {
         String time = WEASharedPreferences.getStringProperty(getApplicationContext(), "lastTimeChecked");
         if(time != null && !time.isEmpty() && (Long.parseLong(time)-System.currentTimeMillis()< Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES*60*1000)){
-            setUpToDate(time);
+            setUpToDate();
         }else{
             mySwitch.setChecked(false);
-            fetchConfig();
+            //fetchConfig();
         }
     }
 
-    private void setUpToDate(String time) {
+    private void setUpToDate() {
         mySwitch.setChecked(true);
-        mySwitch.setText("Synced at: " + WEAUtil.getTimeStringFromEpoch(Long.parseLong(time) / 1000));
+        long time = Long.parseLong(WEASharedPreferences.getStringProperty(getApplicationContext(),
+                "lastTimeChecked"));
+        mySwitch.setText("Synced at: " +
+                WEAUtil.getTimeStringFromEpoch(time/1000));
     }
 
     private void fetchConfig() {
@@ -344,15 +348,19 @@ public class MainActivity extends FragmentActivity
         public void onReceive(final Context context, final Intent intent) {
             try{
                 final String message = intent.getStringExtra("MESSAGE");
-                String json = WEASharedPreferences.readApplicationConfiguration(context);
-                configuration = AppConfiguration.fromJson(json);
-                if(listFragment != null) {
-                    Alert activeButNotShown = listFragment.updateListAndReturnAnyActiveAlertNotShown(
-                            configuration.getAlerts(context),
-                            AlertHelper.getAlertStates(context, configuration.getAlerts(context)));
+                final boolean isOld = intent.getBooleanExtra(WEANewConfigurationIntent.STATUS, false);
 
-                    if(activeButNotShown!=null){
-                        AlertHelper.showAlertIfInTarget(context,activeButNotShown.getId());
+                if(!isOld){
+                    String json = WEASharedPreferences.readApplicationConfiguration(context);
+                    configuration = AppConfiguration.fromJson(json);
+                    if(listFragment != null) {
+                        Alert activeButNotShown = listFragment.updateListAndReturnAnyActiveAlertNotShown(
+                                configuration.getAlerts(context),
+                                AlertHelper.getAlertStates(context, configuration.getAlerts(context)));
+
+                        if(activeButNotShown!=null){
+                            AlertHelper.showAlertIfInTarget(context,activeButNotShown.getId());
+                        }
                     }
                 }
 
@@ -362,7 +370,7 @@ public class MainActivity extends FragmentActivity
                         @Override
                         public void run() {
                             programTryingToChangeSwitch = true;
-                            setUpToDate(String.valueOf(System.currentTimeMillis()));
+                            updateStatus();
                             Log.d("WEA", "Got new congiguration broadcast " );
                             if(message!=null && !message.isEmpty()){
                                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
