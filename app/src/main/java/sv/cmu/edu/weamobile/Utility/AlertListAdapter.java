@@ -38,7 +38,7 @@ public class AlertListAdapter extends ArrayAdapter<Alert> {
             TextView alertType = (TextView) v.findViewById(R.id.email);
 
             if (alertMessage != null) {
-                alertMessage.setText(AlertHelper.getTextWithStyle(alert.getText(), 35));
+                alertMessage.setText(AlertHelper.getTextWithStyle(alert.getText(), 33));
             }
 
             if (alertType != null) {

@@ -136,7 +136,7 @@ public class Alert {
     private String endingAt;
     private GeoLocation [] Polygon;
     private int options;
-    private boolean isMapToBeShown = true;
+    private boolean isMapToBeShown = false;
     private boolean isPhoneExpectedToVibrate = true;
     private boolean isTextToSpeechExpected = true;
 

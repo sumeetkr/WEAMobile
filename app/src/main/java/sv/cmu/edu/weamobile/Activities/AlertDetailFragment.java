@@ -186,7 +186,8 @@ public class AlertDetailFragment extends Fragment {
             }
 
             if(alert != null && alert.isTextToSpeechExpected()){
-                String messageToSay = alert.getText() + AlertHelper.getContextTextToShow(alert, myLocation);;
+                String messageToSay = AlertHelper.getTextWithStyle(alert.getText(), 33).toString()
+                        + AlertHelper.getContextTextToShow(alert, myLocation);;
                 textToSpeech = new WEATextToSpeech(getActivity());
                 textToSpeech.say(messageToSay, 2);
             }

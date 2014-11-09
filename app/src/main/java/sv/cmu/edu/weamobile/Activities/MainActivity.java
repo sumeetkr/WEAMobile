@@ -10,12 +10,15 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
+import android.text.SpannableString;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.CompoundButton;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import sv.cmu.edu.weamobile.Data.Alert;
@@ -235,7 +238,7 @@ public class MainActivity extends FragmentActivity
                 startActivity(detailIntent);
             }else{
                 //if(!isDialogShown){
-                    showDialog(alert);
+                showDialog(alert);
                 //}
             }
         }
@@ -255,7 +258,7 @@ public class MainActivity extends FragmentActivity
         final Activity activity = this;
         final AlertState alertState = WEASharedPreferences.getAlertState(context, String.valueOf(alert.getId()));
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this,  AlertDialog.THEME_HOLO_DARK);
         final WEATextToSpeech textToSpeech = new WEATextToSpeech(activity);
 
         AlertDialog alertDialog;
@@ -282,12 +285,18 @@ public class MainActivity extends FragmentActivity
 
         //set the title and message of the alert
         builder.setTitle(alert.getAlertType() + " Alert");
-        builder.setMessage(alert.getText());
+
+        final TextView message = new TextView(this);
+        SpannableString string = AlertHelper.getTextWithStyle(alert.getText(), 40);
+        message.setText(string);
+        message.setMovementMethod(LinkMovementMethod.getInstance());
+        builder.setView(message);
 
         alertDialog = builder.create();
         alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialog) {
+                getIntent().setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 if(alertState!= null && !alertState.isAlreadyShown() && alert.isActive()){
 
                     alertState.setAlreadyShown(true);
@@ -299,9 +308,11 @@ public class MainActivity extends FragmentActivity
                     }
 
                     if(alert != null && alert.isTextToSpeechExpected()){
-                        textToSpeech.say(alert.getText(), 2);
+                        textToSpeech.say(AlertHelper.getTextWithStyle(alert.getText(), 33).toString(), 2);
                     }
                 }
+
+                // Make the textview clickable. Must be called after show()
             }
         });
 
