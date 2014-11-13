@@ -8,11 +8,14 @@ import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import sv.cmu.edu.weamobile.data.Alert;
 import sv.cmu.edu.weamobile.R;
+import sv.cmu.edu.weamobile.data.Alert;
+import sv.cmu.edu.weamobile.data.AlertState;
 import sv.cmu.edu.weamobile.utility.AlertHelper;
 import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.Logger;
+import sv.cmu.edu.weamobile.utility.WEAHttpClient;
+import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
 
 
 public class FeedbackWebViewActivity extends Activity {
@@ -26,6 +29,17 @@ public class FeedbackWebViewActivity extends Activity {
         if (alertId != -1 ) {
             Alert alert = AlertHelper.getAlertFromId(getApplicationContext(), String.valueOf(alertId));
             if(alert != null){
+
+                AlertState alertState = WEASharedPreferences.getAlertState(getApplicationContext(),
+                        String.valueOf(alertId));
+                alertState.setFeedbackGiven(true);
+                alertState.setTimeWhenFeedbackGivenInEpoch(System.currentTimeMillis());
+                WEASharedPreferences.saveAlertState(getApplicationContext(),alertState);
+
+                WEAHttpClient.sendAlertState(getApplicationContext(),
+                        alertState.getJson(),
+                        String.valueOf(alertId));
+
                 WebView wv = (WebView) this.findViewById(R.id.webView);
                 wv.getSettings().setJavaScriptEnabled(true);
                 wv.setWebViewClient(new MyBrowser());

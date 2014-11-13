@@ -11,9 +11,18 @@ public class AlertState {
     //these properties are set by phone
     private boolean isAlreadyShown = false;
     private boolean isFeedbackGiven = false;
-    private long timeWhenShownInEpoch;
+    private long timeWhenShownToUserInEpoch;
+    private long timeWhenFeedbackGivenInEpoch;
     private GeoLocation locationWhenShown;
     private boolean isInPolygon = false;
+
+    public long getTimeWhenFeedbackGivenInEpoch() {
+        return timeWhenFeedbackGivenInEpoch;
+    }
+
+    public void setTimeWhenFeedbackGivenInEpoch(long timeWhenFeedbackGivenInEpoch) {
+        this.timeWhenFeedbackGivenInEpoch = timeWhenFeedbackGivenInEpoch;
+    }
 
     public AlertState(int id){
         this.id = id;
@@ -36,12 +45,12 @@ public class AlertState {
         this.isAlreadyShown = isAlreadyShown;
     }
 
-    public long getTimeWhenShownInEpoch() {
-        return timeWhenShownInEpoch;
+    public long getTimeWhenShownToUserInEpoch() {
+        return timeWhenShownToUserInEpoch;
     }
 
-    public void setTimeWhenShownInEpoch(long timeWhenShownInEpoch) {
-        this.timeWhenShownInEpoch = timeWhenShownInEpoch;
+    public void setTimeWhenShownToUserInEpoch(long timeWhenShownToUserInEpoch) {
+        this.timeWhenShownToUserInEpoch = timeWhenShownToUserInEpoch;
     }
 
     public GeoLocation getLocationWhenShown() {

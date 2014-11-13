@@ -141,6 +141,7 @@ public class AppConfiguration {
 
 
     private int id;
+    private int heartbeatRate;
     private String channel;
     private String protocol;
     private long scheduledFor;
@@ -279,5 +280,13 @@ public class AppConfiguration {
 
     public void setJson(String json) {
         this.json = json;
+    }
+
+    public int getHeartbeatRate() {
+        return heartbeatRate;
+    }
+
+    public void setHeartbeatRate(int heartbeatRate) {
+        this.heartbeatRate = heartbeatRate;
     }
 }

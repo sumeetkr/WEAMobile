@@ -38,6 +38,7 @@ public class AlertDetailActivity extends FragmentActivity {
 
         if(state != null && !state.isAlreadyShown() && alert.isActive() && state.isInPolygon()){
             setTheme(android.R.style.Theme_DeviceDefault_Dialog_NoActionBar);
+//            setTheme(android.R.style.Theme_DeviceDefault_Dialog);
         }else{
             setTheme(android.R.style.Theme_DeviceDefault);
         }

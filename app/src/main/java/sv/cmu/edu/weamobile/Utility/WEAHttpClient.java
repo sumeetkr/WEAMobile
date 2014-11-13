@@ -71,6 +71,7 @@ public class WEAHttpClient {
                             String.valueOf(System.currentTimeMillis()));
 
                     Logger.log("JsonSender", "Success - ");
+                    Logger.debug(response);
                     Intent intent = new Intent("new-config-event");
                     intent.putExtra("message", response);
                     LocalBroadcastManager.getInstance(ctxt).sendBroadcast(intent);
@@ -168,5 +169,63 @@ public class WEAHttpClient {
         tracker.stopUsingGPS();
         //fetch application configuration from server
 
+    }
+
+    public static void saveUserLogin(Context context, String mUserId) {
+        final Context ctxt = context;
+        String response = "";
+        String server_url = Constants.REGISTRATION_URL_ROOT + WEAUtil.getIMSI(context) + "/" + mUserId;
+        try {
+
+            Logger.log("send registration ", server_url);
+            AsyncHttpClient client = new AsyncHttpClient();
+
+            client.put(ctxt, server_url, null, "application/json", new AsyncHttpResponseHandler() {
+                @Override
+                public void onSuccess(String response) {
+                    Logger.log("registration", "Success - ");
+                }
+
+                @Override
+                public void onFailure(int statusCode, org.apache.http.Header[] headers, byte[] errorResponse, Throwable e) {
+                    Log.w("WEA registration", "Failure in sending - " + "Status code -" + statusCode + " Error response -" + errorResponse);
+                }
+            });
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            response = "failed : + " + e.getMessage();
+            Log.d("WEA JsonSender",e.getMessage());
+        }
+    }
+
+    public static void sendAlertState(Context context, String alertStateInJson, String alertId) {
+        final Context ctxt = context;
+        String response = "";
+        String server_url = Constants.STATE_URL_ROOT+ alertId+ "/"+ WEAUtil.getIMSI(context) ;
+        try {
+
+            StringEntity entity = new StringEntity(alertStateInJson);
+            Logger.log("send alert state ", server_url);
+            Logger.debug(alertStateInJson);
+            AsyncHttpClient client = new AsyncHttpClient();
+
+            client.put(ctxt, server_url, entity, "application/json", new AsyncHttpResponseHandler() {
+                @Override
+                public void onSuccess(String response) {
+                    Logger.log("WEA sending alert state", "Success - ");
+                }
+
+                @Override
+                public void onFailure(int statusCode, org.apache.http.Header[] headers, byte[] errorResponse, Throwable e) {
+                    Log.w("WEA sending alert state", "Failure in sending - " + "Status code -" + statusCode + " Error response -" + errorResponse);
+                }
+            });
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            response = "failed : + " + e.getMessage();
+            Log.d("WEA JsonSender",e.getMessage());
+        }
     }
 }

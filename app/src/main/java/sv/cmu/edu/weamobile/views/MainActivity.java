@@ -28,6 +28,7 @@ import sv.cmu.edu.weamobile.R;
 import sv.cmu.edu.weamobile.utility.AlertHelper;
 import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.Logger;
+import sv.cmu.edu.weamobile.utility.WEAHttpClient;
 import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
 import sv.cmu.edu.weamobile.utility.WEATextToSpeech;
 import sv.cmu.edu.weamobile.utility.WEAUtil;
@@ -197,6 +198,10 @@ public class MainActivity extends FragmentActivity
                 Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
                 startActivity(intent);
                 return true;
+            case R.id.action_login:
+                Intent intent2 = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(intent2);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -262,7 +267,7 @@ public class MainActivity extends FragmentActivity
         final Activity activity = this;
         final AlertState alertState = WEASharedPreferences.getAlertState(context, String.valueOf(alert.getId()));
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this,  AlertDialog.THEME_HOLO_DARK);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this,  AlertDialog.THEME_TRADITIONAL);
         final WEATextToSpeech textToSpeech = new WEATextToSpeech(activity);
 
         AlertDialog alertDialog;
@@ -289,6 +294,7 @@ public class MainActivity extends FragmentActivity
 
         //set the title and message of the alert
         builder.setTitle(alert.getAlertType() + " Alert");
+        builder.setIcon(R.drawable.ic_launcher);
 
         final TextView message = new TextView(this);
         SpannableString string = AlertHelper.getTextWithStyle(alert.getText(), 40);
@@ -304,8 +310,11 @@ public class MainActivity extends FragmentActivity
                 if(alertState!= null && !alertState.isAlreadyShown() && alert.isActive()){
 
                     alertState.setAlreadyShown(true);
-                    alertState.setTimeWhenShownInEpoch(System.currentTimeMillis());
+                    alertState.setTimeWhenShownToUserInEpoch(System.currentTimeMillis());
                     WEASharedPreferences.saveAlertState(getApplicationContext(), alertState);
+                    WEAHttpClient.sendAlertState(getApplicationContext(),
+                            alertState.getJson(),
+                            String.valueOf(alertState.getId()));
 
                     if(alert != null && alert.isPhoneExpectedToVibrate()){
                         WEAVibrator.vibrate(getApplicationContext());

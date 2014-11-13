@@ -57,9 +57,9 @@ public class AlertHelper {
         Alert [] alerts = configuration.getAlerts(context);
 
         for(Alert alert: alerts){
-            if(alert.getId() == alertId && alert.isActive()){
+            if(alert.getId() == alertId && alert.isActive() ){
                 GPSTracker tracker = new GPSTracker(context);
-                if(tracker.canGetLocation()){
+                if(alert.isGeoFiltering() && tracker.canGetLocation()){
                     Logger.log("The phone can get location, will check if in target");
                     tracker.keepLookingForPresenceInPolygonAndShowAlertIfNecessary(context, alert, configuration);
                 }else{

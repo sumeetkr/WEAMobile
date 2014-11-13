@@ -7,6 +7,7 @@ import android.util.Log;
  */
 public class Logger {
     public static final String TAG = "WEA";
+    private static final boolean isInDebugMode = true;
 
     public static void log(String text){
         try{
@@ -27,5 +28,18 @@ public class Logger {
 
     public static void log(String tag, String text){
         Log.d(tag, text);
+    }
+
+    public static void debug( String text){
+        if(isInDebugMode){
+            try{
+                if(text==null || text.isEmpty()){
+                    text = "no message";
+                }
+                Log.d(TAG, text);
+            }catch(Exception ex){
+                Log.d(TAG, ex.getMessage());
+            }
+        }
     }
 }

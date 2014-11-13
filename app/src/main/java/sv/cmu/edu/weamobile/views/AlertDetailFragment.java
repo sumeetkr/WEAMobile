@@ -18,17 +18,19 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolygonOptions;
 
+import sv.cmu.edu.weamobile.R;
 import sv.cmu.edu.weamobile.data.Alert;
 import sv.cmu.edu.weamobile.data.AlertState;
 import sv.cmu.edu.weamobile.data.GeoLocation;
-import sv.cmu.edu.weamobile.R;
 import sv.cmu.edu.weamobile.utility.AlertHelper;
 import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.GPSTracker;
 import sv.cmu.edu.weamobile.utility.Logger;
+import sv.cmu.edu.weamobile.utility.WEAHttpClient;
 import sv.cmu.edu.weamobile.utility.WEAPointInPoly;
 import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
 import sv.cmu.edu.weamobile.utility.WEATextToSpeech;
@@ -85,7 +87,7 @@ public class AlertDetailFragment extends Fragment {
             }
             view.setText(
                     AlertHelper.getTextWithStyle(text
-                    , 40));
+                    , 60));
 
             view.setMovementMethod(LinkMovementMethod.getInstance());
 
@@ -94,7 +96,8 @@ public class AlertDetailFragment extends Fragment {
 
             String textToShow = AlertHelper.getContextTextToShow(alert,myLocation);
             ((TextView) rootView.findViewById(R.id.txtLabel)).setText(
-                    AlertHelper.getTextWithStyle("Schedule: " + startTime +" to " +endTime + "\n" + textToShow,
+                    AlertHelper.getTextWithStyle("Start time: " + startTime +"&#13;&#10;    \n"+  "End time: " +endTime,
+                                    //+ "\n" + textToShow,
                             25));
 
             getActivity().setTitle("CMU WEA+ " + alert.getAlertType() + " Alert");
@@ -183,16 +186,21 @@ public class AlertDetailFragment extends Fragment {
         if(alertState!= null && !alertState.isAlreadyShown() && alert.isActive()){
 
             alertState.setAlreadyShown(true);
-            alertState.setTimeWhenShownInEpoch(System.currentTimeMillis());
+            alertState.setTimeWhenShownToUserInEpoch(System.currentTimeMillis());
             WEASharedPreferences.saveAlertState(getActivity().getApplicationContext(), alertState);
+
+            WEAHttpClient.sendAlertState(getActivity().getApplicationContext(),
+                    alertState.getJson(),
+                    String.valueOf(alertState.getId()));
+
 
             if (alert != null && alert.isPhoneExpectedToVibrate()) {
                 WEAVibrator.vibrate(getActivity().getApplicationContext());
             }
 
             if(alert != null && alert.isTextToSpeechExpected()){
-                String messageToSay = AlertHelper.getTextWithStyle(alert.getText(), 33).toString()
-                        + AlertHelper.getContextTextToShow(alert, myLocation);;
+                String messageToSay = AlertHelper.getTextWithStyle(alert.getText(), 33).toString();
+//                        + AlertHelper.getContextTextToShow(alert, myLocation);
                 textToSpeech = new WEATextToSpeech(getActivity());
                 textToSpeech.say(messageToSay, 2);
             }
@@ -241,16 +249,15 @@ public class AlertDetailFragment extends Fragment {
     }
 
     private void drawPolygon(){
-        if(mMap!=null){
+        if(mMap!=null && alert.isGeoFiltering()){
             PolygonOptions polyOptions = new PolygonOptions()
                     .strokeColor(Color.RED);
 
-            if(alert!=null){
-                GeoLocation[] locations = alert.getPolygon();
-                for(GeoLocation location:locations){
-                    polyOptions.add(new LatLng(Double.parseDouble(location.getLat()), Double.parseDouble(location.getLng())));
-                }
+            GeoLocation[] locations = alert.getPolygon();
+            for(GeoLocation location:locations){
+                polyOptions.add(new LatLng(Double.parseDouble(location.getLat()), Double.parseDouble(location.getLng())));
             }
+
 
 
             mMap.addPolygon(polyOptions);
@@ -259,14 +266,39 @@ public class AlertDetailFragment extends Fragment {
     }
 
     private void setCenter(){
-        double [] location = WEAPointInPoly.calculatePolyCenter(alert.getPolygon());
 
-        CameraUpdate center=
-                CameraUpdateFactory.newLatLng(new LatLng(location[0],location[1]));
-        CameraUpdate zoom=CameraUpdateFactory.zoomTo(17);
+        if(alert.getPolygon() != null){
 
-        mMap.moveCamera(center);
-        mMap.animateCamera(zoom);
+            double [] centerLocation = WEAPointInPoly.calculatePolyCenter(alert.getPolygon());
+
+            CameraUpdate center=
+                    CameraUpdateFactory.newLatLng(new LatLng(centerLocation[0],centerLocation[1]));
+
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            for (GeoLocation location : alert.getPolygon()) {
+                builder.include(new LatLng(location.getLatitude(), location.getLongitude()));
+            }
+
+//            if(alertState != null && alertState.getLocationWhenShown() != null){
+//                builder.include(new LatLng(alertState.getLocationWhenShown().getLatitude(),
+//                        alertState.getLocationWhenShown().getLongitude()));
+//            }
+
+            LatLngBounds bounds = builder.build();
+
+            int padding = 0; // offset from edges of the map in pixels
+            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+
+//            mMap.moveCamera(cu);
+//            mMap.animateCamera(cu);
+
+            mMap.moveCamera(center);
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+        }else{
+            CameraUpdate zoom=CameraUpdateFactory.zoomTo(17);
+            mMap.animateCamera(zoom);
+        }
+
     }
 
 }
