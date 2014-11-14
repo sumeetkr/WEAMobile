@@ -12,6 +12,7 @@ import java.util.ArrayList;
 
 import sv.cmu.edu.weamobile.data.Alert;
 import sv.cmu.edu.weamobile.R;
+import sv.cmu.edu.weamobile.data.AlertState;
 
 /**
  * Created by sumeet on 10/31/14.
@@ -37,12 +38,22 @@ public class AlertListAdapter extends ArrayAdapter<Alert> {
             TextView alertMessage = (TextView) v.findViewById(R.id.username);
             TextView alertType = (TextView) v.findViewById(R.id.email);
 
+            AlertState state = AlertHelper.getAlertStateFromId(getContext(), String.valueOf(alert.getId()));
             if (alertMessage != null) {
-                alertMessage.setText(AlertHelper.getTextWithStyle(alert.getText(), 33));
+                if(state != null && state.isFeedbackGiven()){
+                    alertMessage.setText(AlertHelper.getTextWithStyle((alert.getAlertType() + " Alert "), 33, true));
+                }
+                else{
+                    alertMessage.setText(AlertHelper.getTextWithStyle((alert.getAlertType() + " Alert "), 33, false));
+                }
             }
 
             if (alertType != null) {
-                alertType.setText(alert.getAlertType() + " Alert " + alert.getScheduledForString());
+                if(state != null && state.isFeedbackGiven()){
+                    alertType.setText(AlertHelper.getTextWithStyle(alert.getText(), 28, true));
+                }else{
+                    alertType.setText(AlertHelper.getTextWithStyle(alert.getText(), 28, false));
+                }
             }
 
             ImageView imView = (ImageView)v.findViewById(R.id.avatar);
@@ -51,9 +62,13 @@ public class AlertListAdapter extends ArrayAdapter<Alert> {
                 if(System.currentTimeMillis()/1000 <  alert.getEndingAtEpochInSeconds() ){
                     imView.setImageResource(R.drawable.alert_green);
                 }else{
-                    imView.setImageResource(R.drawable.alert_red);
+                    if(state != null && state.isFeedbackGiven()){
+                        imView.setImageResource(R.drawable.alert_purple);
+                    }else{
+                        imView.setImageResource(R.drawable.alert_red);
+                    }
+                    v.setVisibility(View.VISIBLE);
                 }
-                v.setVisibility(View.VISIBLE);
             }
         }
 

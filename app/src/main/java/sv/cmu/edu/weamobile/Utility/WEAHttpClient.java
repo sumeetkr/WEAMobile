@@ -212,7 +212,7 @@ public class WEAHttpClient {
             Logger.debug(alertStateInJson);
             AsyncHttpClient client = new AsyncHttpClient();
 
-            client.put(ctxt, server_url, entity, "application/json", new AsyncHttpResponseHandler() {
+            client.post(ctxt, server_url, entity, "application/json", new AsyncHttpResponseHandler() {
                 @Override
                 public void onSuccess(String response) {
                     Logger.log("WEA sending alert state", "Success - ");

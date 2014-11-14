@@ -15,7 +15,7 @@ public class AlertState {
     private long timeWhenFeedbackGivenInEpoch;
     private GeoLocation locationWhenShown;
     private boolean isInPolygon = false;
-    private State state = State.ack;
+    private State state = null;
 
     public State getState() {
         return state;
@@ -26,7 +26,7 @@ public class AlertState {
     }
 
     public enum State {
-        ack, scheduled, seen, clicked
+        scheduled, shown, clicked
     }
 
     public long getTimeWhenFeedbackGivenInEpoch() {

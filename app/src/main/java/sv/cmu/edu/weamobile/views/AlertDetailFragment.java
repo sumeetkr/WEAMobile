@@ -88,7 +88,7 @@ public class AlertDetailFragment extends Fragment {
             }
             view.setText(
                     AlertHelper.getTextWithStyle(text
-                    , 60));
+                    , 60, false));
 
             view.setMovementMethod(LinkMovementMethod.getInstance());
 
@@ -99,7 +99,7 @@ public class AlertDetailFragment extends Fragment {
             ((TextView) rootView.findViewById(R.id.txtLabel)).setText(
                     AlertHelper.getTextWithStyle("Start time: " + startTime +"&#13;&#10;    \n"+  "End time: " +endTime,
                                     //+ "\n" + textToShow,
-                            25));
+                            25, false));
 
             getActivity().setTitle("CMU WEA+ " + alert.getAlertType() + " Alert");
 
@@ -188,7 +188,7 @@ public class AlertDetailFragment extends Fragment {
 
             alertState.setAlreadyShown(true);
             alertState.setTimeWhenShownToUserInEpoch(System.currentTimeMillis());
-            alertState.setState(AlertState.State.seen);
+            alertState.setState(AlertState.State.shown);
             WEASharedPreferences.saveAlertState(getActivity().getApplicationContext(), alertState);
 
             WEAHttpClient.sendAlertState(getActivity().getApplicationContext(),
@@ -201,7 +201,7 @@ public class AlertDetailFragment extends Fragment {
             }
 
             if(alert != null && alert.isTextToSpeechExpected()){
-                String messageToSay = AlertHelper.getTextWithStyle(alert.getText(), 33).toString();
+                String messageToSay = AlertHelper.getTextWithStyle(alert.getText(), 33, false).toString();
 //                        + AlertHelper.getContextTextToShow(alert, myLocation);
                 textToSpeech = new WEATextToSpeech(getActivity());
                 textToSpeech.say(messageToSay, 2);

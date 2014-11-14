@@ -312,7 +312,7 @@ public class MainActivity extends FragmentActivity
         builder.setIcon(R.drawable.ic_launcher);
 
         final TextView message = new TextView(this);
-        SpannableString string = AlertHelper.getTextWithStyle(alert.getText(), 40);
+        SpannableString string = AlertHelper.getTextWithStyle(alert.getText(), 40, false);
         message.setText(string);
         message.setMovementMethod(LinkMovementMethod.getInstance());
         builder.setView(message);
@@ -326,7 +326,7 @@ public class MainActivity extends FragmentActivity
 
                     alertState.setAlreadyShown(true);
                     alertState.setTimeWhenShownToUserInEpoch(System.currentTimeMillis());
-                    alertState.setState(AlertState.State.seen);
+                    alertState.setState(AlertState.State.shown);
                     WEASharedPreferences.saveAlertState(getApplicationContext(), alertState);
                     WEAHttpClient.sendAlertState(getApplicationContext(),
                             alertState.getJson(),
@@ -337,7 +337,7 @@ public class MainActivity extends FragmentActivity
                     }
 
                     if(alert != null && alert.isTextToSpeechExpected()){
-                        textToSpeech.say(AlertHelper.getTextWithStyle(alert.getText(), 33).toString(), 2);
+                        textToSpeech.say(AlertHelper.getTextWithStyle(alert.getText(), 33, false).toString(), 2);
                     }
                 }
 
