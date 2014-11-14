@@ -17,6 +17,7 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -220,6 +221,38 @@ public class AlertDetailFragment extends Fragment {
                     // Check if we were successful in obtaining the map.
                     if (mMap != null) {
                         setUpMap();
+
+                        mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+
+                            @Override
+                            public void onCameraChange(CameraPosition arg0) {
+                                LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                                for (GeoLocation location : alert.getPolygon()) {
+                                    builder.include(new LatLng(location.getLatitude(), location.getLongitude()));
+                                }
+
+                                if(alertState != null && alertState.getLocationWhenShown() != null){
+                                    builder.include(new LatLng(alertState.getLocationWhenShown().getLatitude(),
+                                            alertState.getLocationWhenShown().getLongitude()));
+                                }
+
+                                LatLngBounds bounds = builder.build();
+                                // Move camera.
+                                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 100), 1000, new GoogleMap.CancelableCallback() {
+                                    @Override
+                                    public void onFinish() {
+
+                                    }
+
+                                    @Override
+                                    public void onCancel() {
+
+                                    }
+                                });
+                                // Remove listener to prevent position reset on camera move.
+                                mMap.setOnCameraChangeListener(null);
+                            }
+                        });
                     }
                 }catch(Exception ex){
                     Logger.log(ex.getMessage());
@@ -272,28 +305,10 @@ public class AlertDetailFragment extends Fragment {
             double [] centerLocation = WEAPointInPoly.calculatePolyCenter(alert.getPolygon());
 
             CameraUpdate center=
-                    CameraUpdateFactory.newLatLng(new LatLng(centerLocation[0],centerLocation[1]));
-
-            LatLngBounds.Builder builder = new LatLngBounds.Builder();
-            for (GeoLocation location : alert.getPolygon()) {
-                builder.include(new LatLng(location.getLatitude(), location.getLongitude()));
-            }
-
-//            if(alertState != null && alertState.getLocationWhenShown() != null){
-//                builder.include(new LatLng(alertState.getLocationWhenShown().getLatitude(),
-//                        alertState.getLocationWhenShown().getLongitude()));
-//            }
-
-            LatLngBounds bounds = builder.build();
-
-            int padding = 0; // offset from edges of the map in pixels
-            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-
-//            mMap.moveCamera(cu);
-//            mMap.animateCamera(cu);
+                    CameraUpdateFactory.newLatLng(new LatLng(centerLocation[0], centerLocation[1]));
 
             mMap.moveCamera(center);
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(12));
         }else{
             CameraUpdate zoom=CameraUpdateFactory.zoomTo(17);
             mMap.animateCamera(zoom);

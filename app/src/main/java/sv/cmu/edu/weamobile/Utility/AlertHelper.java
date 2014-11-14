@@ -10,11 +10,11 @@ import android.text.style.AbsoluteSizeSpan;
 import android.text.style.StyleSpan;
 import android.widget.Toast;
 
-import sv.cmu.edu.weamobile.views.MainActivity;
 import sv.cmu.edu.weamobile.data.Alert;
 import sv.cmu.edu.weamobile.data.AlertState;
 import sv.cmu.edu.weamobile.data.AppConfiguration;
 import sv.cmu.edu.weamobile.data.GeoLocation;
+import sv.cmu.edu.weamobile.views.MainActivity;
 
 /**
  * Created by sumeet on 10/30/14.
@@ -37,9 +37,11 @@ public class AlertHelper {
 
         if(alert.isActive()){
             AlertState state = WEASharedPreferences.getAlertState(context, String.valueOf(alert.getId()));
-            state.setInPolygon(true);
-            state.setLocationWhenShown(location);
-            WEASharedPreferences.saveAlertState(context, state);
+            if(location != null){
+                state.setInPolygon(true);
+                state.setLocationWhenShown(location);
+                WEASharedPreferences.saveAlertState(context, state);
+            }
 
             Intent dialogIntent = new Intent(context, MainActivity.class);
             dialogIntent.putExtra("item_id", String.valueOf(alert.getId()));
@@ -59,12 +61,20 @@ public class AlertHelper {
         for(Alert alert: alerts){
             if(alert.getId() == alertId && alert.isActive() ){
                 GPSTracker tracker = new GPSTracker(context);
-                if(alert.isGeoFiltering() && tracker.canGetLocation()){
-                    Logger.log("The phone can get location, will check if in target");
-                    tracker.keepLookingForPresenceInPolygonAndShowAlertIfNecessary(context, alert, configuration);
+                if(tracker.canGetLocation()){
+                    if(alert.isGeoFiltering() ){
+                        Logger.log("The phone can get location, will check if in target");
+                        tracker.keepLookingForPresenceInPolygonAndShowAlertIfNecessary(context, alert, configuration);
+                    }else{
+                        String message = "Geo-filtering off, showing alert";
+                        Logger.log(message);
+                        Toast.makeText(context,
+                                "Alert Time!!: " + message, Toast.LENGTH_SHORT).show();
+                        showAlert(context, alert, tracker.getNetworkGeoLocation(), configuration);
+                    }
                 }else{
                     Logger.log("Location not known");
-                    String message ="Location not know, Geo-filtering failed.";
+                    String message ="GPS location not know, please enable GPS for Geo-filtering.";
                     Logger.log(message);
                     Toast.makeText(context,
                             "Alert Time!!: " + message, Toast.LENGTH_SHORT).show();

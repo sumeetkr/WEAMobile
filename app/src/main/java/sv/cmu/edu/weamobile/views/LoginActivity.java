@@ -28,7 +28,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sv.cmu.edu.weamobile.R;
+import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.WEAHttpClient;
+import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
 
 /**
  * A login screen that offers login via email/password.
@@ -88,6 +90,12 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
     private void populateAutoComplete() {
         getLoaderManager().initLoader(0, null, this);
+
+
+        String user_name = WEASharedPreferences.getStringProperty(getApplicationContext(), Constants.USER_NAME);
+        if(user_name != null || user_name != ""){
+         userIdView.setText(user_name);
+        }
     }
 
 

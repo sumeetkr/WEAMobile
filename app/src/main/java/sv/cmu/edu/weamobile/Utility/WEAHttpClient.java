@@ -171,7 +171,7 @@ public class WEAHttpClient {
 
     }
 
-    public static void saveUserLogin(Context context, String mUserId) {
+    public static void saveUserLogin(final Context context, final String mUserId) {
         final Context ctxt = context;
         String response = "";
         String server_url = Constants.REGISTRATION_URL_ROOT + WEAUtil.getIMSI(context) + "/" + mUserId;
@@ -183,7 +183,9 @@ public class WEAHttpClient {
             client.put(ctxt, server_url, null, "application/json", new AsyncHttpResponseHandler() {
                 @Override
                 public void onSuccess(String response) {
+
                     Logger.log("registration", "Success - ");
+                    WEASharedPreferences.setStringProperty(context,Constants.USER_NAME, mUserId);
                 }
 
                 @Override

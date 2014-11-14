@@ -213,7 +213,7 @@ public class GPSTracker extends Service implements LocationListener {
 
                 }else{
 //                    AlertHelper.broadcastOutOfTargetAlert(mContext);
-                    String message ="But you are not inside the polygon, remaining times to check"
+                    String message ="But you are not inside the polygon, remaining times to check "
                                                      + (noOfTimesToCheck - countOfUpdates);
                     Logger.log(message);
                     Toast.makeText(mContext,

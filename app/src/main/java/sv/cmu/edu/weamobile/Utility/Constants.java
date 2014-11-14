@@ -23,4 +23,5 @@ public class Constants {
     public static final String ALERT_STATE = "alert_state";
     public static final boolean IS_IN_DEBUG_MODE = false;
 
+    public static final String USER_NAME = "user_name";
 }
