@@ -4,3 +4,9 @@
 /.idea/libraries
 .DS_Store
 /build
+
+.idea/.name
+.idea/misc.xml
+.idea/modules.xml
+app/app.iml
+.idea/
