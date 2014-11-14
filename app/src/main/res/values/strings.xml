@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">WEAMobile</string>
+    <string name="app_name">CMU WEAMobile</string>
     <string name="title_activity_main">CMU WEA+</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>

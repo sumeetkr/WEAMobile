@@ -86,9 +86,6 @@ public class AlertHelper {
 
     public static Alert getAlertFromId(Context context, String id) {
 
-//        return WEASharedPreferences.getAlertState(context,id);
-
-
         AppConfiguration configuration = AppConfiguration.fromJson(WEASharedPreferences.readApplicationConfiguration(context));
         Logger.log("AlertDetailFragment key: " + id);
 
@@ -99,6 +96,10 @@ public class AlertHelper {
             }
         }
         return selectedAlert;
+    }
+
+    public static AlertState getAlertStateFromId(Context context, String id) {
+        return WEASharedPreferences.getAlertState(context, id);
     }
 
     public static AlertState [] getAlertStates(Context context, Alert [] alerts){

@@ -13,9 +13,9 @@ import android.util.Log;
 import android.widget.Toast;
 
 import sv.cmu.edu.weamobile.data.Alert;
+import sv.cmu.edu.weamobile.data.AlertState;
 import sv.cmu.edu.weamobile.data.AppConfiguration;
 import sv.cmu.edu.weamobile.utility.AlertHelper;
-import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.Logger;
 import sv.cmu.edu.weamobile.utility.WEAHttpClient;
 import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
@@ -104,7 +104,20 @@ public class WEABackgroundService extends Service {
             if(message!=null && !message.isEmpty()){
                 Toast.makeText(getApplicationContext(), "Alert Time!!: " + message, Toast.LENGTH_SHORT).show();
             }
-            WEAAlarmManager.setupAlarmForAlertAtScheduledTime(getApplicationContext(), alert.getId(), alert.getScheduledEpochInSeconds()*1000);
+            WEAAlarmManager.setupAlarmForAlertAtScheduledTime(getApplicationContext(), alert.getId(), alert.getScheduleEpochInMillis());
+
+            try{
+                AlertState alertState = AlertHelper.getAlertStateFromId(getApplicationContext(), String.valueOf(alert.getId()));
+                alertState.setState(AlertState.State.scheduled);
+                WEASharedPreferences.saveAlertState(getApplicationContext(), alertState);
+                WEAHttpClient.sendAlertState(getApplicationContext(),
+                        alertState.getJson(),
+                        String.valueOf(alertState.getId()));
+
+            }
+            catch (Exception ex){
+                Logger.log(ex.getMessage());
+            }
         }
     }
 
@@ -115,20 +128,14 @@ public class WEABackgroundService extends Service {
         if(alerts.length >0){
             for(Alert alert: alerts){
                 try{
-                    long currentTime = System.currentTimeMillis()/1000;
-                    //only show if not shown before in +60 -1 seconds
-                    if((alert.getScheduledEpochInSeconds()- currentTime) < Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES*60
-                            && (alert.getScheduledEpochInSeconds() - currentTime) > -1* Constants.TIME_THRESHOLD_TO_SHOW_ALERT_IN_SECONDS){ //just 2 seconds
+                    if(alert.isInRangeToSchedule()){
                         relevantAlert = alert;
                     }
-
                 }catch(Exception ex){
                     Logger.log(ex.getMessage());
-
                 }
             }
         }
-
         return relevantAlert;
     }
 
@@ -152,7 +159,7 @@ public class WEABackgroundService extends Service {
 
             }else{
                 WEASharedPreferences.saveApplicationConfiguration(context, json);
-                newConfigurationIntent = new WEANewConfigurationIntent("Received new Configuration !!", json, false);
+                newConfigurationIntent = new WEANewConfigurationIntent("", json, false);
             }
 
             AppConfiguration configuration = AppConfiguration.fromJson(json);

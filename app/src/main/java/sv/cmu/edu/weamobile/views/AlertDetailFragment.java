@@ -148,7 +148,7 @@ public class AlertDetailFragment extends Fragment {
 
     @Override
     public void onDestroy() {
-        if(textToSpeech!=null) textToSpeech.shutdown();
+        shutdownSpeech();
         super.onDestroy();
     }
 
@@ -169,7 +169,7 @@ public class AlertDetailFragment extends Fragment {
             btnFeedback.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(textToSpeech!=null) textToSpeech.shutdown();
+                    shutdownSpeech();
 
                     alertState.setFeedbackGiven(true);
                     WEASharedPreferences.saveAlertState(getActivity().getApplicationContext(), alertState);
@@ -188,6 +188,7 @@ public class AlertDetailFragment extends Fragment {
 
             alertState.setAlreadyShown(true);
             alertState.setTimeWhenShownToUserInEpoch(System.currentTimeMillis());
+            alertState.setState(AlertState.State.seen);
             WEASharedPreferences.saveAlertState(getActivity().getApplicationContext(), alertState);
 
             WEAHttpClient.sendAlertState(getActivity().getApplicationContext(),
@@ -291,8 +292,6 @@ public class AlertDetailFragment extends Fragment {
                 polyOptions.add(new LatLng(Double.parseDouble(location.getLat()), Double.parseDouble(location.getLng())));
             }
 
-
-
             mMap.addPolygon(polyOptions);
             setCenter();
         }
@@ -316,4 +315,7 @@ public class AlertDetailFragment extends Fragment {
 
     }
 
+    public void shutdownSpeech() {
+        if(textToSpeech != null) textToSpeech.shutdown();
+    }
 }

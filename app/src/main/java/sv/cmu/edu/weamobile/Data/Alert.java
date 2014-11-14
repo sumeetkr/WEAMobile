@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 
 import java.util.Date;
 
+import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.WEAUtil;
 
 /**
@@ -199,6 +200,16 @@ public class Alert {
         return epoch/1000;
     }
 
+    public long getScheduleEpochInMillis(){
+        long epoch = 0;
+        Date date = WEAUtil.getTimeStringFromJsonTime(scheduledFor, "UTC");
+        if(date != null){
+            epoch = date.getTime();
+        }
+
+        return  epoch;
+    }
+
     public Long getEndingAtEpochInSeconds(){
         long epoch = 0;
         Date date = WEAUtil.getTimeStringFromJsonTime(endingAt, "UTC");
@@ -258,15 +269,6 @@ public class Alert {
         return gson.toJson(this);
     }
 
-    public boolean isActive(){
-        boolean isActive = false;
-        long time = System.currentTimeMillis()/1000;
-        if(getEndingAtEpochInSeconds() > time && time >= getScheduledEpochInSeconds()){
-            isActive = true;
-        }
-        return  isActive;
-    }
-
     public String getEndingAtString() {
         Date date = WEAUtil.getTimeStringFromJsonTime(endingAt, "UTC");
         return date.toLocaleString();
@@ -279,4 +281,22 @@ public class Alert {
     public void setGeoFiltering(boolean isGeoTargetingEnabled) {
         this.geoFiltering = isGeoTargetingEnabled;
     }
+
+    public boolean isInRangeToSchedule() {
+        long currentTime = System.currentTimeMillis();
+        //only show if not shown before in +60 -1 seconds
+        return ((this.getScheduleEpochInMillis()- 1.5* Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES*60*1000) <currentTime)
+                && (this.getScheduleEpochInMillis() > currentTime);
+    }
+
+    public boolean isActive(){
+        boolean isActive = false;
+        long time = System.currentTimeMillis()/1000;
+        if(getEndingAtEpochInSeconds() > time && time >= getScheduledEpochInSeconds()){
+            isActive = true;
+        }
+        return  isActive;
+    }
+
+
 }

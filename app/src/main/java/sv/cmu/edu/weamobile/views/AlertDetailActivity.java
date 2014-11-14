@@ -1,15 +1,14 @@
 package sv.cmu.edu.weamobile.views;
 
-import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
 
+import sv.cmu.edu.weamobile.R;
 import sv.cmu.edu.weamobile.data.Alert;
 import sv.cmu.edu.weamobile.data.AlertState;
-import sv.cmu.edu.weamobile.R;
 import sv.cmu.edu.weamobile.utility.AlertHelper;
 import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
@@ -26,7 +25,7 @@ import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
  */
 public class AlertDetailActivity extends FragmentActivity {
 
-    FragmentManager fragmentManager;
+    AlertDetailFragment fragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +61,7 @@ public class AlertDetailActivity extends FragmentActivity {
             // using a fragment transaction.
             Bundle arguments = setArguments();
 
-            AlertDetailFragment fragment = new AlertDetailFragment();
+            fragment = new AlertDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.alert_detail_container, fragment)
@@ -95,6 +94,10 @@ public class AlertDetailActivity extends FragmentActivity {
 
     @Override
     public void onBackPressed() {
+        if(fragment!=null){
+            fragment.shutdownSpeech();
+        }
+
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
@@ -108,7 +111,6 @@ public class AlertDetailActivity extends FragmentActivity {
                 getIntent().getStringExtra(Constants.CONFIG_JSON));
 
         arguments.putBoolean("isDialog", getIntent().getBooleanExtra("isDialog",false));
-//            arguments.putBoolean("isMapHidden", getIntent().getBooleanExtra("isMapHidden",true));
         arguments.putBoolean("isAlertTime", getIntent().getBooleanExtra("isAlertTime", false));
         arguments.putString("feedback_url", getIntent().getStringExtra("feedback_url"));
         return arguments;

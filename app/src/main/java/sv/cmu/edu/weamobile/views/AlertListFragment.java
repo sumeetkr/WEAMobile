@@ -70,7 +70,7 @@ public class AlertListFragment extends ListFragment {
                 addItem(alert);
             }
 
-            if(alert.getScheduledEpochInSeconds()<System.currentTimeMillis()/1000 && alert.getEndingAtEpochInSeconds()>System.currentTimeMillis()/1000){
+            if(alert.isActive()){
                 AlertState state = alertStateMap.get(alert.getId());
                 if(state!=null && !state.isAlreadyShown()) activeButNotShown = alert;
             }

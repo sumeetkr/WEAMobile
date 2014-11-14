@@ -21,10 +21,13 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import sv.cmu.edu.weamobile.R;
 import sv.cmu.edu.weamobile.data.Alert;
 import sv.cmu.edu.weamobile.data.AlertState;
 import sv.cmu.edu.weamobile.data.AppConfiguration;
-import sv.cmu.edu.weamobile.R;
+import sv.cmu.edu.weamobile.service.WEAAlarmManager;
+import sv.cmu.edu.weamobile.service.WEABackgroundService;
+import sv.cmu.edu.weamobile.service.WEANewConfigurationIntent;
 import sv.cmu.edu.weamobile.utility.AlertHelper;
 import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.Logger;
@@ -33,9 +36,6 @@ import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
 import sv.cmu.edu.weamobile.utility.WEATextToSpeech;
 import sv.cmu.edu.weamobile.utility.WEAUtil;
 import sv.cmu.edu.weamobile.utility.WEAVibrator;
-import sv.cmu.edu.weamobile.service.WEAAlarmManager;
-import sv.cmu.edu.weamobile.service.WEABackgroundService;
-import sv.cmu.edu.weamobile.service.WEANewConfigurationIntent;
 
 public class MainActivity extends FragmentActivity
         implements AlertListFragment.Callbacks {
@@ -52,6 +52,7 @@ public class MainActivity extends FragmentActivity
     private AlertListFragment listFragment;
     private boolean isDialogShown = false;
     private boolean programTryingToChangeSwitch = false;
+    private AlertDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,10 +80,12 @@ public class MainActivity extends FragmentActivity
 
         handler = new Handler();
 
-        Log.d("WEA", "scheduling alarm");
-        WEAAlarmManager.setupRepeatingAlarmToWakeUpApplicationToFetchConfiguration(
-                this.getApplicationContext(),
-                Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES*60*1000);
+        if(!getIntent().hasExtra(Constants.ALERT_ID)){
+            Log.d("WEA", "scheduling alarm");
+            WEAAlarmManager.setupRepeatingAlarmToWakeUpApplicationToFetchConfiguration(
+                    this.getApplicationContext(),
+                    Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES * 60 * 1000);
+        }
     }
 
     private void setSwitchEvents() {
@@ -254,17 +257,22 @@ public class MainActivity extends FragmentActivity
     }
 
     public void onBackPressed() {
-        Intent startMain = new Intent(Intent.ACTION_MAIN);
-        startMain.addCategory(Intent.CATEGORY_HOME);
-        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(startMain);
 
+        if(isDialogShown && dialog != null){
+               dialog.dismiss();
+               dialog = null;
+        }else{
+            Intent startMain = new Intent(Intent.ACTION_MAIN);
+            startMain.addCategory(Intent.CATEGORY_HOME);
+            startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(startMain);
+        }
     }
 
     private void showDialog(Alert alert) {
         if(!isDialogShown) {
             isDialogShown = true;
-            AlertDialog dialog = createDialog(getApplicationContext(), alert);
+            dialog = createDialog(getApplicationContext(), alert);
             dialog.show();
         }
     }
@@ -319,6 +327,7 @@ public class MainActivity extends FragmentActivity
 
                     alertState.setAlreadyShown(true);
                     alertState.setTimeWhenShownToUserInEpoch(System.currentTimeMillis());
+                    alertState.setState(AlertState.State.seen);
                     WEASharedPreferences.saveAlertState(getApplicationContext(), alertState);
                     WEAHttpClient.sendAlertState(getApplicationContext(),
                             alertState.getJson(),

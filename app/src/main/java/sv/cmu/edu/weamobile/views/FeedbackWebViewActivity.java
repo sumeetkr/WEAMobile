@@ -34,6 +34,7 @@ public class FeedbackWebViewActivity extends Activity {
                         String.valueOf(alertId));
                 alertState.setFeedbackGiven(true);
                 alertState.setTimeWhenFeedbackGivenInEpoch(System.currentTimeMillis());
+                alertState.setState(AlertState.State.clicked);
                 WEASharedPreferences.saveAlertState(getApplicationContext(),alertState);
 
                 WEAHttpClient.sendAlertState(getApplicationContext(),
