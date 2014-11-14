@@ -1,4 +1,4 @@
-package sv.cmu.edu.weamobile.Utility;
+package sv.cmu.edu.weamobile.utility;
 
 import android.content.Context;
 import android.telephony.TelephonyManager;
@@ -41,6 +41,6 @@ public class WEAUtil {
     public static String getIMSI(Context context){
         TelephonyManager telephoneMananger = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         String imsi = telephoneMananger.getSimSerialNumber();
-        return imsi.substring(imsi.length()-8,imsi.length() );
+        return imsi;
     }
 }

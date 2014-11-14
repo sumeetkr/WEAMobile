@@ -12,14 +12,14 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import sv.cmu.edu.weamobile.Data.Alert;
-import sv.cmu.edu.weamobile.Data.AppConfiguration;
-import sv.cmu.edu.weamobile.Utility.AlertHelper;
-import sv.cmu.edu.weamobile.Utility.Constants;
-import sv.cmu.edu.weamobile.Utility.Logger;
-import sv.cmu.edu.weamobile.Utility.WEAHttpClient;
-import sv.cmu.edu.weamobile.Utility.WEASharedPreferences;
-import sv.cmu.edu.weamobile.Utility.WEAUtil;
+import sv.cmu.edu.weamobile.data.Alert;
+import sv.cmu.edu.weamobile.data.AppConfiguration;
+import sv.cmu.edu.weamobile.utility.AlertHelper;
+import sv.cmu.edu.weamobile.utility.Constants;
+import sv.cmu.edu.weamobile.utility.Logger;
+import sv.cmu.edu.weamobile.utility.WEAHttpClient;
+import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
+import sv.cmu.edu.weamobile.utility.WEAUtil;
 
 public class WEABackgroundService extends Service {
     public static final String FETCH_CONFIGURATION = "sv.cmu.edu.weamobile.service.action.FETCH_CONFIGURATION";
@@ -143,23 +143,25 @@ public class WEABackgroundService extends Service {
         public void onReceive(final Context context, Intent intent) {
             Logger.log("NewConfigurationReceiver");
             String json = intent.getStringExtra("message");
+            WEANewConfigurationIntent newConfigurationIntent;
 
             if(json.isEmpty()){
                 Logger.log("Received empty json");
                 json = WEASharedPreferences.readApplicationConfiguration(context);
+                newConfigurationIntent = new WEANewConfigurationIntent("Could not connect to server, using old configuration !!", json, true);
 
             }else{
                 WEASharedPreferences.saveApplicationConfiguration(context, json);
-
-                //update if new alerts
-                WEANewAlertIntent newConfigurationIntent = new WEANewAlertIntent("Received new Configuration !!", json);
-                Log.d("WEA", "Broadcast intent: About to broadcast new configuration");
-                getApplicationContext().sendBroadcast(newConfigurationIntent);
+                newConfigurationIntent = new WEANewConfigurationIntent("Received new Configuration !!", json, false);
             }
 
             AppConfiguration configuration = AppConfiguration.fromJson(json);
             addOrUpdatedAlertsStateToSharedPreferences(configuration);
             setupAlarmToShowAlertAtRightTime(configuration);
+
+            //update if new alerts
+            Log.d("WEA", "Broadcast intent: About to broadcast new configuration");
+            getApplicationContext().sendBroadcast(newConfigurationIntent);
         }
 
     }

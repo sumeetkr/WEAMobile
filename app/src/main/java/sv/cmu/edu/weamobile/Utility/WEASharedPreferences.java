@@ -1,11 +1,11 @@
-package sv.cmu.edu.weamobile.Utility;
+package sv.cmu.edu.weamobile.utility;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import sv.cmu.edu.weamobile.Data.Alert;
-import sv.cmu.edu.weamobile.Data.AlertState;
+import sv.cmu.edu.weamobile.data.Alert;
+import sv.cmu.edu.weamobile.data.AlertState;
 
 /**
  * Created by sumeet on 10/7/14.

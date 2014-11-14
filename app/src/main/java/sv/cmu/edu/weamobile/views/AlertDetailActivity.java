@@ -1,4 +1,4 @@
-package sv.cmu.edu.weamobile.Activities;
+package sv.cmu.edu.weamobile.views;
 
 import android.app.FragmentManager;
 import android.content.Intent;
@@ -7,12 +7,12 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
 
-import sv.cmu.edu.weamobile.Data.Alert;
-import sv.cmu.edu.weamobile.Data.AlertState;
+import sv.cmu.edu.weamobile.data.Alert;
+import sv.cmu.edu.weamobile.data.AlertState;
 import sv.cmu.edu.weamobile.R;
-import sv.cmu.edu.weamobile.Utility.AlertHelper;
-import sv.cmu.edu.weamobile.Utility.Constants;
-import sv.cmu.edu.weamobile.Utility.WEASharedPreferences;
+import sv.cmu.edu.weamobile.utility.AlertHelper;
+import sv.cmu.edu.weamobile.utility.Constants;
+import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
 
 
 /**
@@ -38,6 +38,7 @@ public class AlertDetailActivity extends FragmentActivity {
 
         if(state != null && !state.isAlreadyShown() && alert.isActive() && state.isInPolygon()){
             setTheme(android.R.style.Theme_DeviceDefault_Dialog_NoActionBar);
+//            setTheme(android.R.style.Theme_DeviceDefault_Dialog);
         }else{
             setTheme(android.R.style.Theme_DeviceDefault);
         }

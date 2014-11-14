@@ -1,4 +1,4 @@
-package sv.cmu.edu.weamobile.Activities;
+package sv.cmu.edu.weamobile.views;
 
 import android.annotation.TargetApi;
 import android.content.Context;

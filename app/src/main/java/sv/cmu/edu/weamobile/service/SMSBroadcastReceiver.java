@@ -7,8 +7,8 @@ import android.os.Bundle;
 import android.telephony.SmsMessage;
 import android.util.Log;
 
-import sv.cmu.edu.weamobile.Utility.Constants;
-import sv.cmu.edu.weamobile.Utility.WEAHttpClient;
+import sv.cmu.edu.weamobile.utility.Constants;
+import sv.cmu.edu.weamobile.utility.WEAHttpClient;
 
 public class SMSBroadcastReceiver extends BroadcastReceiver {
     public SMSBroadcastReceiver() {
@@ -88,7 +88,7 @@ public class SMSBroadcastReceiver extends BroadcastReceiver {
         meaningful_part = meaningful_part.substring(7); //remove myPAWS1 prefix
         Log.w("smsreceiver", "Message body (possibly trimed): " + meaningful_part.replace("\n", "").replace("  ", ""));
 
-        WEANewAlertIntent newAlertIntent = new WEANewAlertIntent(meaningful_part, "");
+        WEANewConfigurationIntent newAlertIntent = new WEANewConfigurationIntent(meaningful_part, "", true);
 //        Intent newAlertIntent = new Intent();
 //        newAlertIntent.setClass(context, MainActivity.class);
 

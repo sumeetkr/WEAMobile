@@ -3,15 +3,15 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
-        android:fragment="sv.cmu.edu.weamobile.Activities.SettingsActivity$GeneralPreferenceFragment"
+        android:fragment="sv.cmu.edu.weamobile.views.SettingsActivity$GeneralPreferenceFragment"
         android:title="@string/pref_header_general" />
 
     <header
-        android:fragment="sv.cmu.edu.weamobile.Activities.SettingsActivity$NotificationPreferenceFragment"
+        android:fragment="sv.cmu.edu.weamobile.views.SettingsActivity$NotificationPreferenceFragment"
         android:title="@string/pref_header_notifications" />
 
     <header
-        android:fragment="sv.cmu.edu.weamobile.Activities.SettingsActivity$DataSyncPreferenceFragment"
+        android:fragment="sv.cmu.edu.weamobile.views.SettingsActivity$DataSyncPreferenceFragment"
         android:title="@string/pref_header_data_sync" />
 
 </preference-headers>

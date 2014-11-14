@@ -1,4 +1,4 @@
-package sv.cmu.edu.weamobile.Utility;
+package sv.cmu.edu.weamobile.utility;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import sv.cmu.edu.weamobile.Data.Alert;
+import sv.cmu.edu.weamobile.data.Alert;
 import sv.cmu.edu.weamobile.R;
 
 /**

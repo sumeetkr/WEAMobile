@@ -1,10 +1,10 @@
-package sv.cmu.edu.weamobile.Data;
+package sv.cmu.edu.weamobile.data;
 
 import com.google.gson.Gson;
 
 import java.util.Date;
 
-import sv.cmu.edu.weamobile.Utility.WEAUtil;
+import sv.cmu.edu.weamobile.utility.WEAUtil;
 
 /**
  * Created by sumeet on 9/28/14.
@@ -21,11 +21,11 @@ public class Alert {
 //                "text": "Flash Flood Warning issued January 1 at 5:18AM CST expiring January 1 at 7:15AM CST by NWS Houston/Galveston TX",
 //                "alertType": "Extreme",
 //                "alertType2": "TBD",
-//                "polygonType": "Polygon",
+//                "polygonType": "polygon",
 //                "fdbURL": "NWS-120723-220266-154673",
 //                "createdAt": null,
 //                "updatedAt": null,
-//                "Polygon": [
+//                "polygon": [
 //            {
 //                "lng": "-94.71",
 //                    "lat": "29.34",
@@ -134,11 +134,12 @@ public class Alert {
     private String alertType;
     private String scheduledFor;
     private String endingAt;
-    private GeoLocation [] Polygon;
+    private GeoLocation [] polygon;
     private int options;
-    private boolean isMapToBeShown = false;
-    private boolean isPhoneExpectedToVibrate = true;
-    private boolean isTextToSpeechExpected = true;
+    private boolean isMapToBeShown;
+    private boolean isPhoneExpectedToVibrate;
+    private boolean isTextToSpeechExpected;
+    private boolean geoFiltering;
 
     public int getId() {
         return id;
@@ -165,11 +166,11 @@ public class Alert {
     }
 
     public GeoLocation[] getPolygon() {
-        return Polygon;
+        return polygon;
     }
 
     public void setPolygon(GeoLocation[] polygon) {
-        this.Polygon = polygon;
+        this.polygon = polygon;
     }
 
     public static Alert fromJson(String s) {
@@ -269,5 +270,13 @@ public class Alert {
     public String getEndingAtString() {
         Date date = WEAUtil.getTimeStringFromJsonTime(endingAt, "UTC");
         return date.toLocaleString();
+    }
+
+    public boolean isGeoFiltering() {
+        return geoFiltering;
+    }
+
+    public void setGeoFiltering(boolean isGeoTargetingEnabled) {
+        this.geoFiltering = isGeoTargetingEnabled;
     }
 }
