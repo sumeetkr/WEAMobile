@@ -34,11 +34,15 @@ public class AlertListAdapter extends ArrayAdapter<Alert> {
         }
 
         Alert alert = alerts.get(position);
+        AlertState state = AlertHelper.getAlertStateFromId(getContext(), String.valueOf(alert.getId()));
+//        if(alert.isGeoFiltering() && state.isInPolygon()){
+//
+//        }
+
         if (alert != null) {
             TextView alertMessage = (TextView) v.findViewById(R.id.username);
             TextView alertType = (TextView) v.findViewById(R.id.email);
 
-            AlertState state = AlertHelper.getAlertStateFromId(getContext(), String.valueOf(alert.getId()));
             if (alertMessage != null) {
                 if(state != null && state.isFeedbackGiven()){
                     alertMessage.setText(AlertHelper.getTextWithStyle((alert.getAlertType() + " Alert "), 33, true));
