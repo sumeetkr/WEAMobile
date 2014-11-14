@@ -99,6 +99,7 @@ public class AlertDetailActivity extends FragmentActivity {
         }
 
         Intent intent = new Intent(this, MainActivity.class);
+        intent.setAction(Constants.SHOW_MAIN_VIEW_ACTION);
         startActivity(intent);
     }
 

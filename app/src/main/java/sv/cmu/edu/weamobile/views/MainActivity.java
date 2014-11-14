@@ -80,7 +80,7 @@ public class MainActivity extends FragmentActivity
 
         handler = new Handler();
 
-        if(!getIntent().hasExtra(Constants.ALERT_ID)){
+        if(!getIntent().hasExtra(Constants.ALERT_ID) && getIntent().getAction() != (Constants.SHOW_MAIN_VIEW_ACTION)){
             Log.d("WEA", "scheduling alarm");
             WEAAlarmManager.setupRepeatingAlarmToWakeUpApplicationToFetchConfiguration(
                     this.getApplicationContext(),
@@ -119,7 +119,6 @@ public class MainActivity extends FragmentActivity
         super.onResume();
 
         registerNewConfigurationReceiver();
-
 
         String json = WEASharedPreferences.readApplicationConfiguration(getApplicationContext());
         configuration = AppConfiguration.fromJson(json);
@@ -259,8 +258,8 @@ public class MainActivity extends FragmentActivity
     public void onBackPressed() {
 
         if(isDialogShown && dialog != null){
-               dialog.dismiss();
-               dialog = null;
+            dialog.cancel();
+            dialog = null;
         }else{
             Intent startMain = new Intent(Intent.ACTION_MAIN);
             startMain.addCategory(Intent.CATEGORY_HOME);
