@@ -341,6 +341,7 @@ public class MainActivity extends FragmentActivity
             @Override
             public void onDismiss(DialogInterface dialog) {
                 isDialogShown = false;
+                if(textToSpeech!=null) textToSpeech.shutdown();
             }
         });
 
@@ -348,6 +349,7 @@ public class MainActivity extends FragmentActivity
             @Override
             public void onCancel(DialogInterface dialog) {
                 isDialogShown = false;
+                if(textToSpeech!=null) textToSpeech.shutdown();
             }
         });
 
