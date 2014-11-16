@@ -108,7 +108,7 @@ public class AlertDetailFragment extends Fragment {
         }
 
 
-        if(alertState.isInPolygonOrAlertNotGeoTargeted() && !alertState.isFeedbackGiven()){
+        if(!alertState.isFeedbackGiven()){
             LinearLayout buttonLayout = (LinearLayout) rootView.findViewById(R.id.alertDialogButtons);
             buttonLayout.setVisibility(View.VISIBLE);
 

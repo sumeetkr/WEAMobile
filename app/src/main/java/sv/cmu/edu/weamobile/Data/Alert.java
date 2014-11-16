@@ -298,5 +298,8 @@ public class Alert {
         return  isActive;
     }
 
+    public boolean isNotOfFuture() {
+        return this.getScheduledEpochInSeconds() <= System.currentTimeMillis()/1000;
+    }
 
 }

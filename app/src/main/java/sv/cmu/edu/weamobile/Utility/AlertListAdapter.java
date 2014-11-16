@@ -42,8 +42,6 @@ public class AlertListAdapter extends ArrayAdapter<Alert> {
             TextView alertMessage = (TextView) v.findViewById(R.id.username);
             TextView alertType = (TextView) v.findViewById(R.id.email);
 
-
-            //green
             if (state != null && state.isFeedbackGiven()) {
                 imView.setImageResource(R.drawable.email_alert_icon);
                 alertMessage.setText(AlertHelper.getTextWithStyle((alert.getAlertType() + " Alert "), 33, true));

@@ -79,13 +79,6 @@ public class MainActivity extends FragmentActivity
         setSwitchEvents();
 
         handler = new Handler();
-
-        if(!getIntent().hasExtra(Constants.ALERT_ID) && getIntent().getAction() != (Constants.SHOW_MAIN_VIEW_ACTION)){
-            Log.d("WEA", "scheduling alarm");
-            WEAAlarmManager.setupRepeatingAlarmToWakeUpApplicationToFetchConfiguration(
-                    this.getApplicationContext(),
-                    Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES * 60 * 1000);
-        }
     }
 
     private void setSwitchEvents() {
@@ -123,18 +116,52 @@ public class MainActivity extends FragmentActivity
         String json = WEASharedPreferences.readApplicationConfiguration(getApplicationContext());
         configuration = AppConfiguration.fromJson(json);
 
-        if(listFragment != null && configuration!= null) {
-            Alert [] alerts = configuration.getAlerts(getApplicationContext());
-            AlertState [] alertStates = AlertHelper.getAlertStates(getApplicationContext(), alerts);
-            listFragment.updateListAndReturnAnyActiveAlertNotShown(alerts, alertStates);
+//        if(listFragment != null && configuration!= null) {
+//            Alert [] alerts = configuration.getAlerts(getApplicationContext());
+//            AlertState [] alertStates = AlertHelper.getAlertStates(getApplicationContext(), alerts);
+//            listFragment.updateListAndReturnAnyActiveAlertNotShown(alerts, alertStates);
+//        }
+
+//        if(listFragment != null && configuration!= null) {
+//            Alert [] alerts = configuration.getAlerts(getApplicationContext());
+//            AlertState [] alertStates = AlertHelper.getAlertStates(getApplicationContext(), alerts);
+//            listFragment.updateListAndReturnAnyActiveAlertNotShown(alerts, alertStates);
+//        }
+
+        if(getIntent().getAction()!= null && getIntent().getAction() == "android.intent.action.MAIN"){
+
+            Log.d("WEA", "scheduling alarm");
+            WEAAlarmManager.setupRepeatingAlarmToWakeUpApplicationToFetchConfiguration(
+                    this.getApplicationContext(),
+                    Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES * 60 * 1000);
         }
 
-        updateStatus();
+//        if(!getIntent().hasExtra(Constants.ALERT_ID) && getIntent().getAction() != (Constants.SHOW_MAIN_VIEW_ACTION)){
+//            Log.d("WEA", "scheduling alarm");
+//            WEAAlarmManager.setupRepeatingAlarmToWakeUpApplicationToFetchConfiguration(
+//                    this.getApplicationContext(),
+//                    Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES * 60 * 1000);
+//        }
 
         if(getIntent().hasExtra(Constants.ALERT_ID)){
             String alertId = getIntent().getStringExtra(Constants.ALERT_ID);
+            Alert[] alerts = configuration.getAlertsWhichAreNotGeoTargetedOrGeotargetedAndUserWasInTarget(getApplicationContext());
+            AlertState [] alertStates = AlertHelper.getAlertStates(getApplicationContext(), alerts);
+            listFragment.updateListAndReturnAnyActiveAlertNotShown(alerts, alertStates);
+
             onItemSelected(alertId);
         }
+
+        if(getIntent().getAction()!= null && getIntent().getAction() == (Constants.SHOW_MAIN_VIEW_ACTION)){
+            Alert[] alerts = configuration.getAlertsWhichAreNotGeoTargetedOrGeotargetedAndUserWasInTarget(getApplicationContext());
+            AlertState [] alertStates = AlertHelper.getAlertStates(getApplicationContext(), alerts);
+            Alert alertNotShown = listFragment.updateListAndReturnAnyActiveAlertNotShown(alerts, alertStates);
+            if(alertNotShown != null){
+                AlertHelper.showAlertIfInTargetOrIsNotGeotargeted(getApplicationContext(), alertNotShown.getId());
+            }
+        }
+
+        updateLastCheckTimeStatus();
     }
 
     private void registerNewConfigurationReceiver() {
@@ -148,7 +175,7 @@ public class MainActivity extends FragmentActivity
         getApplicationContext().registerReceiver(newAlertReciver, filter);
     }
 
-    private void updateStatus() {
+    private void updateLastCheckTimeStatus() {
         String time = WEASharedPreferences.getStringProperty(getApplicationContext(), "lastTimeChecked");
         if(time != null && !time.isEmpty() && (Long.parseLong(time)-System.currentTimeMillis()< Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES*60*1000)){
             setUpToDate();
@@ -290,7 +317,7 @@ public class MainActivity extends FragmentActivity
 
         AlertDialog alertDialog;
 
-        if(alertState.isInPolygonOrAlertNotGeoTargeted() && !alertState.isFeedbackGiven()){
+        if(!alertState.isFeedbackGiven()){
             //set the cancel button
             AlertDialog.Builder feedbackBtn = builder.setNegativeButton("Feedback",
                     new DialogInterface.OnClickListener() {
@@ -396,7 +423,7 @@ public class MainActivity extends FragmentActivity
                         @Override
                         public void run() {
                             programTryingToChangeSwitch = true;
-                            updateStatus();
+                            updateLastCheckTimeStatus();
                             Log.d("WEA", "Got new congiguration broadcast " );
                             if(message!=null && !message.isEmpty()){
                                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show();

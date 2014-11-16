@@ -99,7 +99,7 @@ public class WEABackgroundService extends Service {
         Alert alert = getAlertRelevantBetweenNowAndNextScheduledCheck(configuration);
         if(alert != null){
             long currentTime = System.currentTimeMillis()/1000;
-            String message = "Alarm expected after: "+ (alert.getScheduledEpochInSeconds() - currentTime) + " secs";
+            String message = "Alert expected after: "+ (alert.getScheduledEpochInSeconds() - currentTime) + " secs";
             Logger.log(message);
             if(message!=null && !message.isEmpty()){
                 Toast.makeText(getApplicationContext(), "Alert Time!!: " + message, Toast.LENGTH_SHORT).show();
@@ -163,7 +163,7 @@ public class WEABackgroundService extends Service {
 
             }else{
                 WEASharedPreferences.saveApplicationConfiguration(context, json);
-                newConfigurationIntent = new WEANewConfigurationIntent("", json, false);
+                newConfigurationIntent = new WEANewConfigurationIntent("Received new configuration. ", json, false);
             }
 
             AppConfiguration configuration = AppConfiguration.fromJson(json);

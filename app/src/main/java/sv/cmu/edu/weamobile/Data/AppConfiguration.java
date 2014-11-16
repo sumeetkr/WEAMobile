@@ -277,7 +277,7 @@ public class AppConfiguration {
         return alerts;
     }
 
-    public  List<Alert> getAlertsWhichAreNotGeoTargetedOrGeotargetedAndUserWasInTarget(Context context) {
+    public  Alert[] getAlertsWhichAreNotGeoTargetedOrGeotargetedAndUserWasInTarget(Context context) {
         Arrays.sort(alerts, new Comparator<Alert>() {
             public int compare(Alert o1, Alert o2) {
                 return o2.getScheduledEpochInSeconds().compareTo(o1.getScheduledEpochInSeconds());
@@ -292,8 +292,12 @@ public class AppConfiguration {
             }
 
         }
+        Alert[] alertsToBeShownArray = new Alert[alertsToBeShow.size()];
+        for(int i =0; i<alertsToBeShow.size(); i++){
+            alertsToBeShownArray[i]= alertsToBeShow.get(i);
+        }
 
-        return alertsToBeShow;
+        return alertsToBeShownArray;
     }
 
     public String getJson() {

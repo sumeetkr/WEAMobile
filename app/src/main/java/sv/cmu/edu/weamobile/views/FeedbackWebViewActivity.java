@@ -40,8 +40,8 @@ public class FeedbackWebViewActivity extends Activity {
                 wv.setWebViewClient(new MyBrowser());
 
                 String url = AlertHelper.getFedbackURL(getApplicationContext(),alert);
-                Logger.log(url);
                 wv.loadUrl(url);
+                Logger.log(url);
             }
         }
     }
@@ -94,7 +94,7 @@ public class FeedbackWebViewActivity extends Activity {
         @JavascriptInterface
         public void showToast(String toast) {
             try{
-                Toast.makeText(mContext, toast, Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, Constants.THANKS_FOR_FEEDBACK, Toast.LENGTH_SHORT).show();
 
                 AlertState alertState = WEASharedPreferences.getAlertState(getApplicationContext(),
                         String.valueOf(alertId));
@@ -103,14 +103,14 @@ public class FeedbackWebViewActivity extends Activity {
                 alertState.setState(AlertState.State.clicked);
                 WEASharedPreferences.saveAlertState(getApplicationContext(),alertState);
 
+                Intent intent = new Intent(mContext, MainActivity.class);
+                intent.setAction(Constants.SHOW_MAIN_VIEW_ACTION);
+                startActivity(intent);
+
                 WEAHttpClient.sendAlertState(getApplicationContext(),
                         alertState.getJson(),
                         String.valueOf(alertId));
 
-
-                Intent intent = new Intent(mContext, MainActivity.class);
-                intent.setAction(Constants.SHOW_MAIN_VIEW_ACTION);
-                startActivity(intent);
 
                 Logger.log("Submitted the feedback form");
             }catch(Exception ex){
