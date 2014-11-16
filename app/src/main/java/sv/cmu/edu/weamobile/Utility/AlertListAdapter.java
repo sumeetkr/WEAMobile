@@ -44,13 +44,13 @@ public class AlertListAdapter extends ArrayAdapter<Alert> {
 
             if (state != null && state.isFeedbackGiven()) {
                 imView.setImageResource(R.drawable.email_alert_icon);
-                alertMessage.setText(AlertHelper.getTextWithStyle((alert.getAlertType() + " Alert "), 33, true));
-                alertType.setText(AlertHelper.getTextWithStyle(alert.getText(), 28, true));
+                alertMessage.setText(AlertHelper.getTextWithStyle((alert.getAlertType() + " Alert "), 1.7f, true));
+                alertType.setText(AlertHelper.getTextWithStyle(alert.getText(), 1f, true));
 
             } else {
                 imView.setImageResource(R.drawable.alert_red);
-                alertMessage.setText(AlertHelper.getTextWithStyle((alert.getAlertType() + " Alert "), 33, false));
-                alertType.setText(AlertHelper.getTextWithStyle(alert.getText(), 28, false));
+                alertMessage.setText(AlertHelper.getTextWithStyle((alert.getAlertType() + " Alert "), 1.7f, false));
+                alertType.setText(AlertHelper.getTextWithStyle(alert.getText(), 1f, false));
             }
         }
         return v;

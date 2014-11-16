@@ -6,7 +6,7 @@ import android.graphics.Typeface;
 import android.text.Html;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.text.style.AbsoluteSizeSpan;
+import android.text.style.RelativeSizeSpan;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.widget.Toast;
@@ -22,7 +22,7 @@ import sv.cmu.edu.weamobile.views.MainActivity;
  */
 public class AlertHelper {
 
-    public static SpannableString getTextWithStyle(String text, int fontSize, boolean isStriked){
+    public static SpannableString getTextWithStyle(String text, float fontSize, boolean isStriked){
         Spanned spannedText = Html.fromHtml(text);
         SpannableString spanString = new SpannableString(spannedText);
 
@@ -32,7 +32,7 @@ public class AlertHelper {
         }
 
         spanString.setSpan(new StyleSpan(Typeface.BOLD), 0, spanString.length(), 0);
-        spanString.setSpan (new AbsoluteSizeSpan(fontSize), 0, spanString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spanString.setSpan (new RelativeSizeSpan(fontSize), 0, spanString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return spanString;
     }
 

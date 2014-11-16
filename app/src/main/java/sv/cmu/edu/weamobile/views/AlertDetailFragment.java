@@ -88,18 +88,17 @@ public class AlertDetailFragment extends Fragment {
             }
             view.setText(
                     AlertHelper.getTextWithStyle(text
-                    , 60, false));
+                    , 1.7f, false));
 
             view.setMovementMethod(LinkMovementMethod.getInstance());
 
             startTime = alert.getScheduledForString();
             endTime = alert.getEndingAtString();
 
-            String textToShow = AlertHelper.getContextTextToShow(alert,myLocation);
             ((TextView) rootView.findViewById(R.id.txtLabel)).setText(
                     AlertHelper.getTextWithStyle(startTime +  " to " +endTime,
                                     //+ "\n" + textToShow,
-                            25, false));
+                            1f, false));
 
             getActivity().setTitle("CMU WEA+ " + alert.getAlertType() + " Alert");
 
@@ -198,7 +197,7 @@ public class AlertDetailFragment extends Fragment {
             }
 
             if(alert != null && alert.isTextToSpeechExpected()){
-                String messageToSay = AlertHelper.getTextWithStyle(alert.getText(), 33, false).toString();
+                String messageToSay = AlertHelper.getTextWithStyle(alert.getText(), 1f, false).toString();
 //                        + AlertHelper.getContextTextToShow(alert, myLocation);
                 textToSpeech = new WEATextToSpeech(getActivity());
                 textToSpeech.say(messageToSay, 2);

@@ -335,11 +335,11 @@ public class MainActivity extends FragmentActivity
         }
 
         //set the title and message of the alert
-        builder.setTitle(alert.getAlertType() + " Alert");
+        builder.setTitle(AlertHelper.getTextWithStyle(alert.getAlertType() + " Alert", 1.7f, false));
         builder.setIcon(R.drawable.ic_launcher);
 
         final TextView message = new TextView(this);
-        SpannableString string = AlertHelper.getTextWithStyle(alert.getText(), 40, false);
+        SpannableString string = AlertHelper.getTextWithStyle(alert.getText(), 1.3f, false);
         message.setText(string);
         message.setMovementMethod(LinkMovementMethod.getInstance());
         builder.setView(message);
@@ -365,7 +365,7 @@ public class MainActivity extends FragmentActivity
                     }
 
                     if(alert != null && alert.isTextToSpeechExpected()){
-                        textToSpeech.say(AlertHelper.getTextWithStyle(alert.getText(), 33, false).toString(), 2);
+                        textToSpeech.say(AlertHelper.getTextWithStyle(alert.getText(), 1f, false).toString(), 2);
                     }
                 }
             }
