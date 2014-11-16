@@ -107,7 +107,7 @@ public class AlertDetailFragment extends Fragment {
         }
 
 
-        if(!alertState.isFeedbackGiven()){
+        if(alert.isActive() && !alertState.isFeedbackGiven()){
             LinearLayout buttonLayout = (LinearLayout) rootView.findViewById(R.id.alertDialogButtons);
             buttonLayout.setVisibility(View.VISIBLE);
 

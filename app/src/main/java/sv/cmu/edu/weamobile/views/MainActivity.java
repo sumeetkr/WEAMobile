@@ -317,7 +317,7 @@ public class MainActivity extends FragmentActivity
 
         AlertDialog alertDialog;
 
-        if(!alertState.isFeedbackGiven()){
+        if(alert.isActive() && !alertState.isFeedbackGiven()){
             //set the cancel button
             AlertDialog.Builder feedbackBtn = builder.setNegativeButton("Feedback",
                     new DialogInterface.OnClickListener() {
