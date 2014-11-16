@@ -64,7 +64,7 @@ public class WEABackgroundService extends Service {
                 fetchConfiguration();
             }else if(SHOW_ALERT.equals(action)){
                 int alertId= intent.getIntExtra(("alertId"),-1);
-                AlertHelper.showAlertIfInTarget(getApplicationContext(), alertId);
+                AlertHelper.showAlertIfInTargetOrIsNotGeotargeted(getApplicationContext(), alertId);
             }
         }
         AlarmBroadcastReceiver.completeWakefulIntent(intent);
@@ -106,18 +106,22 @@ public class WEABackgroundService extends Service {
             }
             WEAAlarmManager.setupAlarmForAlertAtScheduledTime(getApplicationContext(), alert.getId(), alert.getScheduleEpochInMillis());
 
-            try{
-                AlertState alertState = AlertHelper.getAlertStateFromId(getApplicationContext(), String.valueOf(alert.getId()));
-                alertState.setState(AlertState.State.scheduled);
-                WEASharedPreferences.saveAlertState(getApplicationContext(), alertState);
-                WEAHttpClient.sendAlertState(getApplicationContext(),
-                        alertState.getJson(),
-                        String.valueOf(alertState.getId()));
+            sendAlertScheduledInfoToServer(alert);
+        }
+    }
 
-            }
-            catch (Exception ex){
-                Logger.log(ex.getMessage());
-            }
+    private void sendAlertScheduledInfoToServer(Alert alert) {
+        try{
+            AlertState alertState = AlertHelper.getAlertStateFromId(getApplicationContext(), String.valueOf(alert.getId()));
+            alertState.setState(AlertState.State.scheduled);
+            WEASharedPreferences.saveAlertState(getApplicationContext(), alertState);
+            WEAHttpClient.sendAlertState(getApplicationContext(),
+                    alertState.getJson(),
+                    String.valueOf(alertState.getId()));
+
+        }
+        catch (Exception ex){
+            Logger.log(ex.getMessage());
         }
     }
 

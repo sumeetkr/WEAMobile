@@ -72,7 +72,9 @@ public class AlertListFragment extends ListFragment {
 
             if(alert.isActive()){
                 AlertState state = alertStateMap.get(alert.getId());
-                if(state!=null && !state.isAlreadyShown()) activeButNotShown = alert;
+                if(state!=null && !state.isAlreadyShown()){
+                    activeButNotShown = alert;
+                }
             }
         }
 
@@ -97,6 +99,10 @@ public class AlertListFragment extends ListFragment {
 
         if(getArguments() != null && getArguments().containsKey(Constants.CONFIG_JSON)) {
             AppConfiguration configuration = AppConfiguration.fromJson(getArguments().getString(Constants.CONFIG_JSON));
+
+//            for(Alert alert:configuration.getAlertsWhichAreNotGeoTargetedOrGeotargetedAndUserWasInTarget(getActivity().getApplicationContext())){
+//                addItem(alert);
+//            }
 
             for(Alert alert:configuration.getAlerts(getActivity().getApplicationContext())){
                 addItem(alert);

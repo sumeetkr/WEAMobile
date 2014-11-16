@@ -23,27 +23,17 @@ import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
 
 public class FeedbackWebViewActivity extends Activity {
 
+    private int alertId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feedback_web_view);
 
-        int alertId = getIntent().getIntExtra(Constants.ALERT_ID, -1);
+        alertId = getIntent().getIntExtra(Constants.ALERT_ID, -1);
         if (alertId != -1 ) {
             Alert alert = AlertHelper.getAlertFromId(getApplicationContext(), String.valueOf(alertId));
             if(alert != null){
-
-                AlertState alertState = WEASharedPreferences.getAlertState(getApplicationContext(),
-                        String.valueOf(alertId));
-                alertState.setFeedbackGiven(true);
-                alertState.setTimeWhenFeedbackGivenInEpoch(System.currentTimeMillis());
-                alertState.setState(AlertState.State.clicked);
-                WEASharedPreferences.saveAlertState(getApplicationContext(),alertState);
-
-                WEAHttpClient.sendAlertState(getApplicationContext(),
-                        alertState.getJson(),
-                        String.valueOf(alertId));
-
                 WebView wv = (WebView) this.findViewById(R.id.webView);
                 wv.addJavascriptInterface(new WebAppInterface(this), "Android");
                 wv.getSettings().setJavaScriptEnabled(true);
@@ -105,6 +95,18 @@ public class FeedbackWebViewActivity extends Activity {
         public void showToast(String toast) {
             try{
                 Toast.makeText(mContext, toast, Toast.LENGTH_SHORT).show();
+
+                AlertState alertState = WEASharedPreferences.getAlertState(getApplicationContext(),
+                        String.valueOf(alertId));
+                alertState.setFeedbackGiven(true);
+                alertState.setTimeWhenFeedbackGivenInEpoch(System.currentTimeMillis());
+                alertState.setState(AlertState.State.clicked);
+                WEASharedPreferences.saveAlertState(getApplicationContext(),alertState);
+
+                WEAHttpClient.sendAlertState(getApplicationContext(),
+                        alertState.getJson(),
+                        String.valueOf(alertId));
+
 
                 Intent intent = new Intent(mContext, MainActivity.class);
                 intent.setAction(Constants.SHOW_MAIN_VIEW_ACTION);

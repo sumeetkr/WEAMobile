@@ -45,10 +45,11 @@ public class AlertHelper {
         if(alert.isActive()){
             AlertState state = WEASharedPreferences.getAlertState(context, String.valueOf(alert.getId()));
             if(location != null){
-                state.setInPolygon(true);
                 state.setLocationWhenShown(location);
-                WEASharedPreferences.saveAlertState(context, state);
             }
+
+            state.setInPolygonOrAlertNotGeoTargeted(true);
+            WEASharedPreferences.saveAlertState(context, state);
 
             Intent dialogIntent = new Intent(context, MainActivity.class);
             dialogIntent.putExtra("item_id", String.valueOf(alert.getId()));
@@ -59,7 +60,7 @@ public class AlertHelper {
         }
     }
 
-    public static void showAlertIfInTarget(Context context, int alertId) {
+    public static void showAlertIfInTargetOrIsNotGeotargeted(Context context, int alertId) {
         Logger.log("Show alert if in target for ", String.valueOf(alertId));
         String json = WEASharedPreferences.readApplicationConfiguration(context);
         AppConfiguration configuration = AppConfiguration.fromJson(json);
@@ -67,6 +68,7 @@ public class AlertHelper {
 
         for(Alert alert: alerts){
             if(alert.getId() == alertId && alert.isActive() ){
+
                 GPSTracker tracker = new GPSTracker(context);
                 if(tracker.canGetLocation()){
                     if(alert.isGeoFiltering() ){

@@ -83,7 +83,7 @@ public class AlertDetailFragment extends Fragment {
             TextView view = ((TextView) rootView.findViewById(R.id.alertText));
 
             String text = alert.toString();
-            if(!alertState.isAlreadyShown() && alert.isActive() && alertState.isInPolygon()){
+            if(!alertState.isAlreadyShown() && alert.isActive() && alertState.isInPolygonOrAlertNotGeoTargeted()){
                 text = alert.getAlertType() + " Alert : "+ text;
             }
             view.setText(
@@ -97,7 +97,7 @@ public class AlertDetailFragment extends Fragment {
 
             String textToShow = AlertHelper.getContextTextToShow(alert,myLocation);
             ((TextView) rootView.findViewById(R.id.txtLabel)).setText(
-                    AlertHelper.getTextWithStyle("Start time: " + startTime +"&#13;&#10;    \n"+  "End time: " +endTime,
+                    AlertHelper.getTextWithStyle(startTime +  " to " +endTime,
                                     //+ "\n" + textToShow,
                             25, false));
 
@@ -108,7 +108,7 @@ public class AlertDetailFragment extends Fragment {
         }
 
 
-        if(! alertState.isFeedbackGiven()){
+        if(alertState.isInPolygonOrAlertNotGeoTargeted() && !alertState.isFeedbackGiven()){
             LinearLayout buttonLayout = (LinearLayout) rootView.findViewById(R.id.alertDialogButtons);
             buttonLayout.setVisibility(View.VISIBLE);
 
@@ -170,9 +170,6 @@ public class AlertDetailFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     shutdownSpeech();
-
-                    alertState.setFeedbackGiven(true);
-                    WEASharedPreferences.saveAlertState(getActivity().getApplicationContext(), alertState);
 
                     Intent intent = new Intent(activity, FeedbackWebViewActivity.class);
                     intent.putExtra(Constants.ALERT_ID, alert.getId());

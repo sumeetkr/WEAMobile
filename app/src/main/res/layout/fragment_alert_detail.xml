@@ -82,7 +82,6 @@
             android:text="Feedback"
             android:id="@+id/buttonFeedback"
             android:layout_alignParentRight="true"
-            android:layout_weight="0.20"
-            android:background="#ffff5052" />
+            android:layout_weight="0.20" />
     </LinearLayout>
 </RelativeLayout>

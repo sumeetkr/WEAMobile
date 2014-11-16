@@ -271,9 +271,12 @@ public class MainActivity extends FragmentActivity
     private void showDialog(Alert alert) {
         if(!isDialogShown) {
             isDialogShown = true;
-            dialog = createDialog(getApplicationContext(), alert);
-            dialog.show();
+        }else{
+            if(dialog != null) dialog.cancel();
         }
+
+        dialog = createDialog(getApplicationContext(), alert);
+        dialog.show();
     }
 
     private AlertDialog createDialog(final Context context, Alert alert1){
@@ -287,7 +290,7 @@ public class MainActivity extends FragmentActivity
 
         AlertDialog alertDialog;
 
-        if(!alertState.isFeedbackGiven()){
+        if(alertState.isInPolygonOrAlertNotGeoTargeted() && !alertState.isFeedbackGiven()){
             //set the cancel button
             AlertDialog.Builder feedbackBtn = builder.setNegativeButton("Feedback",
                     new DialogInterface.OnClickListener() {
@@ -296,9 +299,6 @@ public class MainActivity extends FragmentActivity
                             dialog.cancel();
                             if(textToSpeech!= null) textToSpeech.shutdown();
                             isDialogShown = false;
-
-                            alertState.setFeedbackGiven(true);
-                            WEASharedPreferences.saveAlertState(context, alertState);
 
                             Intent intent = new Intent(activity, FeedbackWebViewActivity.class);
                             intent.putExtra(Constants.ALERT_ID, alert.getId());
@@ -327,6 +327,7 @@ public class MainActivity extends FragmentActivity
                     alertState.setAlreadyShown(true);
                     alertState.setTimeWhenShownToUserInEpoch(System.currentTimeMillis());
                     alertState.setState(AlertState.State.shown);
+
                     WEASharedPreferences.saveAlertState(getApplicationContext(), alertState);
                     WEAHttpClient.sendAlertState(getApplicationContext(),
                             alertState.getJson(),
@@ -340,8 +341,6 @@ public class MainActivity extends FragmentActivity
                         textToSpeech.say(AlertHelper.getTextWithStyle(alert.getText(), 33, false).toString(), 2);
                     }
                 }
-
-                // Make the textview clickable. Must be called after show()
             }
         });
 
@@ -386,7 +385,7 @@ public class MainActivity extends FragmentActivity
                                 AlertHelper.getAlertStates(context, configuration.getAlerts(context)));
 
                         if(activeButNotShown!=null){
-                            AlertHelper.showAlertIfInTarget(context,activeButNotShown.getId());
+                            AlertHelper.showAlertIfInTargetOrIsNotGeotargeted(context, activeButNotShown.getId());
                         }
                     }
                 }

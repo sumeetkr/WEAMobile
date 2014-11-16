@@ -4,9 +4,12 @@ import android.content.Context;
 
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 
+import sv.cmu.edu.weamobile.utility.AlertHelper;
 import sv.cmu.edu.weamobile.utility.Logger;
 
 /**
@@ -272,6 +275,25 @@ public class AppConfiguration {
         } );
 
         return alerts;
+    }
+
+    public  List<Alert> getAlertsWhichAreNotGeoTargetedOrGeotargetedAndUserWasInTarget(Context context) {
+        Arrays.sort(alerts, new Comparator<Alert>() {
+            public int compare(Alert o1, Alert o2) {
+                return o2.getScheduledEpochInSeconds().compareTo(o1.getScheduledEpochInSeconds());
+            }
+        } );
+
+        List<Alert> alertsToBeShow = new ArrayList<Alert>();
+        for(Alert alert: alerts){
+            AlertState state = AlertHelper.getAlertStateFromId(context, String.valueOf(alert.getId()));
+            if(!alert.isGeoFiltering() || (alert.isGeoFiltering() && state.isInPolygonOrAlertNotGeoTargeted())){
+                alertsToBeShow.add(alert);
+            }
+
+        }
+
+        return alertsToBeShow;
     }
 
     public String getJson() {

@@ -14,7 +14,7 @@ public class AlertState {
     private long timeWhenShownToUserInEpoch;
     private long timeWhenFeedbackGivenInEpoch;
     private GeoLocation locationWhenShown;
-    private boolean isInPolygon = false;
+    private boolean isInPolygonOrAlertNotGeoTargeted = false;
     private State state = null;
 
     public State getState() {
@@ -91,11 +91,11 @@ public class AlertState {
         this.isFeedbackGiven = isFeedbackGiven;
     }
 
-    public boolean isInPolygon() {
-        return isInPolygon;
+    public boolean isInPolygonOrAlertNotGeoTargeted() {
+        return isInPolygonOrAlertNotGeoTargeted;
     }
 
-    public void setInPolygon(boolean isInPolygon) {
-        this.isInPolygon = isInPolygon;
+    public void setInPolygonOrAlertNotGeoTargeted(boolean isInPolygon) {
+        this.isInPolygonOrAlertNotGeoTargeted = isInPolygon;
     }
 }
