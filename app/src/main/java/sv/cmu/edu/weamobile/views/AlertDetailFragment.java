@@ -35,6 +35,7 @@ import sv.cmu.edu.weamobile.utility.WEAHttpClient;
 import sv.cmu.edu.weamobile.utility.WEAPointInPoly;
 import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
 import sv.cmu.edu.weamobile.utility.WEATextToSpeech;
+import sv.cmu.edu.weamobile.utility.WEAUtil;
 import sv.cmu.edu.weamobile.utility.WEAVibrator;
 
 
@@ -83,9 +84,9 @@ public class AlertDetailFragment extends Fragment {
             TextView view = ((TextView) rootView.findViewById(R.id.alertText));
 
             String text = alert.toString();
-            if(!alertState.isAlreadyShown() && alert.isActive() && alertState.isInPolygonOrAlertNotGeoTargeted()){
-                text = alert.getAlertType() + " Alert : "+ text;
-            }
+//            if(!alertState.isAlreadyShown() && alert.isActive() && alertState.isInPolygonOrAlertNotGeoTargeted()){
+//                text = alert.getAlertType() + " Alert : "+ text;
+//            }
             view.setText(
                     AlertHelper.getTextWithStyle(text
                     , 1.7f, false));
@@ -100,14 +101,15 @@ public class AlertDetailFragment extends Fragment {
                                     //+ "\n" + textToShow,
                             1f, false));
 
-            getActivity().setTitle("CMU WEA+ " + alert.getAlertType() + " Alert");
+            getActivity().setTitle(AlertHelper.getTextWithStyle(alert.getAlertType() + " Alert", 1.3f, false));
+            getActivity().getActionBar().setIcon(R.drawable.ic_launcher);
 
         }else{
             Logger.log("Item is null");
         }
 
 
-        if(alert.isActive() && !alertState.isFeedbackGiven()){
+        if(!alertState.isFeedbackGiven()){
             LinearLayout buttonLayout = (LinearLayout) rootView.findViewById(R.id.alertDialogButtons);
             buttonLayout.setVisibility(View.VISIBLE);
 
@@ -180,7 +182,7 @@ public class AlertDetailFragment extends Fragment {
 
     private void alertUserWithVibrationAndSpeech() {
 
-        if(alertState!= null && !alertState.isAlreadyShown() && alert.isActive()){
+        if(alertState!= null && !alertState.isAlreadyShown()){
 
             alertState.setAlreadyShown(true);
             alertState.setTimeWhenShownToUserInEpoch(System.currentTimeMillis());
@@ -194,6 +196,7 @@ public class AlertDetailFragment extends Fragment {
 
             if (alert != null && alert.isPhoneExpectedToVibrate()) {
                 WEAVibrator.vibrate(getActivity().getApplicationContext());
+                WEAUtil.lightUpScreen(getActivity().getApplicationContext());
             }
 
             if(alert != null && alert.isTextToSpeechExpected()){

@@ -41,16 +41,25 @@ public class AlertListAdapter extends ArrayAdapter<Alert> {
             ImageView imView = (ImageView) v.findViewById(R.id.avatar);
             TextView alertMessage = (TextView) v.findViewById(R.id.username);
             TextView alertType = (TextView) v.findViewById(R.id.email);
+            TextView alertTime = (TextView) v.findViewById(R.id.time);
 
             if (state != null && state.isFeedbackGiven()) {
                 imView.setImageResource(R.drawable.email_alert_icon);
-                alertMessage.setText(AlertHelper.getTextWithStyle((alert.getAlertType() + " Alert "), 1.7f, true));
+                alertMessage.setText(AlertHelper.getTextWithStyle((alert.getAlertType() + " Alert "), 1.6f, true));
                 alertType.setText(AlertHelper.getTextWithStyle(alert.getText(), 1f, true));
-
+                alertTime.setText(AlertHelper.getTextWithStyle(alert.getScheduledForString() + " to " + alert.getEndingAtString(), 0.7f, true));
             } else {
-                imView.setImageResource(R.drawable.alert_red);
-                alertMessage.setText(AlertHelper.getTextWithStyle((alert.getAlertType() + " Alert "), 1.7f, false));
-                alertType.setText(AlertHelper.getTextWithStyle(alert.getText(), 1f, false));
+                if(alert.isActive()){
+                    imView.setImageResource(R.drawable.alert_green);
+                    alertMessage.setText(AlertHelper.getTextWithStyle((alert.getAlertType() + " Alert "), 1.6f, false));
+                    alertType.setText(AlertHelper.getTextWithStyle(alert.getText(), 1f, false));
+                    alertTime.setText(AlertHelper.getTextWithStyle(alert.getScheduledForString() + " to " + alert.getEndingAtString(), 0.7f, false));
+                }else{
+                    imView.setImageResource(R.drawable.alert_red);
+                    alertMessage.setText(AlertHelper.getTextWithStyle((alert.getAlertType() + " Alert "), 1.6f, false));
+                    alertType.setText(AlertHelper.getTextWithStyle(alert.getText(), 1f, false));
+                    alertTime.setText(AlertHelper.getTextWithStyle(alert.getScheduledForString() + " to " + alert.getEndingAtString(), 0.7f, false));
+                }
             }
         }
         return v;

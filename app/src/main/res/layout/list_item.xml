@@ -27,5 +27,10 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="10px"
             android:textColor="#0099CC"/>
+        <TextView android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10px"
+            android:textColor="#FFE0DFFF"/>
     </LinearLayout>
 </LinearLayout>

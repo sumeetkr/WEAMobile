@@ -1,6 +1,7 @@
 package sv.cmu.edu.weamobile.utility;
 
 import android.content.Context;
+import android.os.PowerManager;
 import android.telephony.TelephonyManager;
 
 import java.text.DateFormat;
@@ -42,5 +43,27 @@ public class WEAUtil {
         TelephonyManager telephoneMananger = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         String imsi = telephoneMananger.getSimSerialNumber();
         return imsi;
+    }
+
+    public static void lightUpScreen(Context context){
+        try{
+
+            PowerManager pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
+
+            boolean isScreenOn = pm.isScreenOn();
+
+            Logger.log("screen on.................................", "" + isScreenOn);
+
+            if(isScreenOn==false)
+            {
+
+                PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK |PowerManager.ACQUIRE_CAUSES_WAKEUP |PowerManager.ON_AFTER_RELEASE,"MyLock");
+                wl.acquire(1000);
+                PowerManager.WakeLock wl_cpu = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"MyCpuLock");
+                wl_cpu.acquire(1000);
+            }
+        }catch(Exception ex){
+            Logger.log(ex.getMessage());
+        }
     }
 }

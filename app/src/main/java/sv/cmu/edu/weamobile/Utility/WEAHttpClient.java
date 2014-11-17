@@ -190,6 +190,7 @@ public class WEAHttpClient {
 
                 @Override
                 public void onFailure(int statusCode, org.apache.http.Header[] headers, byte[] errorResponse, Throwable e) {
+                    //Toast.makeText(context, "Registration failed, please check WEA team.", Toast.LENGTH_LONG);
                     Log.w("WEA registration", "Failure in sending - " + "Status code -" + statusCode + " Error response -" + errorResponse);
                 }
             });

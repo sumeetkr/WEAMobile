@@ -79,6 +79,27 @@ public class MainActivity extends FragmentActivity
         setSwitchEvents();
 
         handler = new Handler();
+
+        if(getIntent().getAction()!= null && getIntent().getAction() == "android.intent.action.MAIN"){
+
+            Log.d("WEA", "scheduling alarm");
+            WEAAlarmManager.setupRepeatingAlarmToWakeUpApplicationToFetchConfiguration(
+                    this.getApplicationContext(),
+                    Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES * 60 * 1000);
+        }
+
+        String json = WEASharedPreferences.readApplicationConfiguration(getApplicationContext());
+        configuration = AppConfiguration.fromJson(json);
+
+        if(getIntent().hasExtra(Constants.ALERT_ID)){
+            String alertId = getIntent().getStringExtra(Constants.ALERT_ID);
+            Alert[] alerts = configuration.getAlertsWhichAreNotGeoTargetedOrGeotargetedAndUserWasInTarget(getApplicationContext());
+            AlertState [] alertStates = AlertHelper.getAlertStates(getApplicationContext(), alerts);
+            listFragment.updateListAndReturnAnyActiveAlertNotShown(alerts, alertStates);
+
+            onItemSelected(alertId);
+        }
+
     }
 
     private void setSwitchEvents() {
@@ -110,49 +131,12 @@ public class MainActivity extends FragmentActivity
     @Override
     protected void onResume(){
         super.onResume();
+        getActionBar().setIcon(R.drawable.ic_emergency);
 
         registerNewConfigurationReceiver();
 
-        String json = WEASharedPreferences.readApplicationConfiguration(getApplicationContext());
-        configuration = AppConfiguration.fromJson(json);
-
-//        if(listFragment != null && configuration!= null) {
-//            Alert [] alerts = configuration.getAlerts(getApplicationContext());
-//            AlertState [] alertStates = AlertHelper.getAlertStates(getApplicationContext(), alerts);
-//            listFragment.updateListAndReturnAnyActiveAlertNotShown(alerts, alertStates);
-//        }
-
-//        if(listFragment != null && configuration!= null) {
-//            Alert [] alerts = configuration.getAlerts(getApplicationContext());
-//            AlertState [] alertStates = AlertHelper.getAlertStates(getApplicationContext(), alerts);
-//            listFragment.updateListAndReturnAnyActiveAlertNotShown(alerts, alertStates);
-//        }
-
-        if(getIntent().getAction()!= null && getIntent().getAction() == "android.intent.action.MAIN"){
-
-            Log.d("WEA", "scheduling alarm");
-            WEAAlarmManager.setupRepeatingAlarmToWakeUpApplicationToFetchConfiguration(
-                    this.getApplicationContext(),
-                    Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES * 60 * 1000);
-        }
-
-//        if(!getIntent().hasExtra(Constants.ALERT_ID) && getIntent().getAction() != (Constants.SHOW_MAIN_VIEW_ACTION)){
-//            Log.d("WEA", "scheduling alarm");
-//            WEAAlarmManager.setupRepeatingAlarmToWakeUpApplicationToFetchConfiguration(
-//                    this.getApplicationContext(),
-//                    Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES * 60 * 1000);
-//        }
-
-        if(getIntent().hasExtra(Constants.ALERT_ID)){
-            String alertId = getIntent().getStringExtra(Constants.ALERT_ID);
-            Alert[] alerts = configuration.getAlertsWhichAreNotGeoTargetedOrGeotargetedAndUserWasInTarget(getApplicationContext());
-            AlertState [] alertStates = AlertHelper.getAlertStates(getApplicationContext(), alerts);
-            listFragment.updateListAndReturnAnyActiveAlertNotShown(alerts, alertStates);
-
-            onItemSelected(alertId);
-        }
-
-        if(getIntent().getAction()!= null && getIntent().getAction() == (Constants.SHOW_MAIN_VIEW_ACTION)){
+//        if(getIntent().getAction()!= null && getIntent().getAction() == (Constants.SHOW_MAIN_VIEW_ACTION)){
+        if(!getIntent().hasExtra(Constants.ALERT_ID)){
             Alert[] alerts = configuration.getAlertsWhichAreNotGeoTargetedOrGeotargetedAndUserWasInTarget(getApplicationContext());
             AlertState [] alertStates = AlertHelper.getAlertStates(getApplicationContext(), alerts);
             Alert alertNotShown = listFragment.updateListAndReturnAnyActiveAlertNotShown(alerts, alertStates);
@@ -317,7 +301,7 @@ public class MainActivity extends FragmentActivity
 
         AlertDialog alertDialog;
 
-        if(alert.isActive() && !alertState.isFeedbackGiven()){
+        if(!alertState.isFeedbackGiven()){
             //set the cancel button
             AlertDialog.Builder feedbackBtn = builder.setNegativeButton("Feedback",
                     new DialogInterface.OnClickListener() {
@@ -335,11 +319,11 @@ public class MainActivity extends FragmentActivity
         }
 
         //set the title and message of the alert
-        builder.setTitle(AlertHelper.getTextWithStyle(alert.getAlertType() + " Alert", 1.7f, false));
+        builder.setTitle(AlertHelper.getTextWithStyle(alert.getAlertType() + " Alert", 1.3f, false));
         builder.setIcon(R.drawable.ic_launcher);
 
         final TextView message = new TextView(this);
-        SpannableString string = AlertHelper.getTextWithStyle(alert.getText(), 1.3f, false);
+        SpannableString string = AlertHelper.getTextWithStyle(alert.getText(), 1.7f, false);
         message.setText(string);
         message.setMovementMethod(LinkMovementMethod.getInstance());
         builder.setView(message);
@@ -349,7 +333,7 @@ public class MainActivity extends FragmentActivity
             @Override
             public void onShow(DialogInterface dialog) {
                 getIntent().setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                if(alertState!= null && !alertState.isAlreadyShown() && alert.isActive()){
+                if(alertState!= null && !alertState.isAlreadyShown()){
 
                     alertState.setAlreadyShown(true);
                     alertState.setTimeWhenShownToUserInEpoch(System.currentTimeMillis());
@@ -362,6 +346,7 @@ public class MainActivity extends FragmentActivity
 
                     if(alert != null && alert.isPhoneExpectedToVibrate()){
                         WEAVibrator.vibrate(getApplicationContext());
+                        WEAUtil.lightUpScreen(getApplicationContext());
                     }
 
                     if(alert != null && alert.isTextToSpeechExpected()){
