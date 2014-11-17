@@ -15,12 +15,20 @@ public class GeoLocation {
 //            },
     private String lat;
     private String lng;
+    private float accuracy = 0.00f;
     private int id;
+    private float batteryLevel =0.00f;
 
 
     public GeoLocation(String latitude, String longitude){
         this.lat = latitude;
         this.lng = longitude;
+    }
+
+    public GeoLocation(String latitude, String longitude, float accuracy){
+        this.lat = latitude;
+        this.lng = longitude;
+        this.accuracy = accuracy;
     }
     public String getLat() {
         return lat;
@@ -57,5 +65,21 @@ public class GeoLocation {
 
     public static GeoLocation getGeoLocationFromAndroidLocation(Location location){
         return new GeoLocation(String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
+    }
+
+    public float getBatteryLevel() {
+        return batteryLevel;
+    }
+
+    public void setBatteryLevel(float batteryLevel) {
+        this.batteryLevel = batteryLevel;
+    }
+
+    public float getAccuracy() {
+        return accuracy;
+    }
+
+    public void setAccuracy(float accuracy) {
+        this.accuracy = accuracy;
     }
 }

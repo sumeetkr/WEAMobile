@@ -154,7 +154,10 @@ public class GPSTracker extends Service implements LocationListener {
             location = getGPSLocationUpdates();
         }
 
-        GeoLocation loc = new GeoLocation(Double.toString(location.getLatitude()),Double.toString(location.getLongitude()));
+        GeoLocation loc = new GeoLocation(
+                Double.toString(location.getLatitude()),
+                Double.toString(location.getLongitude()),
+                location.getAccuracy());
         stopUsingGPS();
         return loc;
     }
@@ -175,7 +178,10 @@ public class GPSTracker extends Service implements LocationListener {
             location = getNetworkLocationUpdates();
         }
 
-        GeoLocation loc = new GeoLocation(Double.toString(location.getLatitude()),Double.toString(location.getLongitude()));
+        GeoLocation loc = new GeoLocation(
+                Double.toString(location.getLatitude()),
+                Double.toString(location.getLongitude()),
+                location.getAccuracy());
         stopUsingGPS();
         return loc;
     }
