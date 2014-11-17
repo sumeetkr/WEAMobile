@@ -41,9 +41,9 @@ public class AlertListFragment extends ListFragment {
         }
     };
 
-    public Alert updateListAndReturnAnyActiveAlertNotShown(Alert[] alerts, AlertState [] alertsStates) {
+    public List<Alert> updateListAndReturnAnyActiveAlertNotShown(Alert[] alerts, AlertState [] alertsStates) {
 
-        Alert activeButNotShown = null;
+        List<Alert> activeButNotShown = new ArrayList<Alert>();
 
         if(this.alertStates == null){
             this.alertStates = new ArrayList<AlertState>();
@@ -74,7 +74,7 @@ public class AlertListFragment extends ListFragment {
 
             if(alert.isActive()){
                 if(state!=null && !state.isAlreadyShown()){
-                    activeButNotShown = alert;
+                    activeButNotShown.add(alert);
                 }
             }
         }

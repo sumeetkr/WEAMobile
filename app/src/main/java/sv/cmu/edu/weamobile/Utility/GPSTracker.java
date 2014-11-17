@@ -8,7 +8,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.widget.Toast;
 
 import sv.cmu.edu.weamobile.data.Alert;
 import sv.cmu.edu.weamobile.data.AppConfiguration;
@@ -191,34 +190,27 @@ public class GPSTracker extends Service implements LocationListener {
             this.location = location;
             GeoLocation geoLocation = new GeoLocation(Double.toString(location.getLatitude()),Double.toString(location.getLongitude()));
             if(alert != null && configuration != null){
+                String message= "Got GPS update";
                 if(geoLocation == null || WEAPointInPoly.isInPolygon(geoLocation, alert.getPolygon())){
-                    Logger.log("Present in polygon or location not known");
+                    message = "Present in polygon or location not known, will show alert";
                     AlertHelper.showAlert(mContext, alert, geoLocation, configuration);
                     stopUsingGPS();
                 }else if(WEAPointInPoly.getDistance(alert.getPolygon(), geoLocation) < 0.1){
                     noOfTimesToCheck = 60;
-                    String message ="You are close, but not inside the polygon, remaining times to check "
-                            + (noOfTimesToCheck -countOfUpdates);
-                    Logger.log(message);
-                    Toast.makeText(mContext,
-                            "Alert Time!!: " + message, Toast.LENGTH_SHORT).show();
+                    message ="Alert Time!! You are close, but not inside the polygon, remaining times to check "
+                            + (noOfTimesToCheck -countOfUpdates + 1);
 
                 }else if(WEAPointInPoly.getDistance(alert.getPolygon(), geoLocation) < 0.2){
                     noOfTimesToCheck = 20;
-                    String message ="You are close, but not inside the polygon, remaining times to check "
-                            + (noOfTimesToCheck -countOfUpdates);
-                    Logger.log(message);
-                    Toast.makeText(mContext,
-                            "Alert Time!!: " + message, Toast.LENGTH_SHORT).show();
-
+                    message ="Alert Time!! You are close, but not inside the polygon, remaining times to check "
+                            + (noOfTimesToCheck -countOfUpdates +1);
                 }else{
-//                    AlertHelper.broadcastOutOfTargetAlert(mContext);
-                    String message ="But you are not inside the polygon, remaining times to check "
+                    message ="Alert Time!! But you are not inside the polygon, remaining times to check "
                                                      + (noOfTimesToCheck - countOfUpdates);
-                    Logger.log(message);
-                    Toast.makeText(mContext,
-                            "Alert Time!!: " + message, Toast.LENGTH_SHORT).show();
                 }
+
+                Logger.log(message);
+                WEAUtil.showMessageIfInDebugMode(mContext, message);
             }
         }
 

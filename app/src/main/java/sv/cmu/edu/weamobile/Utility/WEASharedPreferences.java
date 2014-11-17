@@ -105,6 +105,24 @@ public class WEASharedPreferences {
                 Logger.log("Removed from shared preferences, alert id " + alertId);
             }
         }
+    }
 
+    public static boolean isInDebugMode(Context context){
+        boolean result = false;
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
+        if (sharedPreferences != null) {
+            result = sharedPreferences.getBoolean(Constants.IS_DEBUG_MODE, false);
+        }
+        return result;
+    }
+
+    public static void setDebugMode(Context context, boolean isDebugMode){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
+        if (sharedPreferences != null) {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean(Constants.IS_DEBUG_MODE,isDebugMode);
+            editor.commit();
+            Logger.log("Saved debug mode to shared preferences "+ isDebugMode);
+        }
     }
 }

@@ -9,7 +9,6 @@ import android.text.Spanned;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
-import android.widget.Toast;
 
 import sv.cmu.edu.weamobile.data.Alert;
 import sv.cmu.edu.weamobile.data.AlertState;
@@ -41,6 +40,7 @@ public class AlertHelper {
                                    GeoLocation location,
                                    AppConfiguration configuration) {
         Logger.log("Its the alert time");
+        WEAUtil.showMessageIfInDebugMode(context, "Checking if alert is active");
 
         if(alert.isActive()){
             AlertState state = WEASharedPreferences.getAlertState(context, String.valueOf(alert.getId()));
@@ -56,7 +56,10 @@ public class AlertHelper {
             dialogIntent.putExtra(Constants.CONFIG_JSON, configuration.getJson());
             dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
+            WEAUtil.showMessageIfInDebugMode(context, "Alert is active, asking main view to show alert");
             context.startActivity(dialogIntent);
+        }else{
+            WEAUtil.showMessageIfInDebugMode(context, "Alert not active, will not be shown");
         }
     }
 
@@ -77,16 +80,14 @@ public class AlertHelper {
                     }else{
                         String message = "Geo-filtering off, showing alert";
                         Logger.log(message);
-                        Toast.makeText(context,
-                                "Alert Time!!: " + message, Toast.LENGTH_SHORT).show();
+                        WEAUtil.showMessageIfInDebugMode(context, message);
                         showAlert(context, alert, tracker.getNetworkGeoLocation(), configuration);
                     }
                 }else{
                     Logger.log("Location not known");
                     String message ="GPS location not know, please enable GPS for Geo-filtering.";
                     Logger.log(message);
-                    Toast.makeText(context,
-                            "Alert Time!!: " + message, Toast.LENGTH_SHORT).show();
+                    WEAUtil.showMessageIfInDebugMode(context, message);
                     showAlert(context, alert, null, configuration);
                 }
             }

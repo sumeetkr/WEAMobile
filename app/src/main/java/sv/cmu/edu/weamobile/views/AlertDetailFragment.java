@@ -59,6 +59,9 @@ public class AlertDetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        WEAUtil.showMessageIfInDebugMode(getActivity().getApplicationContext(),
+                "Creating alert with a map");
+
         if (getArguments().containsKey(Constants.ARG_ITEM_ID)) {
             alert = AlertHelper.getAlertFromId(
                     getActivity().getApplicationContext(),
@@ -106,6 +109,9 @@ public class AlertDetailFragment extends Fragment {
 
         }else{
             Logger.log("Item is null");
+            WEAUtil.showMessageIfInDebugMode(getActivity().getApplicationContext(),
+                    "Alert was null, this should not happen");
+
         }
 
 
@@ -184,6 +190,9 @@ public class AlertDetailFragment extends Fragment {
 
         if(alertState!= null && !alertState.isAlreadyShown()){
 
+            WEAUtil.showMessageIfInDebugMode(getActivity().getApplicationContext(),
+                    "Alert is shown for first time, may vibrate and speak");
+
             alertState.setAlreadyShown(true);
             alertState.setTimeWhenShownToUserInEpoch(System.currentTimeMillis());
             alertState.setState(AlertState.State.shown);
@@ -205,6 +214,10 @@ public class AlertDetailFragment extends Fragment {
                 textToSpeech = new WEATextToSpeech(getActivity());
                 textToSpeech.say(messageToSay, 2);
             }
+
+        }else{
+            WEAUtil.showMessageIfInDebugMode(getActivity().getApplicationContext(),
+                    "Alert was shown before, will not vibrate and speak");
 
         }
     }
@@ -262,6 +275,10 @@ public class AlertDetailFragment extends Fragment {
     }
 
     private void setUpMap() {
+
+        WEAUtil.showMessageIfInDebugMode(getActivity().getApplicationContext(),
+                "Setting up map for this alert.");
+
         mMap.clear();
         mMap.setMyLocationEnabled(true);
 

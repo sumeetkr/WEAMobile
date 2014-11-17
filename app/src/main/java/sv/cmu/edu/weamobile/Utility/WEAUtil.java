@@ -3,6 +3,7 @@ package sv.cmu.edu.weamobile.utility;
 import android.content.Context;
 import android.os.PowerManager;
 import android.telephony.TelephonyManager;
+import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -64,6 +65,14 @@ public class WEAUtil {
             }
         }catch(Exception ex){
             Logger.log(ex.getMessage());
+        }
+    }
+
+    public static void showMessageIfInDebugMode(Context context, String message){
+        if(WEASharedPreferences.isInDebugMode(context)){
+            Logger.log("SHow toast" + message);
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+
         }
     }
 }

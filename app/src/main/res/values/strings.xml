@@ -3,7 +3,7 @@
 
     <string name="app_name">CMU WEAMobile</string>
     <string name="title_activity_main">CMU WEA+</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="hello_world">Do not change it, if you are not a part of the CMU WEA+ team.</string>
     <string name="action_settings">Settings</string>
     <string name="action_login">Login</string>
     <string name="title_activity_alert">CMU WEA+</string>
@@ -11,5 +11,6 @@
     <string name="title_alert_detail">CMU WEA+ Alert Details</string>
     <string name="title_activity_alert_dialog">AlertDialogActivity</string>
     <string name="title_activity_feedback_web_view">CMU WEA+ Feedback</string>
+    <string name="title_activity_debug_settings">DebugSettings</string>
 
 </resources>
