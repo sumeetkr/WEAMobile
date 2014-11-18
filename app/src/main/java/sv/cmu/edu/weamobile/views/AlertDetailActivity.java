@@ -12,6 +12,7 @@ import sv.cmu.edu.weamobile.data.AlertState;
 import sv.cmu.edu.weamobile.utility.AlertHelper;
 import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
+import sv.cmu.edu.weamobile.utility.WEAUtil;
 
 
 /**
@@ -104,6 +105,16 @@ public class AlertDetailActivity extends FragmentActivity {
         Intent intent = new Intent(this, MainActivity.class);
         intent.setAction(Constants.SHOW_MAIN_VIEW_ACTION);
         startActivity(intent);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        // getIntent() should always return the most recent
+        setIntent(intent);
+        WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
+                "Reached alert detail onNewIntent, updating intent");
+        setArguments();
     }
 
     private Bundle setArguments() {

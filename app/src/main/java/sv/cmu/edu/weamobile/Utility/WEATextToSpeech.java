@@ -20,15 +20,25 @@ public class WEATextToSpeech{
     }
 
     public void shutdown() {
-        if(tts != null) tts.shutdown();
+
+        try{
+            if(tts != null) {
+                tts.shutdown();
+                tts = null;
+            }
+        }catch (Exception ex){
+         Logger.log(ex.getMessage());
+        }
     }
 
     public void say(String messageToSay, Integer times) {
-        if(tts == null){
+        try{
+            if(tts != null){
+                shutdown();
+            }
             tts = new TextToSpeech(context, new TTSListener(messageToSay , times));
-        }else{
-            tts.shutdown();
-            tts = new TextToSpeech(context, new TTSListener(messageToSay , times));
+        }catch(Exception ex){
+            Logger.log(ex.getMessage());
         }
     }
 

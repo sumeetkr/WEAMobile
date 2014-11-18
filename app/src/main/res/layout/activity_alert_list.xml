@@ -23,7 +23,8 @@
             android:text="Application Status"
             android:id="@+id/switch2"
             android:layout_centerHorizontal="true"
-            android:layout_marginRight="20dp" />
+            android:layout_marginRight="20dp"
+            android:checked="true" />
     </LinearLayout>
 
     <LinearLayout

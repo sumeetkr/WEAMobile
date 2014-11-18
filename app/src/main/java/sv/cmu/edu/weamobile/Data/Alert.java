@@ -302,4 +302,8 @@ public class Alert {
         return this.getScheduledEpochInSeconds() <= System.currentTimeMillis()/1000;
     }
 
+    public boolean isOfFuture(){
+        return this.getScheduledEpochInSeconds() >= System.currentTimeMillis()/1000;
+    }
+
 }

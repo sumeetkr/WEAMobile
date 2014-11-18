@@ -10,6 +10,9 @@ import android.text.style.RelativeSizeSpan;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import sv.cmu.edu.weamobile.data.Alert;
 import sv.cmu.edu.weamobile.data.AlertState;
 import sv.cmu.edu.weamobile.data.AppConfiguration;
@@ -55,7 +58,7 @@ public class AlertHelper {
             Intent dialogIntent = new Intent(context, MainActivity.class);
             dialogIntent.putExtra("item_id", String.valueOf(alert.getId()));
             dialogIntent.putExtra(Constants.CONFIG_JSON, configuration.getJson());
-            dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
             WEAUtil.showMessageIfInDebugMode(context, "Alert is active, asking main view to show alert");
             context.startActivity(dialogIntent);
@@ -113,11 +116,14 @@ public class AlertHelper {
         return WEASharedPreferences.getAlertState(context, id);
     }
 
-    public static AlertState [] getAlertStates(Context context, Alert [] alerts){
-        AlertState [] alertStates = new AlertState[alerts.length];
+    public static List<AlertState> getAlertStates(Context context, List<Alert> alerts){
+        List<AlertState> alertStates = new ArrayList<AlertState>();
 
-        for(int i=0; i<alerts.length;i++){
-            alertStates[i] = WEASharedPreferences.getAlertState(context, String.valueOf(alerts[i].getId()));
+        for(int i=0; i<alerts.size();i++){
+            AlertState state = WEASharedPreferences.getAlertState(context, String.valueOf(alerts.get(i).getId()));
+            if(state != null){
+                alertStates.add(state);
+            }
         }
 
         return  alertStates;

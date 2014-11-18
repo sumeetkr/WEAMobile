@@ -58,7 +58,7 @@ public class WEAAlarmManager {
 
 
         alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                timeBetweenRepeatsInMilliSeconds,
+                1000,
                 timeBetweenRepeatsInMilliSeconds,
                 alarmIntent);
     }

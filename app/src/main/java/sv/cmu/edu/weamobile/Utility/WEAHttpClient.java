@@ -152,23 +152,26 @@ public class WEAHttpClient {
     }
 
     public static void getConfigurationAsync(Context context){
+        try{
+            GPSTracker tracker = new GPSTracker(context);
+            float batteryLevel = WEAUtil.getBatteryLevel(context);
+            GeoLocation location ;
+            if(tracker.canGetLocation()){
+                location = tracker.getNetworkGeoLocation();
+                Logger.log("Sending lat " + location.getLatitude());
+                Logger.log("Sending lng " + location.getLongitude());
+            }else{
+                location = new GeoLocation("0.00", "0.00", 0.00f);
+                Logger.log("Cannot get location for heartbeat");
+            }
 
-        GPSTracker tracker = new GPSTracker(context);
-        float batteryLevel = WEAUtil.getBatteryLevel(context);
-        GeoLocation location ;
-        if(tracker.canGetLocation()){
-            location = tracker.getNetworkGeoLocation();
-            Logger.log("Sending lat " + location.getLatitude());
-            Logger.log("Sending lng " + location.getLongitude());
-        }else{
-            location = new GeoLocation("0.00", "0.00", 0.00f);
-            Logger.log("Cannot get location for heartbeat");
+            location.setBatteryLevel(batteryLevel);
+            sendHeartbeat(location.getJson(), context, Constants.URL_TO_GET_CONFIGURATION + WEAUtil.getIMSI(context));
+
+            tracker.stopUsingGPS();
+        }catch(Exception ex){
+            Logger.log(ex.getMessage());
         }
-
-        location.setBatteryLevel(batteryLevel);
-        sendHeartbeat(location.getJson(), context, Constants.URL_TO_GET_CONFIGURATION + WEAUtil.getIMSI(context));
-
-        tracker.stopUsingGPS();
         //fetch application configuration from server
 
     }

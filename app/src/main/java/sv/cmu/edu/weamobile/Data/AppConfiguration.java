@@ -277,27 +277,42 @@ public class AppConfiguration {
         return alerts;
     }
 
-    public  Alert[] getAlertsWhichAreNotGeoTargetedOrGeotargetedAndUserWasInTarget(Context context) {
+    public  List<Alert> getAlertsList(Context context) {
         Arrays.sort(alerts, new Comparator<Alert>() {
             public int compare(Alert o1, Alert o2) {
                 return o2.getScheduledEpochInSeconds().compareTo(o1.getScheduledEpochInSeconds());
             }
         } );
 
-        List<Alert> alertsToBeShow = new ArrayList<Alert>();
+        List<Alert> alertsList = new ArrayList<Alert>();
+        for(Alert alert:alerts){
+            alertsList.add(alert);
+        }
+
+        return alertsList;
+    }
+    public  List<Alert> getAlertsWhichAreNotGeoTargetedOrGeotargetedAndUserWasInTarget(Context context) {
+        Arrays.sort(alerts, new Comparator<Alert>() {
+            public int compare(Alert o1, Alert o2) {
+                return o2.getScheduledEpochInSeconds().compareTo(o1.getScheduledEpochInSeconds());
+            }
+        } );
+
+        List<Alert> alertsToBeShown = new ArrayList<Alert>();
         for(Alert alert: alerts){
             AlertState state = AlertHelper.getAlertStateFromId(context, String.valueOf(alert.getId()));
-            if(!alert.isGeoFiltering() || (alert.isGeoFiltering() && state.isInPolygonOrAlertNotGeoTargeted())){
-                alertsToBeShow.add(alert);
+            if(state!=null){
+                if(!alert.isGeoFiltering() || (alert.isGeoFiltering() && state.isInPolygonOrAlertNotGeoTargeted())){
+                    alertsToBeShown.add(alert);
+                }
             }
-
         }
-        Alert[] alertsToBeShownArray = new Alert[alertsToBeShow.size()];
-        for(int i =0; i<alertsToBeShow.size(); i++){
-            alertsToBeShownArray[i]= alertsToBeShow.get(i);
-        }
+//        Alert[] alertsToBeShownArray = new Alert[alertsToBeShown.size()];
+//        for(int i =0; i<alertsToBeShown.size(); i++){
+//            alertsToBeShownArray[i]= alertsToBeShown.get(i);
+//        }
 
-        return alertsToBeShownArray;
+        return alertsToBeShown;
     }
 
     public String getJson() {

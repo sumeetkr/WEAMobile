@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -61,16 +62,6 @@ public class AlertDetailFragment extends Fragment {
 
         WEAUtil.showMessageIfInDebugMode(getActivity().getApplicationContext(),
                 "Creating alert with a map");
-
-        if (getArguments().containsKey(Constants.ARG_ITEM_ID)) {
-            alert = AlertHelper.getAlertFromId(
-                    getActivity().getApplicationContext(),
-                    getArguments().getString(Constants.ARG_ITEM_ID));
-
-            alertState = WEASharedPreferences.getAlertState(getActivity().getApplicationContext(),
-                    getArguments().getString(Constants.ARG_ITEM_ID));
-        }
-
     }
 
     @Override
@@ -147,6 +138,16 @@ public class AlertDetailFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+
+        if (getArguments().containsKey(Constants.ARG_ITEM_ID)) {
+            alert = AlertHelper.getAlertFromId(
+                    getActivity().getApplicationContext(),
+                    getArguments().getString(Constants.ARG_ITEM_ID));
+
+            alertState = WEASharedPreferences.getAlertState(getActivity().getApplicationContext(),
+                    getArguments().getString(Constants.ARG_ITEM_ID));
+        }
+
         updateMyLocation();
         setupView();
         setUpMapIfNeeded();
@@ -177,6 +178,8 @@ public class AlertDetailFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     shutdownSpeech();
+
+                    Toast.makeText(getActivity(), Constants.SHOWING_FEEDBACK_FORM, Toast.LENGTH_SHORT).show();
 
                     Intent intent = new Intent(activity, FeedbackWebViewActivity.class);
                     intent.putExtra(Constants.ALERT_ID, alert.getId());
@@ -332,6 +335,10 @@ public class AlertDetailFragment extends Fragment {
     }
 
     public void shutdownSpeech() {
-        if(textToSpeech != null) textToSpeech.shutdown();
+        try{
+            if(textToSpeech != null) textToSpeech.shutdown();
+        }catch(Exception ex){
+            Logger.log(ex.getMessage());
+        }
     }
 }

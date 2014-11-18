@@ -27,5 +27,6 @@ public class Constants {
 
     public static final String USER_NAME = "user_name";
 
-    public static final String THANKS_FOR_FEEDBACK = "Thanks for Feedback !! CMU WEA team";
+    public static final String THANKS_FOR_FEEDBACK = "Thanks for Feedback !! CMU WEA+ team";
+    public static final String SHOWING_FEEDBACK_FORM = "Loading feedback form...";
 }

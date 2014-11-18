@@ -10,7 +10,9 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import sv.cmu.edu.weamobile.data.Alert;
 import sv.cmu.edu.weamobile.data.AlertState;
@@ -85,10 +87,14 @@ public class WEABackgroundService extends Service {
     }
 
     private void addOrUpdatedAlertsStateToSharedPreferences(AppConfiguration configuration) {
-        Alert [] alerts = configuration.getAlertsFromJSON();
-        if(alerts.length >0){
-            for(Alert alert: alerts) {
-                WEASharedPreferences.addAlertStateToPreferences(getApplicationContext(), alert);
+        if(configuration!= null){
+            Alert [] alerts = configuration.getAlertsFromJSON();
+            if(alerts.length >0){
+                for(Alert alert: alerts) {
+                    if(alert.isActive() || alert.isOfFuture()){
+                        WEASharedPreferences.addAlertStateToPreferences(getApplicationContext(), alert);
+                    }
+                }
             }
         }
     }
@@ -96,14 +102,12 @@ public class WEABackgroundService extends Service {
     private void setupAlarmToShowAlertAtRightTime(AppConfiguration configuration){
 
         //two things to be done, shown now or schedule for later if in half an hour
-        Alert alert = getAlertRelevantBetweenNowAndNextScheduledCheck(configuration);
-        if(alert != null){
+        List<Alert> alerts = getAlertRelevantBetweenNowAndNextScheduledCheck(configuration);
+        for(Alert alert : alerts){
             long currentTime = System.currentTimeMillis()/1000;
             String message = "Alert expected after: "+ (alert.getScheduledEpochInSeconds() - currentTime) + " secs";
             Logger.log(message);
-            if(message!=null && !message.isEmpty()){
-                Toast.makeText(getApplicationContext(), "Alert Time!!: " + message, Toast.LENGTH_SHORT).show();
-            }
+            WEAUtil.showMessageIfInDebugMode(getApplicationContext(), message);
             WEAAlarmManager.setupAlarmForAlertAtScheduledTime(getApplicationContext(), alert.getId(), alert.getScheduleEpochInMillis());
 
             sendAlertScheduledInfoToServer(alert);
@@ -125,22 +129,24 @@ public class WEABackgroundService extends Service {
         }
     }
 
-    private Alert getAlertRelevantBetweenNowAndNextScheduledCheck(AppConfiguration config){
-        Alert relevantAlert= null;
+    private List<Alert> getAlertRelevantBetweenNowAndNextScheduledCheck(AppConfiguration config){
+        List<Alert> relevantAlerts= new ArrayList<Alert>();
 
-        Alert [] alerts = config.getAlertsFromJSON();
-        if(alerts.length >0){
-            for(Alert alert: alerts){
-                try{
-                    if(alert.isInRangeToSchedule()){
-                        relevantAlert = alert;
+        if(config != null){
+            Alert [] alerts = config.getAlertsFromJSON();
+            if(alerts.length >0){
+                for(Alert alert: alerts){
+                    try{
+                        if(alert.isInRangeToSchedule()){
+                            relevantAlerts.add(alert);
+                        }
+                    }catch(Exception ex){
+                        Logger.log(ex.getMessage());
                     }
-                }catch(Exception ex){
-                    Logger.log(ex.getMessage());
                 }
             }
         }
-        return relevantAlert;
+        return relevantAlerts;
     }
 
     private class NewConfigurationReceiver extends BroadcastReceiver {
@@ -159,7 +165,7 @@ public class WEABackgroundService extends Service {
             if(json.isEmpty()){
                 Logger.log("Received empty json");
                 json = WEASharedPreferences.readApplicationConfiguration(context);
-                newConfigurationIntent = new WEANewConfigurationIntent("Could not connect to server, using old configuration !!", json, true);
+                newConfigurationIntent = new WEANewConfigurationIntent("", json, true);
 
             }else{
                 WEASharedPreferences.saveApplicationConfiguration(context, json);
@@ -171,7 +177,7 @@ public class WEABackgroundService extends Service {
             setupAlarmToShowAlertAtRightTime(configuration);
 
             //update if new alerts
-            Log.d("WEA", "Broadcast intent: About to broadcast new configuration");
+            Logger.log("Broadcast intent: About to broadcast new configuration");
             getApplicationContext().sendBroadcast(newConfigurationIntent);
         }
 

@@ -41,7 +41,7 @@ public class AlertListFragment extends ListFragment {
         }
     };
 
-    public List<Alert> updateListAndReturnAnyActiveAlertNotShown(Alert[] alerts, AlertState [] alertsStates) {
+    public List<Alert> updateListAndReturnAnyActiveAlertNotShown(List<Alert> alerts, List<AlertState> alertsStates) {
 
         List<Alert> activeButNotShown = new ArrayList<Alert>();
 
@@ -68,7 +68,7 @@ public class AlertListFragment extends ListFragment {
         for(Alert alert:alerts){
             AlertState state = alertStateMap.get(alert.getId());
 
-            if(alert.isNotOfFuture() && state.isInPolygonOrAlertNotGeoTargeted()){
+            if(alert.isNotOfFuture() && state!= null && state.isInPolygonOrAlertNotGeoTargeted()){
                 addItem(alert);
             }
 
