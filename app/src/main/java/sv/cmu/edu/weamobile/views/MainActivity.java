@@ -54,6 +54,8 @@ public class MainActivity extends FragmentActivity
     private boolean isDialogShown = false;
     private boolean programTryingToChangeSwitch = false;
     private AlertDialog dialog;
+    private final int defaultId = -2;
+    private int idOfShownAlert = defaultId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,7 +96,7 @@ public class MainActivity extends FragmentActivity
 
         if(getIntent().hasExtra(Constants.ALERT_ID)){
             WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
-                    "Reached main view with an alert to show, will updating the list of alerts first");
+                    "Reached main view with an alert to show, updating the list of alerts first");
             String alertId = getIntent().getStringExtra(Constants.ALERT_ID);
             Alert[] alerts = configuration.getAlertsWhichAreNotGeoTargetedOrGeotargetedAndUserWasInTarget(getApplicationContext());
             AlertState [] alertStates = AlertHelper.getAlertStates(getApplicationContext(), alerts);
@@ -103,7 +105,7 @@ public class MainActivity extends FragmentActivity
             onItemSelected(alertId);
         }else{
             WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
-                    "Reached main view but no alert to show");
+                    "Reached main view, but no alert to show");
         }
 
     }
@@ -291,19 +293,21 @@ public class MainActivity extends FragmentActivity
     }
 
     private void showDialog(Alert alert) {
-        if(!isDialogShown) {
-            isDialogShown = true;
+
+        if(dialog != null && alert.getId() == idOfShownAlert){
+            //do not do anything, the alert has already been shown
+            WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
+                    "The alert is already shown, so not showing again.");
         }else{
             if(dialog != null) dialog.cancel();
+            WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
+                    "Creating alert as a dialog");
+            dialog = createDialog(getApplicationContext(), alert);
+            dialog.show();
         }
-
-        WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
-                "Asking to show alert as a dialog");
-        dialog = createDialog(getApplicationContext(), alert);
-        dialog.show();
     }
 
-    private AlertDialog createDialog(final Context context, Alert alert1){
+    private AlertDialog createDialog(final Context context, final Alert alert1){
 
         final Alert alert = alert1;
         final Activity activity = this;
@@ -326,6 +330,7 @@ public class MainActivity extends FragmentActivity
                             dialog.cancel();
                             if(textToSpeech!= null) textToSpeech.shutdown();
                             isDialogShown = false;
+                            idOfShownAlert = defaultId;
 
                             Intent intent = new Intent(activity, FeedbackWebViewActivity.class);
                             intent.putExtra(Constants.ALERT_ID, alert.getId());
@@ -349,6 +354,9 @@ public class MainActivity extends FragmentActivity
             @Override
             public void onShow(DialogInterface dialog) {
                 getIntent().setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                isDialogShown = true;
+                idOfShownAlert = alert1.getId();
 
                 WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
                         "Showing alert dialog");
@@ -382,6 +390,7 @@ public class MainActivity extends FragmentActivity
             @Override
             public void onDismiss(DialogInterface dialog) {
                 isDialogShown = false;
+                idOfShownAlert = defaultId;
                 if(textToSpeech!=null) textToSpeech.shutdown();
             }
         });
@@ -390,6 +399,7 @@ public class MainActivity extends FragmentActivity
             @Override
             public void onCancel(DialogInterface dialog) {
                 isDialogShown = false;
+                idOfShownAlert = defaultId;
                 if(textToSpeech!=null) textToSpeech.shutdown();
             }
         });

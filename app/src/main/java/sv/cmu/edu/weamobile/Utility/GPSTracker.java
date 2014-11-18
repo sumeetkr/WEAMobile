@@ -194,7 +194,7 @@ public class GPSTracker extends Service implements LocationListener {
 
         if(isBetterLocation(location, this.location)){
             this.location = location;
-            GeoLocation geoLocation = new GeoLocation(Double.toString(location.getLatitude()),Double.toString(location.getLongitude()));
+            GeoLocation geoLocation = new GeoLocation(Double.toString(location.getLatitude()),Double.toString(location.getLongitude()), location.getAccuracy());
             if(alert != null && configuration != null){
                 String message= "Got GPS update";
                 if(geoLocation == null || WEAPointInPoly.isInPolygon(geoLocation, alert.getPolygon())){

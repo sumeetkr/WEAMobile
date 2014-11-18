@@ -45,6 +45,7 @@ public class AlertHelper {
         if(alert.isActive()){
             AlertState state = WEASharedPreferences.getAlertState(context, String.valueOf(alert.getId()));
             if(location != null){
+                location.setBatteryLevel(WEAUtil.getBatteryLevel(context));
                 state.setLocationWhenShown(location);
             }
 

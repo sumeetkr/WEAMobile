@@ -72,22 +72,31 @@ public class WEAUtil {
     }
 
     public static void showMessageIfInDebugMode(Context context, String message){
-        if(WEASharedPreferences.isInDebugMode(context)){
-            Logger.log("Showing toast: " + message);
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+        try{
+            if(WEASharedPreferences.isInDebugMode(context)){
+                Logger.log("Showing toast: " + message);
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
 
+            }
+        }catch (Exception ex){
+            Logger.log(ex.getMessage());
         }
     }
 
     public static float getBatteryLevel(Context context){
-        IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-        Intent batteryStatus = context.registerReceiver(null, ifilter);
+        float batteryPct =0.0f;
+        try{
+            IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+            Intent batteryStatus = context.registerReceiver(null, ifilter);
 
-        int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-        int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+            int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+            int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
 
-        float batteryPct = level / (float)scale;
+            batteryPct = level / (float)scale;
 
+        }catch(Exception ex){
+            Logger.log(ex.getMessage());
+        }
         return batteryPct;
     }
 }

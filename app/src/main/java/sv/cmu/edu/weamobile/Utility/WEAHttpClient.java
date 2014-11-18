@@ -161,7 +161,7 @@ public class WEAHttpClient {
             Logger.log("Sending lat " + location.getLatitude());
             Logger.log("Sending lng " + location.getLongitude());
         }else{
-            location = new GeoLocation("0.00", "0.00");
+            location = new GeoLocation("0.00", "0.00", 0.00f);
             Logger.log("Cannot get location for heartbeat");
         }
 
