@@ -43,10 +43,16 @@ public class WEAUtil {
         return  myDate;
     }
 
-    public static String getIMSI(Context context){
+    public static String getIMSINumber(Context context){
         TelephonyManager telephoneMananger = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         String imsi = telephoneMananger.getSimSerialNumber();
         return imsi;
+    }
+
+    public static String getIMEI(Context context){
+        TelephonyManager telephoneMananger = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        String imei = telephoneMananger.getDeviceId();
+        return imei;
     }
 
     public static void lightUpScreen(Context context){

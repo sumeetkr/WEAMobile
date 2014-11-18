@@ -2,6 +2,10 @@ package sv.cmu.edu.weamobile.data;
 
 import com.google.gson.Gson;
 
+import java.util.Date;
+
+import sv.cmu.edu.weamobile.utility.WEAUtil;
+
 /**
  * Created by sumeet on 11/7/14.
  */
@@ -16,6 +20,12 @@ public class AlertState {
     private GeoLocation locationWhenShown;
     private boolean isInPolygonOrAlertNotGeoTargeted = false;
     private State state = null;
+    private String scheduledFor;
+
+    public AlertState(int id, String scheduledForTime){
+        this.id = id;
+        this.scheduledFor = scheduledForTime;
+    }
 
     public State getState() {
         return state;
@@ -23,6 +33,15 @@ public class AlertState {
 
     public void setState(State state) {
         this.state = state;
+    }
+
+    public Long getScheduledEpochInSeconds(){
+        long epoch = 0;
+        Date date = WEAUtil.getTimeStringFromJsonTime(scheduledFor, "UTC");
+        if(date != null){
+            epoch = date.getTime();
+        }
+        return epoch/1000;
     }
 
     public enum State {
@@ -35,10 +54,6 @@ public class AlertState {
 
     public void setTimeWhenFeedbackGivenInEpoch(long timeWhenFeedbackGivenInEpoch) {
         this.timeWhenFeedbackGivenInEpoch = timeWhenFeedbackGivenInEpoch;
-    }
-
-    public AlertState(int id){
-        this.id = id;
     }
 
     public int getId() {

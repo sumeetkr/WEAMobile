@@ -46,7 +46,7 @@ public class AlertHelper {
         WEAUtil.showMessageIfInDebugMode(context, "Checking if alert is active");
 
         if(alert.isActive()){
-            AlertState state = WEASharedPreferences.getAlertState(context, String.valueOf(alert.getId()));
+            AlertState state = WEASharedPreferences.getAlertState(context, alert);
             if(location != null){
                 location.setBatteryLevel(WEAUtil.getBatteryLevel(context));
                 state.setLocationWhenShown(location);
@@ -112,15 +112,15 @@ public class AlertHelper {
         return selectedAlert;
     }
 
-    public static AlertState getAlertStateFromId(Context context, String id) {
-        return WEASharedPreferences.getAlertState(context, id);
+    public static AlertState getAlertState(Context context, Alert alert) {
+        return WEASharedPreferences.getAlertState(context, alert);
     }
 
     public static List<AlertState> getAlertStates(Context context, List<Alert> alerts){
         List<AlertState> alertStates = new ArrayList<AlertState>();
 
         for(int i=0; i<alerts.size();i++){
-            AlertState state = WEASharedPreferences.getAlertState(context, String.valueOf(alerts.get(i).getId()));
+            AlertState state = WEASharedPreferences.getAlertState(context, alerts.get(i));
             if(state != null){
                 alertStates.add(state);
             }
@@ -131,7 +131,7 @@ public class AlertHelper {
 
     public static String getFedbackURL( Context context, Alert alert){
         return Constants.FEEDBACK_URL_ROOT + alert.getId()+
-                "/" +WEAUtil.getIMSI(context);
+                "/" +WEAUtil.getIMEI(context);
     }
 
     public static String getContextTextToShow(Alert alert, GeoLocation myLocation) {
@@ -143,7 +143,7 @@ public class AlertHelper {
 
         if(alerts!= null){
             for(int i=0; i<alerts.length;i++){
-                WEASharedPreferences.deleteAlertState(context, String.valueOf(alerts[i].getId()));
+                WEASharedPreferences.deleteAlertState(context, alerts[i]);
             }
         }
     }

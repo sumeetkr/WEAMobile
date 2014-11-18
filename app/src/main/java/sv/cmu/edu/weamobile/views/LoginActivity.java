@@ -95,6 +95,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         String user_name = WEASharedPreferences.getStringProperty(getApplicationContext(), Constants.USER_NAME);
         if(user_name != null || user_name != ""){
          userIdView.setText(user_name);
+//         userIdView.setInputType(InputType.TYPE_NULL);
         }
     }
 
@@ -154,7 +155,11 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
-        return email.length() > 4;
+        boolean isValid = false;
+        if(email!= null && email != ""){
+            isValid = true;
+        }
+        return isValid;
     }
 
     private boolean isPasswordValid(String password) {

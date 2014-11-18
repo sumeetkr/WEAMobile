@@ -116,7 +116,7 @@ public class WEABackgroundService extends Service {
 
     private void sendAlertScheduledInfoToServer(Alert alert) {
         try{
-            AlertState alertState = AlertHelper.getAlertStateFromId(getApplicationContext(), String.valueOf(alert.getId()));
+            AlertState alertState = AlertHelper.getAlertState(getApplicationContext(), alert);
             alertState.setState(AlertState.State.scheduled);
             WEASharedPreferences.saveAlertState(getApplicationContext(), alertState);
             WEAHttpClient.sendAlertState(getApplicationContext(),

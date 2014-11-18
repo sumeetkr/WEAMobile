@@ -23,16 +23,16 @@ import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
 
 public class FeedbackWebViewActivity extends Activity {
 
-    private int alertId;
+    private Alert alert;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feedback_web_view);
 
-        alertId = getIntent().getIntExtra(Constants.ALERT_ID, -1);
+        int alertId = getIntent().getIntExtra(Constants.ALERT_ID, -1);
         if (alertId != -1 ) {
-            Alert alert = AlertHelper.getAlertFromId(getApplicationContext(), String.valueOf(alertId));
+            alert = AlertHelper.getAlertFromId(getApplicationContext(), String.valueOf(alertId));
             if(alert != null){
                 WebView wv = (WebView) this.findViewById(R.id.webView);
                 wv.addJavascriptInterface(new WebAppInterface(this), "Android");
@@ -97,7 +97,7 @@ public class FeedbackWebViewActivity extends Activity {
                 Toast.makeText(mContext, Constants.THANKS_FOR_FEEDBACK, Toast.LENGTH_SHORT).show();
 
                 AlertState alertState = WEASharedPreferences.getAlertState(getApplicationContext(),
-                        String.valueOf(alertId));
+                        alert);
                 alertState.setFeedbackGiven(true);
                 alertState.setTimeWhenFeedbackGivenInEpoch(System.currentTimeMillis());
                 alertState.setState(AlertState.State.clicked);
@@ -109,7 +109,7 @@ public class FeedbackWebViewActivity extends Activity {
 
                 WEAHttpClient.sendAlertState(getApplicationContext(),
                         alertState.getJson(),
-                        String.valueOf(alertId));
+                        String.valueOf(alert.getId()));
 
 
                 Logger.log("Submitted the feedback form");

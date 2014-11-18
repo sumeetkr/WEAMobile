@@ -34,7 +34,7 @@ public class AlertListAdapter extends ArrayAdapter<Alert> {
         }
 
         Alert alert = alerts.get(position);
-        AlertState state = AlertHelper.getAlertStateFromId(getContext(), String.valueOf(alert.getId()));
+        AlertState state = AlertHelper.getAlertState(getContext(), alert);
 
         if(alert!=null && alert.getScheduledEpochInSeconds() < System.currentTimeMillis()/1000 ) {
 

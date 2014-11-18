@@ -52,7 +52,6 @@ public class MainActivity extends FragmentActivity
     private Switch mySwitch;
     private AppConfiguration configuration;
     private AlertListFragment listFragment;
-    private boolean isDialogShown = false;
     private boolean programTryingToChangeSwitch = false;
     private AlertDialog dialog;
     private final int defaultId = -2;
@@ -146,7 +145,6 @@ public class MainActivity extends FragmentActivity
             refreshListAndSelectItem();
         }else{
             refreshListAndShowUnSeenAlert();
-
         }
 
 //        if(!getIntent().hasExtra(Constants.ALERT_ID)){
@@ -325,7 +323,7 @@ public class MainActivity extends FragmentActivity
 
     public void onBackPressed() {
 
-        if(isDialogShown && dialog != null){
+        if(dialog != null){
             dialog.cancel();
             dialog = null;
         }else{
@@ -343,7 +341,12 @@ public class MainActivity extends FragmentActivity
             WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
                     "The alert is already shown, so not showing again.");
         }else{
-            if(dialog != null) dialog.cancel();
+            if(dialog != null) {
+                dialog.cancel();
+                dialog.dismiss();
+                WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
+                        "Existing alert dialog was there, dismissing it");
+            }
             try {
                 WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
                         "Creating alert as a dialog");
@@ -359,7 +362,7 @@ public class MainActivity extends FragmentActivity
 
         final Alert alert = alert1;
         final Activity activity = this;
-        final AlertState alertState = WEASharedPreferences.getAlertState(context, String.valueOf(alert.getId()));
+        final AlertState alertState = WEASharedPreferences.getAlertState(context, alert);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this,  AlertDialog.THEME_TRADITIONAL);
         final WEATextToSpeech textToSpeech = new WEATextToSpeech(activity);
@@ -376,8 +379,9 @@ public class MainActivity extends FragmentActivity
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.cancel();
+
+                            WEAUtil.showMessageIfInDebugMode(getApplicationContext(), "Canceling dialog for feedback");
                             if(textToSpeech!= null) textToSpeech.shutdown();
-                            isDialogShown = false;
                             idOfShownAlert = defaultId;
 
                             Toast.makeText(getApplicationContext(), Constants.SHOWING_FEEDBACK_FORM, Toast.LENGTH_SHORT).show();
@@ -405,7 +409,6 @@ public class MainActivity extends FragmentActivity
             public void onShow(DialogInterface dialog) {
                 getIntent().setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-                isDialogShown = true;
                 idOfShownAlert = alert1.getId();
 
                 WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
@@ -439,8 +442,8 @@ public class MainActivity extends FragmentActivity
         alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
-                isDialogShown = false;
                 idOfShownAlert = defaultId;
+                WEAUtil.showMessageIfInDebugMode(getApplicationContext(), "Dismissing dialog");
                 if(textToSpeech!=null){
                     textToSpeech.shutdown();
                 }
@@ -450,7 +453,7 @@ public class MainActivity extends FragmentActivity
         alertDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
-                isDialogShown = false;
+                WEAUtil.showMessageIfInDebugMode(getApplicationContext(), "Canceling dialog");
                 idOfShownAlert = defaultId;
                 if(textToSpeech!=null) {
                     textToSpeech.shutdown();

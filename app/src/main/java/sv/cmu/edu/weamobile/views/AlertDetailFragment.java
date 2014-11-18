@@ -145,7 +145,7 @@ public class AlertDetailFragment extends Fragment {
                     getArguments().getString(Constants.ARG_ITEM_ID));
 
             alertState = WEASharedPreferences.getAlertState(getActivity().getApplicationContext(),
-                    getArguments().getString(Constants.ARG_ITEM_ID));
+                    alert);
         }
 
         updateMyLocation();
@@ -283,7 +283,7 @@ public class AlertDetailFragment extends Fragment {
                 "Setting up map for this alert.");
 
         mMap.clear();
-        mMap.setMyLocationEnabled(true);
+//        mMap.setMyLocationEnabled(true);
 
         if(myLocation != null){
 

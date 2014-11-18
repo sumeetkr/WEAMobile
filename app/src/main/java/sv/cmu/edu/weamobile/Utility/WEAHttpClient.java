@@ -166,7 +166,7 @@ public class WEAHttpClient {
             }
 
             location.setBatteryLevel(batteryLevel);
-            sendHeartbeat(location.getJson(), context, Constants.URL_TO_GET_CONFIGURATION + WEAUtil.getIMSI(context));
+            sendHeartbeat(location.getJson(), context, Constants.URL_TO_GET_CONFIGURATION + WEAUtil.getIMEI(context));
 
             tracker.stopUsingGPS();
         }catch(Exception ex){
@@ -179,7 +179,7 @@ public class WEAHttpClient {
     public static void saveUserLogin(final Context context, final String mUserId) {
         final Context ctxt = context;
         String response = "";
-        String server_url = Constants.REGISTRATION_URL_ROOT + WEAUtil.getIMSI(context) + "/" + mUserId;
+        String server_url = Constants.REGISTRATION_URL_ROOT + WEAUtil.getIMEI(context) + "/" + mUserId;
         try {
 
             Logger.log("send registration ", server_url);
@@ -210,7 +210,7 @@ public class WEAHttpClient {
     public static void sendAlertState(Context context, String alertStateInJson, String alertId) {
         final Context ctxt = context;
         String response = "";
-        String server_url = Constants.STATE_URL_ROOT+ alertId+ "/"+ WEAUtil.getIMSI(context) ;
+        String server_url = Constants.STATE_URL_ROOT+ alertId+ "/"+ WEAUtil.getIMEI(context) ;
         try {
 
             StringEntity entity = new StringEntity(alertStateInJson);

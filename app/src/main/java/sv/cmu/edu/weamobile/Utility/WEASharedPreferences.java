@@ -61,15 +61,20 @@ public class WEASharedPreferences {
 
     }
 
-    public static AlertState getAlertState(Context context, String id) {
+    public static AlertState getAlertState(Context context, Alert alert) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
         AlertState alertState = null;
         if (sharedPreferences != null) {
-            String res = sharedPreferences.getString(Constants.ALERT_STATE+id, null);
+            String res = sharedPreferences.getString(Constants.ALERT_STATE+alert.getId()+alert.getScheduledEpochInSeconds(), null);
             if(res!=null){
                 alertState = AlertState.fromJson(res);
+            }else{
+                Logger.log("Alert state not found");
             }
+
         }
+
+        Logger.log("Saved new alert to shared preferences "+ Constants.ALERT_STATE+alert.getId()+alert.getScheduledEpochInSeconds());
         return alertState;
     }
 
@@ -77,32 +82,32 @@ public class WEASharedPreferences {
         SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
         if (sharedPreferences != null) {
             SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString(Constants.ALERT_STATE + alertState.getId(), alertState.getJson());
+            editor.putString(Constants.ALERT_STATE+alertState.getId()+alertState.getScheduledEpochInSeconds(), alertState.getJson());
             editor.commit();
-            Logger.log("Saved new alert to shared preferences "+ alertState.getId());
+            Logger.log("Saved new alert to shared preferences "+ Constants.ALERT_STATE+alertState.getId()+alertState.getScheduledEpochInSeconds());
         }
     }
 
     public static void addAlertStateToPreferences(Context context, Alert alert) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
         if (sharedPreferences != null) {
-            String res = sharedPreferences.getString(Constants.ALERT_STATE + alert.getId(), null);
+            String res = sharedPreferences.getString(Constants.ALERT_STATE+alert.getId()+alert.getScheduledEpochInSeconds(), null);
             if(res==null){
-                saveAlertState(context, new AlertState(alert.getId()));
+                saveAlertState(context, new AlertState(alert.getId(), alert.getScheduledFor()));
                 Logger.log("Added to shared preferences, alert id " + alert.getId());
             }
         }
     }
 
-    public static void deleteAlertState(Context context, String alertId) {
+    public static void deleteAlertState(Context context, Alert alert) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
         if (sharedPreferences != null) {
-            String res = sharedPreferences.getString(Constants.ALERT_STATE + alertId, null);
+            String res = sharedPreferences.getString(Constants.ALERT_STATE+alert.getId()+alert.getScheduledEpochInSeconds(), null);
             if(res!=null){
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.remove(Constants.ALERT_STATE + alertId);
+                editor.remove(Constants.ALERT_STATE+alert.getId()+alert.getScheduledEpochInSeconds());
                 editor.commit();
-                Logger.log("Removed from shared preferences, alert id " + alertId);
+                Logger.log("Removed from shared preferences, alert id " + alert.getId());
             }
         }
     }

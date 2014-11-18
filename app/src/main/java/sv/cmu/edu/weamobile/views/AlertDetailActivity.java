@@ -34,7 +34,7 @@ public class AlertDetailActivity extends FragmentActivity {
 
         String alertId = getIntent().getStringExtra(Constants.ARG_ITEM_ID);
         Alert alert = AlertHelper.getAlertFromId(getApplicationContext(), alertId);
-        AlertState state = WEASharedPreferences.getAlertState(getApplicationContext(),alertId );
+        AlertState state = WEASharedPreferences.getAlertState(getApplicationContext(), alert);
 
 //        if(state != null && !state.isAlreadyShown() && alert.isActive() && state.isInPolygonOrAlertNotGeoTargeted()){
 //            setTheme(android.R.style.Theme_DeviceDefault_Dialog_NoActionBar);

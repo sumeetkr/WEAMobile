@@ -300,7 +300,7 @@ public class AppConfiguration {
 
         List<Alert> alertsToBeShown = new ArrayList<Alert>();
         for(Alert alert: alerts){
-            AlertState state = AlertHelper.getAlertStateFromId(context, String.valueOf(alert.getId()));
+            AlertState state = AlertHelper.getAlertState(context, alert);
             if(state!=null){
                 if(!alert.isGeoFiltering() || (alert.isGeoFiltering() && state.isInPolygonOrAlertNotGeoTargeted())){
                     alertsToBeShown.add(alert);
