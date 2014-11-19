@@ -74,7 +74,7 @@ public class WEASharedPreferences {
 
         }
 
-        Logger.log("Saved new alert to shared preferences "+ Constants.ALERT_STATE+alert.getId()+alert.getScheduledEpochInSeconds());
+        Logger.log("got state from shared preferences "+ Constants.ALERT_STATE+alert.getId()+alert.getScheduledEpochInSeconds());
         return alertState;
     }
 

@@ -91,20 +91,24 @@ public class GPSTracker extends Service implements LocationListener {
 
     private Location getGPSLocationUpdates() {
         Location loc = null;
-        if(isGPSEnabled)
-        {
-            locationManager.requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER,
-                    MIN_TIME_BW_UPDATES,
-                    MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-            Logger.log("Asking for GPS location");
-            if (locationManager != null) {
-                loc = locationManager
-                        .getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                if (loc != null) {
-                    location = loc;
+        try{
+            if(isGPSEnabled)
+            {
+                locationManager.requestLocationUpdates(
+                        LocationManager.GPS_PROVIDER,
+                        MIN_TIME_BW_UPDATES,
+                        MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+                Logger.log("Asking for GPS location");
+                if (locationManager != null) {
+                    loc = locationManager
+                            .getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    if (loc != null) {
+                        location = loc;
+                    }
                 }
             }
+        }catch(Exception ex){
+            Logger.log(ex.getMessage());
         }
         return loc;
     }
