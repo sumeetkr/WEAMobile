@@ -3,6 +3,8 @@ package sv.cmu.edu.weamobile.utility;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.BatteryManager;
 import android.os.PowerManager;
 import android.telephony.TelephonyManager;
@@ -104,5 +106,17 @@ public class WEAUtil {
             Logger.log(ex.getMessage());
         }
         return batteryPct;
+    }
+
+    public static String getPackageVersion(Context context){
+        String version="";
+        try {
+            PackageInfo pInfo = null;
+            pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+            if(pInfo != null) version = String.valueOf(pInfo.versionCode);
+        } catch (PackageManager.NameNotFoundException e) {
+            Logger.log(e.getMessage());
+        }
+        return version;
     }
 }

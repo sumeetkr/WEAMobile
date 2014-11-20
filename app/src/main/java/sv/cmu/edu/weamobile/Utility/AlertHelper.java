@@ -129,7 +129,7 @@ public class AlertHelper {
         return  alertStates;
     }
 
-    public static String getFedbackURL( Context context, Alert alert){
+    public static String getFeedbackURL(Context context, Alert alert){
         return Constants.FEEDBACK_URL_ROOT + alert.getId()+
                 "/" +WEAUtil.getIMEI(context);
     }

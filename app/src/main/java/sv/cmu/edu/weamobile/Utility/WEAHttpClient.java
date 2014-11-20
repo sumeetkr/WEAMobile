@@ -166,6 +166,8 @@ public class WEAHttpClient {
             }
 
             location.setBatteryLevel(batteryLevel);
+            location.setPackageVersion(WEAUtil.getPackageVersion(context));
+
         }catch(Exception ex){
             Logger.log(ex.getMessage());
         }

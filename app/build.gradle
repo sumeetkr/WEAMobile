@@ -16,8 +16,8 @@ android {
         applicationId "sv.cmu.edu.weamobile"
         minSdkVersion 14
         targetSdkVersion 20
-        versionCode 1
-        versionName "1.0"
+        versionCode 12
+        versionName "12.0"
         signingConfig signingConfigs.debug
     }
     buildTypes {

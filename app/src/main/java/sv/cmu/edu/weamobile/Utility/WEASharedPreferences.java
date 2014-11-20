@@ -71,7 +71,6 @@ public class WEASharedPreferences {
             }else{
                 Logger.log("Alert state not found");
             }
-
         }
 
         Logger.log("got state from shared preferences "+ Constants.ALERT_STATE+alert.getId()+alert.getScheduledEpochInSeconds());

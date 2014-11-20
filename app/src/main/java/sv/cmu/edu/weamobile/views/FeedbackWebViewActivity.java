@@ -39,7 +39,7 @@ public class FeedbackWebViewActivity extends Activity {
                 wv.getSettings().setJavaScriptEnabled(true);
                 wv.setWebViewClient(new MyBrowser());
 
-                String url = AlertHelper.getFedbackURL(getApplicationContext(),alert);
+                String url = AlertHelper.getFeedbackURL(getApplicationContext(), alert);
                 wv.loadUrl(url);
                 Logger.log(url);
             }

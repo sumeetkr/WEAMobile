@@ -302,36 +302,47 @@ public class AlertDetailFragment extends Fragment {
     }
 
     private void drawPolygon(){
-        if(mMap!=null && alert.isGeoFiltering()){
-            PolygonOptions polyOptions = new PolygonOptions()
-                    .strokeColor(Color.RED);
+        try{
+            if(mMap!=null){
+                PolygonOptions polyOptions = new PolygonOptions()
+                        .strokeColor(Color.RED);
 
-            GeoLocation[] locations = alert.getPolygon();
-            for(GeoLocation location:locations){
-                polyOptions.add(new LatLng(Double.parseDouble(location.getLat()), Double.parseDouble(location.getLng())));
+                GeoLocation[] locations = alert.getPolygon();
+
+                if(locations != null & locations.length>2){
+                    for(GeoLocation location:locations){
+                        polyOptions.add(new LatLng(Double.parseDouble(location.getLat()), Double.parseDouble(location.getLng())));
+                    }
+
+                    mMap.addPolygon(polyOptions);
+                    setCenter();
+                }
             }
-
-            mMap.addPolygon(polyOptions);
-            setCenter();
+        }catch(Exception ex){
+            Logger.log(ex.getMessage());
         }
     }
 
     private void setCenter(){
 
-        if(alert.getPolygon() != null){
+        try{
+            if(alert.getPolygon() != null){
 
-            double [] centerLocation = WEAPointInPoly.calculatePolyCenter(alert.getPolygon());
+                double [] centerLocation = WEAPointInPoly.calculatePolyCenter(alert.getPolygon());
 
-            CameraUpdate center=
-                    CameraUpdateFactory.newLatLng(new LatLng(centerLocation[0], centerLocation[1]));
+                CameraUpdate center=
+                        CameraUpdateFactory.newLatLng(new LatLng(centerLocation[0], centerLocation[1]));
 
-            mMap.moveCamera(center);
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(12));
-        }else{
-            CameraUpdate zoom=CameraUpdateFactory.zoomTo(17);
-            mMap.animateCamera(zoom);
+                mMap.moveCamera(center);
+                mMap.animateCamera(CameraUpdateFactory.zoomTo(12));
+            }else{
+                CameraUpdate zoom=CameraUpdateFactory.zoomTo(17);
+                mMap.animateCamera(zoom);
+            }
+
+        }catch(Exception ex){
+            Logger.log(ex.getMessage());
         }
-
     }
 
     public void shutdownSpeech() {

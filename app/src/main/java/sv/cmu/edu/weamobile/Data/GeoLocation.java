@@ -18,6 +18,7 @@ public class GeoLocation {
     private float accuracy = 0.00f;
     private int id;
     private float batteryLevel =0.00f;
+    private String packageVersion= "";
 
 
 //    public GeoLocation(String latitude, String longitude){
@@ -81,5 +82,13 @@ public class GeoLocation {
 
     public void setAccuracy(float accuracy) {
         this.accuracy = accuracy;
+    }
+
+    public String getPackageVersion() {
+        return packageVersion;
+    }
+
+    public void setPackageVersion(String packageVersion) {
+        this.packageVersion = packageVersion;
     }
 }
