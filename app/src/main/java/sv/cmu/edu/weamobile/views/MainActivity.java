@@ -38,6 +38,8 @@ import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
 import sv.cmu.edu.weamobile.utility.WEATextToSpeech;
 import sv.cmu.edu.weamobile.utility.WEAUtil;
 import sv.cmu.edu.weamobile.utility.WEAVibrator;
+import sv.cmu.edu.weamobile.utility.db.AlertDataSource;
+import sv.cmu.edu.weamobile.utility.db.MySQLiteHelper;
 
 public class MainActivity extends FragmentActivity
         implements AlertListFragment.Callbacks {
@@ -56,6 +58,7 @@ public class MainActivity extends FragmentActivity
     private AlertDialog dialog;
     private final int defaultId = -2;
     private int idOfShownAlert = defaultId;
+    private AlertDataSource alertDataSource = new AlertDataSource(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +97,10 @@ public class MainActivity extends FragmentActivity
 
         WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
                 "Reached onCreate of main view");
+
+        //Open a connection to the database [db]
+        Logger.log("Opening a connection to the database");
+        alertDataSource.open();
     }
 
     private void setSwitchEvents() {

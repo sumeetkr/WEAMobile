@@ -22,6 +22,7 @@ import sv.cmu.edu.weamobile.utility.Logger;
 import sv.cmu.edu.weamobile.utility.WEAHttpClient;
 import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
 import sv.cmu.edu.weamobile.utility.WEAUtil;
+import sv.cmu.edu.weamobile.utility.db.AlertDataSource;
 
 public class WEABackgroundService extends Service {
     public static final String FETCH_CONFIGURATION = "sv.cmu.edu.weamobile.service.action.FETCH_CONFIGURATION";
@@ -29,6 +30,9 @@ public class WEABackgroundService extends Service {
 
     private final IBinder mBinder = new LocalBinder();
     private BroadcastReceiver newConfigurationHandler;
+
+    private AlertDataSource alertDataSource = new AlertDataSource(this);
+
 
     public class LocalBinder extends Binder {
         WEABackgroundService getService() {
@@ -98,6 +102,26 @@ public class WEABackgroundService extends Service {
             }
         }
     }
+
+    /*
+        This function adds alerts to the database and if they already exist, updates them.
+        Author: Harsh Alkutkar, Feb 25, 2015
+     */
+    private void addOrUpdatedAlertsStateToDatabase(AppConfiguration configuration) {
+        if(configuration!= null){
+            Alert [] alerts = configuration.getAlertsFromJSON();
+            if(alerts.length >0){
+                for(Alert alert: alerts) {
+                    if(alert.isActive() || alert.isOfFuture()){
+                        //Level of indirection (ADS->MYSQLITEHELPER->addAlertStateToDatabase())
+                        alertDataSource.addAlertStateToDatabase(alert);
+                    }
+                }
+            }
+        }
+    }
+
+
 
     private void setupAlarmToShowAlertAtRightTime(AppConfiguration configuration){
 
@@ -170,10 +194,16 @@ public class WEABackgroundService extends Service {
             }else{
                 WEASharedPreferences.saveApplicationConfiguration(context, json);
                 newConfigurationIntent = new WEANewConfigurationIntent("Received new configuration. ", json, false);
+
             }
 
             AppConfiguration configuration = AppConfiguration.fromJson(json);
-            addOrUpdatedAlertsStateToSharedPreferences(configuration);
+
+            addOrUpdatedAlertsStateToSharedPreferences(configuration); //Save the indiviudal alerts
+
+            //---- Database Insertion Trial [db]
+            addOrUpdatedAlertsStateToDatabase(configuration);
+
             setupAlarmToShowAlertAtRightTime(configuration);
 
             //update if new alerts

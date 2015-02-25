@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import java.util.Date;
 
 import sv.cmu.edu.weamobile.utility.Constants;
+import sv.cmu.edu.weamobile.utility.Logger;
 import sv.cmu.edu.weamobile.utility.WEAUtil;
 
 /**
@@ -304,6 +305,16 @@ public class Alert {
 
     public boolean isOfFuture(){
         return this.getScheduledEpochInSeconds() >= System.currentTimeMillis()/1000;
+    }
+
+    public String GeoLocationToJson()
+    {
+
+        Gson gson = new Gson();
+        String jsonString = gson.toJson(polygon);
+        Logger.log("Converting Geolocation to JSON");
+        Logger.log("GEO_TO_JSON",jsonString);
+        return jsonString;
     }
 
 }
