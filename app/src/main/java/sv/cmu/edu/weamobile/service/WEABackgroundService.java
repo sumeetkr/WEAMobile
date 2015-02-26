@@ -42,6 +42,8 @@ public class WEABackgroundService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
+
+
         Log.d("WEA", "WEABackgroundService started at " + WEAUtil.getTimeStringFromEpoch(System.currentTimeMillis() / 1000) );
         Log.d("WEA", "Service onStart called with "+ intent);
         if(intent == null){
@@ -182,6 +184,11 @@ public class WEABackgroundService extends Service {
 
         @Override
         public void onReceive(final Context context, Intent intent) {
+            // [--- database start -- * has to be here *]
+            //create / open the db (important - has to be before anything)
+            Logger.log("Opening a connection to the database");
+            alertDataSource.open();
+
             Logger.log("NewConfigurationReceiver");
             String json = intent.getStringExtra("message");
             WEANewConfigurationIntent newConfigurationIntent;
@@ -209,6 +216,8 @@ public class WEABackgroundService extends Service {
             //update if new alerts
             Logger.log("Broadcast intent: About to broadcast new configuration");
             getApplicationContext().sendBroadcast(newConfigurationIntent);
+
+            alertDataSource.close();
         }
 
     }

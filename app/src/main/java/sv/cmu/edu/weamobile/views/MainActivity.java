@@ -58,12 +58,18 @@ public class MainActivity extends FragmentActivity
     private AlertDialog dialog;
     private final int defaultId = -2;
     private int idOfShownAlert = defaultId;
-    private AlertDataSource alertDataSource = new AlertDataSource(this);
+
+    private AlertDataSource alertDataSource;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alert_list);
+        //opening datasource
+        alertDataSource = new AlertDataSource(this);
+        alertDataSource.open();
+
 
         Logger.log("Main on create called");
         listFragment = ((AlertListFragment) getSupportFragmentManager()
@@ -98,9 +104,7 @@ public class MainActivity extends FragmentActivity
         WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
                 "Reached onCreate of main view");
 
-        //Open a connection to the database [db]
-        Logger.log("Opening a connection to the database");
-        alertDataSource.open();
+
     }
 
     private void setSwitchEvents() {

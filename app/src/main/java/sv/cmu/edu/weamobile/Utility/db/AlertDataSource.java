@@ -14,10 +14,12 @@ package sv.cmu.edu.weamobile.utility.db;
         import android.database.Cursor;
         import android.database.SQLException;
         import android.database.sqlite.SQLiteDatabase;
+        import android.util.Log;
 
         import com.google.gson.Gson;
         import com.google.gson.reflect.TypeToken;
 
+        import org.apache.commons.lang3.ObjectUtils;
         import org.json.JSONArray;
         import org.json.JSONException;
         import org.json.JSONObject;
@@ -109,9 +111,6 @@ public class AlertDataSource {
         return Alert;
     }
 
-
-
-
     private GeoLocation[] JSONtoGeoLocation(String string) {
         Gson gson = new Gson();
         GeoLocation[] polygon = gson.fromJson(string, GeoLocation[].class);
@@ -132,5 +131,31 @@ public class AlertDataSource {
             dbHelper.addAlertStateToDatabase(alert);
     }
 
+    public AlertState getAlertState(Context context, Alert alert) throws NoSuchFieldException {
+        SQLiteDatabase sqldb = database;
+        AlertState newState = null;
+        long id = alert.getId()+alert.getScheduledEpochInSeconds();
+        String Query = "Select * from " + MySQLiteHelper.TABLE_ALERTSTATE + " where " + MySQLiteHelper.COLUMN_ALERTSTATE_ID + " = " + Long.toString(id);
+        Cursor cursor = sqldb.rawQuery(Query, null);
+        if(cursor.getCount() <= 0){
+            Log.e("ERROR", "Alert State Does not exist!!!!");
+           throw new NoSuchFieldException();
+        }
+        if (cursor != null ) {
+            if  (cursor.moveToFirst()) {
+
+                    //Right now we only need text but incase there's something to be done with id/sFor:
+                    int newId = cursor.getInt(cursor.getColumnIndex(MySQLiteHelper.COLUMN_ALERTSTATE_ID));
+                    String sFor = cursor.getString(cursor.getColumnIndex(MySQLiteHelper.COLUMN_ALERTSTATE_SCHEDULEDFOR));
+
+                    String text = cursor.getString(cursor.getColumnIndex(MySQLiteHelper.COLUMN_ALERTSTATE_TEXT));
+                    newState = AlertState.fromJson(text);
+
+            }
+        }
+        cursor.close();
+
+        return newState;
+    }
 }
 

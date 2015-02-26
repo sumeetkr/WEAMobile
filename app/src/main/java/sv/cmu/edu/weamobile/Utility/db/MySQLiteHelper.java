@@ -26,6 +26,10 @@ import sv.cmu.edu.weamobile.utility.Logger;
  */
 public class MySQLiteHelper extends SQLiteOpenHelper {
 
+    //Database Name
+    private static final String DATABASE_NAME = "alerts.db";
+
+    //Defining the table Alerts & its columns
     public static final String TABLE_ALERTS = "alerts";
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_TEXT = "text";
@@ -38,7 +42,13 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     public static final String COLUMN_IS_GEO_FILTERED = "geoFiltering";
     public static final String COLUMN_ALERT_STATE = "alertState";
 
-    private static final String DATABASE_NAME = "alerts.db";
+    //Defining the alertstate table
+    public static final String TABLE_ALERTSTATE = "alertstate";
+    public static final String COLUMN_ALERTSTATE_ID = "_id";
+    public static final String COLUMN_ALERTSTATE_SCHEDULEDFOR = "scheduledFor";
+    public static final String COLUMN_ALERTSTATE_TEXT = "text";
+
+
 
     private static final int DATABASE_VERSION = 1;
 
@@ -62,6 +72,12 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     /*
             The following create statement creates a table for storing the alert state
      */
+    private static final String DATABASE_CREATE_ALERTSTATE = "create table "
+            + TABLE_ALERTSTATE + "(" + COLUMN_ALERTSTATE_ID
+            + " integer primary key not null, " + COLUMN_ALERTSTATE_SCHEDULEDFOR
+            + " text, "+ COLUMN_ALERTSTATE_TEXT
+            + " text "
+            +" );";
 
 
     public MySQLiteHelper(Context context) {
@@ -71,9 +87,12 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase database) {
         Logger.log("MySQLiteHelper","========== MYSQLITE HELPER CREATE =======");
-        Logger.log("MySQLiteHelper","Created String "+DATABASE_CREATE);
+
         database.execSQL(DATABASE_CREATE);
-        Logger.log("MySQLiteHelper","========== TABLE CREATED SUCCESSFULLY =====");
+        Logger.log("MySQLiteHelper"," [ Created table alerts ]");
+
+        database.execSQL(DATABASE_CREATE_ALERTSTATE);
+        Logger.log("MySQLiteHelper","[ CREATED TABLE ALERTSTATE ]");
     }
 
     @Override
@@ -82,6 +101,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
                 "Upgrading database from version " + oldVersion + " to "
                         + newVersion + ", which will destroy all old data");
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ALERTS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_ALERTSTATE);
         onCreate(db);
     }
 
@@ -91,12 +111,12 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     {
         Logger.log("MySQLiteHelper","=== UPDATING ALERT STATE ==");
         //first find out if the alert exists in the database
-        if (CheckIsDataAlreadyInDBorNot(TABLE_ALERTS,COLUMN_ID,Integer.toString(as.getId())))
+        if (CheckIsDataAlreadyInDBorNot(TABLE_ALERTSTATE,COLUMN_ALERTSTATE_ID,as.getUniqueId()));
         {
             ContentValues values = new ContentValues();
-            values.put(COLUMN_ALERT_STATE, as.getJson());
+            values.put(COLUMN_ALERTSTATE_TEXT, as.getJson());
             // updating row
-            int rowsUpdated = getWritableDatabase().update(TABLE_ALERTS, values, COLUMN_ID + "=" + as.getId(), null);
+            int rowsUpdated = getWritableDatabase().update(TABLE_ALERTSTATE, values, COLUMN_ALERTSTATE_ID + "=" + as.getUniqueId(), null);
             Logger.log("MySQLiteHelper","Updated Alert State for id "+Integer.toString(as.getId())+" | Rows Affected: "+Integer.toString(rowsUpdated));
         }
 
@@ -108,7 +128,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
                 AlertState as = new AlertState(alert.getId(), alert.getScheduledFor());
 
                 //Check if alert exists in the database
-                if (CheckIsDataAlreadyInDBorNot(TABLE_ALERTS,COLUMN_ID,Integer.toString(alert.getId())))
+                if (CheckIsDataAlreadyInDBorNot(TABLE_ALERTSTATE,COLUMN_ALERTSTATE_ID,Integer.toString(alert.getId())))
                 {
                     Logger.log("MySQLiteHelper","* Exists in db, updating alert.");
                     //yes it exists, update only the alert state
@@ -118,13 +138,24 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
                 {
                     Logger.log("MySQLiteHelper","* Does not exist, inserting");
                     //no it does not, create a new alert (blank alert state)
-                    insertAlert(alert);
+                    // insertAlert(alert);
+                    insertAlertState(new AlertState(alert.getId(),alert.getScheduledFor()));
                     //now create the alert state & update it
                     updateAlertState(as);
 
                 }
 
 
+
+    }
+
+    private void insertAlertState(AlertState alertState) {
+        ContentValues insertValues = new ContentValues();
+        insertValues.put(COLUMN_ALERTSTATE_ID, alertState.getUniqueId());
+        insertValues.put(COLUMN_ALERTSTATE_SCHEDULEDFOR, alertState.getScheduledFor());
+        insertValues.put(COLUMN_ALERTSTATE_TEXT, alertState.getJson());
+        long rows = getWritableDatabase().insert(TABLE_ALERTSTATE, null, insertValues);
+        Logger.log("Inserted Alert State " + (alertState.getUniqueId()) + " | Affected: rows" + Long.toString(rows));
 
     }
 
