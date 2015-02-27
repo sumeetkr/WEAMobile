@@ -1,5 +1,6 @@
 package sv.cmu.edu.weamobile.views;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -8,21 +9,26 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
 import sv.cmu.edu.weamobile.R;
+import sv.cmu.edu.weamobile.utility.ActivityRecognition.UserActivityRecognizer;
 import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
 
 public class DebugSettings extends ActionBarActivity {
 
-    private CheckBox chkView;
+    private CheckBox chkViewDebugMessages;
+    private CheckBox chkStartActivityRecognition;
+    private UserActivityRecognizer activityRecognizer;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_debug_settings);
+        final Context ctxt = this;
 
-        chkView = (CheckBox)findViewById(R.id.checkBox);
+        chkViewDebugMessages = (CheckBox)findViewById(R.id.checkBoxDebugMessages);
+        chkStartActivityRecognition = (CheckBox) findViewById(R.id.checkBoxActivityRecognition);
 
-        chkView.setChecked(WEASharedPreferences.isInDebugMode(getApplicationContext()));
-        chkView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        chkViewDebugMessages.setChecked(WEASharedPreferences.isInDebugMode(getApplicationContext()));
+        chkViewDebugMessages.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
            @Override
            public void onCheckedChanged(CompoundButton buttonView,boolean isChecked) {
                 if(isChecked){
@@ -33,6 +39,22 @@ public class DebugSettings extends ActionBarActivity {
            }
         }
         );
+
+        chkStartActivityRecognition.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    if(activityRecognizer== null) activityRecognizer = new UserActivityRecognizer(ctxt);
+                    activityRecognizer.startActivityRecognitionScan();
+                }else{
+                    if(activityRecognizer != null){
+                        activityRecognizer.stopActivityRecognitionScan();
+                    }
+                }
+            }
+        });
+
+
     }
 
 

@@ -36,6 +36,11 @@
             android:exported="true" >
         </service>
 
+        <service android:name=".service.ActivityRecognitionService"
+            android:enabled="true"
+            android:exported="true">
+        </service>
+
         <receiver
             android:name="sv.cmu.edu.weamobile.service.AlarmBroadcastReceiver"
             android:enabled="true"

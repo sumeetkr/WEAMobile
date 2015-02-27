@@ -14,9 +14,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Allow debug messages"
-        android:id="@+id/checkBox"
+        android:id="@+id/checkBoxDebugMessages"
         android:layout_below="@+id/textView"
         android:layout_marginTop="10dp"
         android:layout_alignParentLeft="true" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Activity Recognition"
+        android:id="@+id/checkBoxActivityRecognition"
+        android:layout_below="@+id/checkBoxDebugMessages"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:checked="false" />
 
 </RelativeLayout>

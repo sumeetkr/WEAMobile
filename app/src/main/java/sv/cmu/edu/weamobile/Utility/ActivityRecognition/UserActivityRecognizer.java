@@ -56,7 +56,7 @@ public class UserActivityRecognizer implements GooglePlayServicesClient.Connecti
         Intent intent = new Intent(context, ActivityRecognitionService.class);
         callbackIntent = PendingIntent.getService(context, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
-        mActivityRecognitionClient.requestActivityUpdates(0, callbackIntent); // 0 sets it to update as fast as possible, just use this for testing!
+        mActivityRecognitionClient.requestActivityUpdates(2000, callbackIntent); // 0 sets it to update as fast as possible, just use this for testing!
     }
 
     @Override
