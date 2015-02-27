@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import sv.cmu.edu.weamobile.utility.Logger;
+import sv.cmu.edu.weamobile.utility.WEAUtil;
 
 public class ActivityRecognitionService extends IntentService{
 
@@ -27,8 +28,9 @@ public class ActivityRecognitionService extends IntentService{
     protected void onHandleIntent(Intent intent) {
         if (ActivityRecognitionResult.hasResult(intent)) {
             ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
-            Logger.debug("ActivityRecognitionResult: "+getFriendlyName(result.getMostProbableActivity().getType()));
-            Logger.debug(result.toString());
+            Logger.log("ActivityRecognitionResult: "
+                    + getFriendlyName(result.getMostProbableActivity().getType()));
+            Logger.log(result.toString());
         }
     }
 
