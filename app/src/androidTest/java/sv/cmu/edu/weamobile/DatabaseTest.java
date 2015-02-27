@@ -38,7 +38,7 @@ public class DatabaseTest extends AndroidTestCase {
 
     /* Test to check if Database Entry can be done. [Alerts Table] */
     public void testAddSampleAlertEntry(){
-
+        Random r = new Random();
         ContentValues insertValues = new ContentValues();
         insertValues.put(MySQLiteHelper.COLUMN_ID,String.format("%14d", r.nextInt(1000000000)));
         insertValues.put(MySQLiteHelper.COLUMN_SCHEDULED_FOR,"2015-02-25T23:03:59.000Z" );
