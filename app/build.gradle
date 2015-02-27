@@ -1,26 +1,29 @@
 apply plugin: 'com.android.application'
 
 android {
-
-
+    signingConfigs {
+        debug {
+            
+        }
+        
+    }
     compileSdkVersion 20
     buildToolsVersion '20'
     defaultConfig {
         applicationId "sv.cmu.edu.weamobile"
         minSdkVersion 14
         targetSdkVersion 20
-        versionCode 1
-        versionName "1.0"
+        versionCode 13
+        versionName "13.0"
         signingConfig signingConfigs.debug
     }
     buildTypes {
         release {
-            minifyEnabled false
+            runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
             signingConfig signingConfigs.debug
-            debuggable true
         }
     }
     dexOptions {
@@ -41,4 +44,3 @@ dependencies {
     compile 'com.android.support:appcompat-v7:20.0.0'
     compile 'com.google.android.gms:play-services:6.1.71'
 }
-
