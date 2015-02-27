@@ -19,6 +19,8 @@ import sv.cmu.edu.weamobile.data.AppConfiguration;
 import sv.cmu.edu.weamobile.data.GeoLocation;
 import sv.cmu.edu.weamobile.views.MainActivity;
 
+
+
 /**
  * Created by sumeet on 10/30/14.
  */
@@ -54,6 +56,8 @@ public class AlertHelper {
 
             state.setInPolygonOrAlertNotGeoTargeted(true);
             WEASharedPreferences.saveAlertState(context, state);
+
+           
 
             Intent dialogIntent = new Intent(context, MainActivity.class);
             dialogIntent.putExtra("item_id", String.valueOf(alert.getId()));

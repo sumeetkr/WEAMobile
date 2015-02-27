@@ -31,6 +31,13 @@ public class GeoLocation {
         this.lng = longitude;
         this.accuracy = accuracy;
     }
+
+    public GeoLocation(String latitude, String longitude, int id){
+        this.lat = latitude;
+        this.lng = longitude;
+        this.id = id;
+    }
+
     public String getLat() {
         return lat;
     }
@@ -51,9 +58,8 @@ public class GeoLocation {
         return lng;
     }
 
-    public void setLng(String lng) {
-        this.lng = lng;
-    }
+
+    public int getId() { return id; }
 
     public String getJson(){
         Gson gson = new Gson();

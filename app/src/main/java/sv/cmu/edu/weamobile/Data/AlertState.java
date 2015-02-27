@@ -20,6 +20,15 @@ public class AlertState {
     private GeoLocation locationWhenShown;
     private boolean isInPolygonOrAlertNotGeoTargeted = false;
     private State state = null;
+
+    public String getScheduledFor() {
+        return scheduledFor;
+    }
+
+    public void setScheduledFor(String scheduledFor) {
+        this.scheduledFor = scheduledFor;
+    }
+
     private String scheduledFor;
 
     public AlertState(int id, String scheduledForTime){
@@ -112,5 +121,11 @@ public class AlertState {
 
     public void setInPolygonOrAlertNotGeoTargeted(boolean isInPolygon) {
         this.isInPolygonOrAlertNotGeoTargeted = isInPolygon;
+    }
+
+    //Unique identifier for databse primary key
+    public String getUniqueId()
+    {
+        return Integer.toString(id)+Long.toString(getScheduledEpochInSeconds());
     }
 }

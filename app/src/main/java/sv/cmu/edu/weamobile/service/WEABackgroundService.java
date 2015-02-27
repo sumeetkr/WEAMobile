@@ -22,6 +22,7 @@ import sv.cmu.edu.weamobile.utility.Logger;
 import sv.cmu.edu.weamobile.utility.WEAHttpClient;
 import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
 import sv.cmu.edu.weamobile.utility.WEAUtil;
+import sv.cmu.edu.weamobile.utility.db.AlertDataSource;
 
 public class WEABackgroundService extends Service {
     public static final String FETCH_CONFIGURATION = "sv.cmu.edu.weamobile.service.action.FETCH_CONFIGURATION";
@@ -29,6 +30,9 @@ public class WEABackgroundService extends Service {
 
     private final IBinder mBinder = new LocalBinder();
     private BroadcastReceiver newConfigurationHandler;
+
+    private AlertDataSource alertDataSource = new AlertDataSource(this);
+
 
     public class LocalBinder extends Binder {
         WEABackgroundService getService() {
@@ -38,6 +42,8 @@ public class WEABackgroundService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
+
+
         Log.d("WEA", "WEABackgroundService started at " + WEAUtil.getTimeStringFromEpoch(System.currentTimeMillis() / 1000) );
         Log.d("WEA", "Service onStart called with "+ intent);
         if(intent == null){
@@ -99,6 +105,26 @@ public class WEABackgroundService extends Service {
         }
     }
 
+    /*
+        This function adds alerts to the database and if they already exist, updates them.
+        Author: Harsh Alkutkar, Feb 25, 2015
+     */
+    private void addOrUpdatedAlertsStateToDatabase(AppConfiguration configuration) {
+        if(configuration!= null){
+            Alert [] alerts = configuration.getAlertsFromJSON();
+            if(alerts.length >0){
+                for(Alert alert: alerts) {
+                    if(alert.isActive() || alert.isOfFuture()){
+                        //Level of indirection (ADS->MYSQLITEHELPER->addAlertStateToDatabase())
+                        alertDataSource.addAlertStateToDatabase(alert);
+                    }
+                }
+            }
+        }
+    }
+
+
+
     private void setupAlarmToShowAlertAtRightTime(AppConfiguration configuration){
 
         //two things to be done, shown now or schedule for later if in half an hour
@@ -158,6 +184,11 @@ public class WEABackgroundService extends Service {
 
         @Override
         public void onReceive(final Context context, Intent intent) {
+            // [--- database start -- * has to be here *]
+            //create / open the db (important - has to be before anything)
+            Logger.log("Opening a connection to the database");
+            alertDataSource.open();
+
             Logger.log("NewConfigurationReceiver");
             String json = intent.getStringExtra("message");
             WEANewConfigurationIntent newConfigurationIntent;
@@ -170,15 +201,23 @@ public class WEABackgroundService extends Service {
             }else{
                 WEASharedPreferences.saveApplicationConfiguration(context, json);
                 newConfigurationIntent = new WEANewConfigurationIntent("Received new configuration. ", json, false);
+
             }
 
             AppConfiguration configuration = AppConfiguration.fromJson(json);
-            addOrUpdatedAlertsStateToSharedPreferences(configuration);
+
+            addOrUpdatedAlertsStateToSharedPreferences(configuration); //Save the indiviudal alerts
+
+            //---- Database Insertion Trial [db]
+            addOrUpdatedAlertsStateToDatabase(configuration);
+
             setupAlarmToShowAlertAtRightTime(configuration);
 
             //update if new alerts
             Logger.log("Broadcast intent: About to broadcast new configuration");
             getApplicationContext().sendBroadcast(newConfigurationIntent);
+
+            alertDataSource.close();
         }
 
     }

@@ -38,6 +38,8 @@ import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
 import sv.cmu.edu.weamobile.utility.WEATextToSpeech;
 import sv.cmu.edu.weamobile.utility.WEAUtil;
 import sv.cmu.edu.weamobile.utility.WEAVibrator;
+import sv.cmu.edu.weamobile.utility.db.AlertDataSource;
+import sv.cmu.edu.weamobile.utility.db.MySQLiteHelper;
 
 public class MainActivity extends FragmentActivity
         implements AlertListFragment.Callbacks {
@@ -57,10 +59,17 @@ public class MainActivity extends FragmentActivity
     private final int defaultId = -2;
     private int idOfShownAlert = defaultId;
 
+    private AlertDataSource alertDataSource;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alert_list);
+        //opening datasource
+        alertDataSource = new AlertDataSource(this);
+        alertDataSource.open();
+
 
         Logger.log("Main on create called");
         listFragment = ((AlertListFragment) getSupportFragmentManager()
@@ -94,6 +103,8 @@ public class MainActivity extends FragmentActivity
 
         WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
                 "Reached onCreate of main view");
+
+
     }
 
     private void setSwitchEvents() {
