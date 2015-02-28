@@ -17,10 +17,16 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import sv.cmu.edu.weamobile.data.GeoLocation;
+import sv.cmu.edu.weamobile.utility.ActivityRecognition.UserActivityRecognizer;
+import sv.cmu.edu.weamobile.utility.db.LocationDataSource;
+
 /**
  * Created by sumeet on 10/17/14.
  */
 public class WEAUtil {
+    private static UserActivityRecognizer activityRecognizer = null;
+
     public static String getTimeStringFromEpoch(long epoch){
         Date date = new Date(epoch * 1000L);
         DateFormat format = new SimpleDateFormat("yy-MM-dd HH:mm");
@@ -118,5 +124,54 @@ public class WEAUtil {
             Logger.log(e.getMessage());
         }
         return version;
+    }
+
+    public static void sendHeartBeatAndGetConfigurationAsync(Context context){
+        GeoLocation location = new GeoLocation("0.00", "0.00", 0.00f);
+        GPSTracker tracker =null;
+        try{
+            tracker = new GPSTracker(context);
+            float batteryLevel = WEAUtil.getBatteryLevel(context);
+            if(tracker.canGetLocation()){
+                location = tracker.getNetworkGeoLocation();
+                Logger.log("Sending lat " + location.getLatitude());
+                Logger.log("Sending lng " + location.getLongitude());
+            }else{
+                Logger.log("Cannot get location for heartbeat");
+            }
+
+            location.setBatteryLevel(batteryLevel);
+            location.setPackageVersion(WEAUtil.getPackageVersion(context));
+
+        }catch(Exception ex){
+            Logger.log(ex.getMessage());
+        }
+        finally{
+            try{
+                if(tracker != null) tracker.stopUsingGPS();
+                WEAHttpClient.sendHeartbeat(location.getJson(), context, Constants.URL_TO_GET_CONFIGURATION + WEAUtil.getIMEI(context));
+                LocationDataSource dataSource = new LocationDataSource(context);
+                dataSource.insertData(location);
+
+                getUserActivityInfo(context);
+
+            }catch (Exception ex){
+                Logger.log(ex.getMessage());
+            }
+        }
+        //fetch application configuration from server
+
+    }
+
+    public  static  void  getUserActivityInfo(Context context) {
+        try {
+            activityRecognizer = new UserActivityRecognizer(context);
+            activityRecognizer.startActivityRecognitionScan();
+            Thread.sleep(5000,0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            if(activityRecognizer != null) activityRecognizer.stopActivityRecognitionScan();
+        }
     }
 }

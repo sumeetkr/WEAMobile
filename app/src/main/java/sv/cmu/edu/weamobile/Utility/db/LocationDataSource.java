@@ -33,8 +33,13 @@ public class LocationDataSource extends WEADataSource<GeoLocation> {
             FIELD_ROW_ID + " integer primary key autoincrement , " +
             FIELD_LAT + " double , " +
             FIELD_LNG + " double , " +
-            ACCURACY + " double " +
+            ACCURACY + " double ," +
+            "Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP "+
             " ) ";
+
+    public LocationDataSource(Context context){
+        super(context);
+    }
 
     public LocationDataSource(Context context, WEASQLiteHelper helper) {
         super(context, helper);

@@ -43,6 +43,7 @@ public class WEABackgroundService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
 
+        WEAUtil.getUserActivityInfo(getApplicationContext());
 
         Log.d("WEA", "WEABackgroundService started at " + WEAUtil.getTimeStringFromEpoch(System.currentTimeMillis() / 1000) );
         Log.d("WEA", "Service onStart called with "+ intent);
@@ -88,7 +89,7 @@ public class WEABackgroundService extends Service {
         //read configuration and setup up new alarm
         //if problem in getting/receiving configuration, set default alarm
 
-        WEAHttpClient.getConfigurationAsync(getApplicationContext());
+        WEAUtil.sendHeartBeatAndGetConfigurationAsync(getApplicationContext());
 
     }
 

@@ -7,8 +7,8 @@ import android.app.IntentService;
 import android.content.Intent;
 
 import com.google.android.gms.location.ActivityRecognitionResult;
-import com.google.android.gms.location.DetectedActivity;
 
+import sv.cmu.edu.weamobile.data.UserActivity;
 import sv.cmu.edu.weamobile.utility.Logger;
 
 public class ActivityRecognitionService extends IntentService{
@@ -26,26 +26,10 @@ public class ActivityRecognitionService extends IntentService{
     protected void onHandleIntent(Intent intent) {
         if (ActivityRecognitionResult.hasResult(intent)) {
             ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
-            Logger.log("ActivityRecognitionResult: "
-                    + getFriendlyName(result.getMostProbableActivity().getType()));
-            Logger.log(result.toString());
+
+            UserActivity activity = new UserActivity(result);
+            Logger.log("ActivityRecognitionResult: " + activity.getActivityName() + " confidence: " + activity.getActivityConfidence());
         }
     }
 
-    private static String getFriendlyName(int detected_activity_type){
-        switch (detected_activity_type ) {
-            case DetectedActivity.IN_VEHICLE:
-                return "in vehicle";
-            case DetectedActivity.ON_BICYCLE:
-                return "on bike";
-            case DetectedActivity.ON_FOOT:
-                return "on foot";
-            case DetectedActivity.TILTING:
-                return "tilting";
-            case DetectedActivity.STILL:
-                return "still";
-            default:
-                return "unknown";
-        }
-    }
 }

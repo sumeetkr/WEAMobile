@@ -53,8 +53,6 @@ public class DebugSettings extends ActionBarActivity {
                 }
             }
         });
-
-
     }
 
 

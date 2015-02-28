@@ -14,8 +14,6 @@ import org.apache.http.Header;
 import org.apache.http.entity.StringEntity;
 import org.json.JSONObject;
 
-import sv.cmu.edu.weamobile.data.GeoLocation;
-
 /**
  * Created by sumeet on 9/24/14.
  */
@@ -149,38 +147,6 @@ public class WEAHttpClient {
         });
 
         return  response;
-    }
-
-    public static void getConfigurationAsync(Context context){
-        GeoLocation location = new GeoLocation("0.00", "0.00", 0.00f);
-        GPSTracker tracker =null;
-        try{
-            tracker = new GPSTracker(context);
-            float batteryLevel = WEAUtil.getBatteryLevel(context);
-            if(tracker.canGetLocation()){
-                location = tracker.getNetworkGeoLocation();
-                Logger.log("Sending lat " + location.getLatitude());
-                Logger.log("Sending lng " + location.getLongitude());
-            }else{
-                Logger.log("Cannot get location for heartbeat");
-            }
-
-            location.setBatteryLevel(batteryLevel);
-            location.setPackageVersion(WEAUtil.getPackageVersion(context));
-
-        }catch(Exception ex){
-            Logger.log(ex.getMessage());
-        }
-        finally{
-            try{
-                if(tracker != null) tracker.stopUsingGPS();
-                sendHeartbeat(location.getJson(), context, Constants.URL_TO_GET_CONFIGURATION + WEAUtil.getIMEI(context));
-            }catch (Exception ex){
-                Logger.log(ex.getMessage());
-            }
-        }
-        //fetch application configuration from server
-
     }
 
     public static void saveUserLogin(final Context context, final String mUserId) {
