@@ -43,7 +43,8 @@ public class WEABackgroundService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
 
-        WEAUtil.getUserActivityInfo(getApplicationContext());
+        //ToDo: Remove it
+        // WEAUtil.getUserActivityInfo(getApplicationContext());
 
         Log.d("WEA", "WEABackgroundService started at " + WEAUtil.getTimeStringFromEpoch(System.currentTimeMillis() / 1000) );
         Log.d("WEA", "Service onStart called with "+ intent);

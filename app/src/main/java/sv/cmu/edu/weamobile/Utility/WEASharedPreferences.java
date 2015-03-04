@@ -129,4 +129,23 @@ public class WEASharedPreferences {
             Logger.log("Saved debug mode to shared preferences "+ isDebugMode);
         }
     }
+
+    public static boolean isLocationHistoryEnabled(Context context){
+        boolean result = false;
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
+        if (sharedPreferences != null) {
+            result = sharedPreferences.getBoolean(Constants.IS_LOCATION_HISTORY_ENABLED, false);
+        }
+        return result;
+    }
+
+    public static void setIsLocationHistoryEnabled(Context context, boolean enable) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
+        if (sharedPreferences != null) {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean(Constants.IS_LOCATION_HISTORY_ENABLED,enable);
+            editor.commit();
+            Logger.log("Saved location history mode to shared preferences "+ enable);
+        }
+    }
 }

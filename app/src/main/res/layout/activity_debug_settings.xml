@@ -24,9 +24,28 @@
         android:layout_height="wrap_content"
         android:text="Activity Recognition"
         android:id="@+id/checkBoxActivityRecognition"
+        android:checked="false"
+        android:layout_below="@+id/chkLocationHistory"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show location history"
+        android:id="@+id/chkLocationHistory"
+        android:checked="false"
         android:layout_below="@+id/checkBoxDebugMessages"
         android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="___________________"
+        android:id="@+id/txtDebugMessages"
+        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:checked="false" />
+        android:layout_below="@+id/checkBoxActivityRecognition" />
 
 </RelativeLayout>

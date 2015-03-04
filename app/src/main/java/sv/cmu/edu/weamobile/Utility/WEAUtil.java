@@ -153,14 +153,13 @@ public class WEAUtil {
                 LocationDataSource dataSource = new LocationDataSource(context);
                 dataSource.insertData(location);
 
-                getUserActivityInfo(context);
+//                getUserActivityInfo(context);
 
             }catch (Exception ex){
                 Logger.log(ex.getMessage());
             }
         }
         //fetch application configuration from server
-
     }
 
     public  static  void  getUserActivityInfo(Context context) {

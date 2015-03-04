@@ -61,5 +61,16 @@ public class LocationDataSourceTest extends AndroidTestCase {
         assertEquals(locations.get(1).getLat(), "22.2223");
         assertEquals(locations.get(1).getLng(), "127.222");
     }
+
+    public void testGetAllData(){
+        GeoLocation location = new GeoLocation("22.2222","127.221", (float)1.0000);
+        locationDataSource.insertData(location);
+
+        GeoLocation location2 = new GeoLocation("22.2223","127.222", (float)2.0000);
+        locationDataSource.insertData(location2);
+
+        List<GeoLocation> locations = locationDataSource.getAllData();
+        assertTrue(locationDataSource.getAllData().size()==2);
+    }
 }
 

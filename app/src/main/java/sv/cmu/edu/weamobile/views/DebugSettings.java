@@ -7,6 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.TextView;
 
 import sv.cmu.edu.weamobile.R;
 import sv.cmu.edu.weamobile.utility.ActivityRecognition.UserActivityRecognizer;
@@ -16,6 +17,8 @@ public class DebugSettings extends ActionBarActivity {
 
     private CheckBox chkViewDebugMessages;
     private CheckBox chkStartActivityRecognition;
+    private CheckBox chkShowLocationHistory;
+    private TextView txtMessages;
     private UserActivityRecognizer activityRecognizer;
 
     @Override
@@ -26,6 +29,8 @@ public class DebugSettings extends ActionBarActivity {
 
         chkViewDebugMessages = (CheckBox)findViewById(R.id.checkBoxDebugMessages);
         chkStartActivityRecognition = (CheckBox) findViewById(R.id.checkBoxActivityRecognition);
+        chkShowLocationHistory = (CheckBox) findViewById(R.id.chkLocationHistory);
+        txtMessages = (TextView) findViewById(R.id.txtDebugMessages);
 
         chkViewDebugMessages.setChecked(WEASharedPreferences.isInDebugMode(getApplicationContext()));
         chkViewDebugMessages.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -50,6 +55,17 @@ public class DebugSettings extends ActionBarActivity {
                     if(activityRecognizer != null){
                         activityRecognizer.stopActivityRecognitionScan();
                     }
+                }
+            }
+        });
+
+        chkShowLocationHistory.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    WEASharedPreferences.setIsLocationHistoryEnabled(getApplicationContext(), true);
+                }else{
+                    WEASharedPreferences.setIsLocationHistoryEnabled(getApplicationContext(), false);
                 }
             }
         });

@@ -1,6 +1,7 @@
 package sv.cmu.edu.weamobile.views;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -22,7 +23,11 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import sv.cmu.edu.weamobile.R;
 import sv.cmu.edu.weamobile.data.Alert;
@@ -38,6 +43,7 @@ import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
 import sv.cmu.edu.weamobile.utility.WEATextToSpeech;
 import sv.cmu.edu.weamobile.utility.WEAUtil;
 import sv.cmu.edu.weamobile.utility.WEAVibrator;
+import sv.cmu.edu.weamobile.utility.db.LocationDataSource;
 
 
 /**
@@ -232,7 +238,7 @@ public class AlertDetailFragment extends Fragment {
             if (mMap == null) {
                 // Try to obtain the map from the SupportMapFragment.
                 try{
-                    Fragment fragment = getFragmentManager().findFragmentById(R.id.map);
+                    final Fragment fragment = getFragmentManager().findFragmentById(R.id.map);
                     mMap = ((SupportMapFragment) fragment).getMap();
                     // Check if we were successful in obtaining the map.
                     if (mMap != null) {
@@ -242,7 +248,7 @@ public class AlertDetailFragment extends Fragment {
 
                             @Override
                             public void onCameraChange(CameraPosition arg0) {
-                                LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                                final LatLngBounds.Builder builder = new LatLngBounds.Builder();
                                 for (GeoLocation location : alert.getPolygon()) {
                                     builder.include(new LatLng(location.getLatitude(), location.getLongitude()));
                                 }
@@ -257,7 +263,24 @@ public class AlertDetailFragment extends Fragment {
                                 mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 100), 1000, new GoogleMap.CancelableCallback() {
                                     @Override
                                     public void onFinish() {
+                                        Context ctxt = fragment.getActivity().getApplicationContext();
+                                        List<LatLng> historyPoints = new ArrayList<LatLng>();
 
+                                        if(WEASharedPreferences.isLocationHistoryEnabled(ctxt)){
+                                            LocationDataSource dataSource = new LocationDataSource(ctxt);
+                                            for(GeoLocation location :dataSource.getAllData()){
+                                                historyPoints.add(new LatLng(location.getLatitude(), location.getLongitude()));
+                                            }
+                                        }
+
+                                        if(historyPoints.size()>0){
+                                            Polygon polygon = mMap.addPolygon(new PolygonOptions()
+                                                    .addAll(historyPoints)
+                                                    .strokeColor(Color.BLUE));
+                                            Logger.log("Adding history points on the map,  count of points: "+ historyPoints.size());
+                                        }else{
+                                            Logger.log("Adding 000 i.e. zero history points on the map, no points in database");
+                                        }
                                     }
 
                                     @Override
