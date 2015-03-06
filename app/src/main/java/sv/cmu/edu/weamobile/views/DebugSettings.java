@@ -1,7 +1,11 @@
 package sv.cmu.edu.weamobile.views;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -11,7 +15,9 @@ import android.widget.TextView;
 
 import sv.cmu.edu.weamobile.R;
 import sv.cmu.edu.weamobile.utility.ActivityRecognition.UserActivityRecognizer;
+import sv.cmu.edu.weamobile.utility.Logger;
 import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
+import sv.cmu.edu.weamobile.utility.WEAUtil;
 
 public class DebugSettings extends ActionBarActivity {
 
@@ -20,6 +26,7 @@ public class DebugSettings extends ActionBarActivity {
     private CheckBox chkShowLocationHistory;
     private TextView txtMessages;
     private UserActivityRecognizer activityRecognizer;
+    private NewActivityReceiver activityBroadcastReceiver;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -43,6 +50,7 @@ public class DebugSettings extends ActionBarActivity {
                 }
            }
         }
+
         );
 
         chkStartActivityRecognition.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -50,15 +58,18 @@ public class DebugSettings extends ActionBarActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked){
                     if(activityRecognizer== null) activityRecognizer = new UserActivityRecognizer(ctxt);
+                    txtMessages.setText("Looking for a new Activity.");
                     activityRecognizer.startActivityRecognitionScan();
                 }else{
                     if(activityRecognizer != null){
                         activityRecognizer.stopActivityRecognitionScan();
                     }
+                    txtMessages.setText("Activity check stopped.");
                 }
             }
         });
 
+        chkShowLocationHistory.setChecked(WEASharedPreferences.isLocationHistoryEnabled(getApplicationContext()));
         chkShowLocationHistory.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -69,6 +80,18 @@ public class DebugSettings extends ActionBarActivity {
                 }
             }
         });
+
+        registerNewActivityReceiver();
+    }
+
+    private void registerNewActivityReceiver() {
+        activityBroadcastReceiver = new NewActivityReceiver(new Handler());
+
+        Logger.log("WEA", "New configuration receiver created in main activity");
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("android.intent.action.NEW_ACTIVITY");
+        filter.addCategory(Intent.CATEGORY_DEFAULT);
+        getApplicationContext().registerReceiver(activityBroadcastReceiver, filter);
     }
 
 
@@ -93,4 +116,37 @@ public class DebugSettings extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    protected void onDestroy(){
+        WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
+                "Called onDestroy of debug settings view");
+        if(activityBroadcastReceiver!= null){
+            getApplication().unregisterReceiver(activityBroadcastReceiver);
+            activityBroadcastReceiver = null;
+        }
+
+        super.onDestroy();
+    }
+
+    private class NewActivityReceiver extends BroadcastReceiver{
+
+        private final Handler handler;
+
+        public NewActivityReceiver(Handler handler) {
+            this.handler = handler;
+        }
+
+        @Override
+        public void onReceive(Context context, final Intent intent) {
+            if (handler != null) {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        txtMessages.setText(intent.getStringExtra("message"));
+                    }
+                });
+            }
+        }
+    };
 }

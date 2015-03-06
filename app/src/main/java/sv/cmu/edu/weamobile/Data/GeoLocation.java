@@ -19,7 +19,7 @@ public class GeoLocation {
     private int id;
     private float batteryLevel =0.00f;
     private String packageVersion= "";
-
+    private String additionalInfo="";
 
 //    public GeoLocation(String latitude, String longitude){
 //        this.lat = latitude;
@@ -96,5 +96,13 @@ public class GeoLocation {
 
     public void setPackageVersion(String packageVersion) {
         this.packageVersion = packageVersion;
+    }
+
+    public String getAdditionalInfo() {
+        return additionalInfo;
+    }
+
+    public void setAdditionalInfo(String additionalInfo) {
+        this.additionalInfo = additionalInfo;
     }
 }

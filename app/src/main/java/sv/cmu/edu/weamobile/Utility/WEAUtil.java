@@ -166,11 +166,11 @@ public class WEAUtil {
         try {
             activityRecognizer = new UserActivityRecognizer(context);
             activityRecognizer.startActivityRecognitionScan();
-            Thread.sleep(5000,0);
+//            Thread.sleep(500,0);
         } catch (Exception e) {
             e.printStackTrace();
         }finally {
-            if(activityRecognizer != null) activityRecognizer.stopActivityRecognitionScan();
+//            if(activityRecognizer != null) activityRecognizer.stopActivityRecognitionScan();
         }
     }
 }

@@ -17,6 +17,7 @@ import sv.cmu.edu.weamobile.data.Alert;
 import sv.cmu.edu.weamobile.data.AlertState;
 import sv.cmu.edu.weamobile.data.AppConfiguration;
 import sv.cmu.edu.weamobile.data.GeoLocation;
+import sv.cmu.edu.weamobile.utility.db.LocationDataSource;
 import sv.cmu.edu.weamobile.views.MainActivity;
 
 
@@ -57,8 +58,6 @@ public class AlertHelper {
             state.setInPolygonOrAlertNotGeoTargeted(true);
             WEASharedPreferences.saveAlertState(context, state);
 
-           
-
             Intent dialogIntent = new Intent(context, MainActivity.class);
             dialogIntent.putExtra("item_id", String.valueOf(alert.getId()));
             dialogIntent.putExtra(Constants.CONFIG_JSON, configuration.getJson());
@@ -84,7 +83,19 @@ public class AlertHelper {
                 if(tracker.canGetLocation()){
                     if(alert.isGeoFiltering() ){
                         Logger.log("The phone can get location, will check if in target");
-                        tracker.keepLookingForPresenceInPolygonAndShowAlertIfNecessary(context, alert, configuration);
+                        //first check location history
+                        //The code here needs to be refactored for future extension
+                        LocationDataSource dataSource = new LocationDataSource(context);
+                        List<GeoLocation> locations = dataSource.getAllData();
+                        if(WEAPointInPoly.areAnyPointsInPolygon(locations, alert.getPolygon())){
+                            String message = "User's location history was found in the alert region, showing alert";
+                            Logger.log(message);
+                            WEAUtil.showMessageIfInDebugMode(context, message);
+                            showAlert(context, alert, tracker.getNetworkGeoLocation(), configuration);
+
+                        }else{
+                            tracker.keepLookingForPresenceInPolygonAndShowAlertIfNecessary(context, alert, configuration);
+                        }
                     }else{
                         String message = "Geo-filtering off, showing alert";
                         Logger.log(message);

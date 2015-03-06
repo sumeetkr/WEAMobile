@@ -54,6 +54,19 @@ public class WEAPointInPoly {
         return WEAPointInPoly.pointInPoly(polygon.length, lats, longs, Double.parseDouble(location.getLat()), Double.parseDouble(location.getLng()));
     }
 
+    public static  boolean areAnyPointsInPolygon(List<GeoLocation> locations, GeoLocation [] polygon){
+        boolean pointsInPolygon = false;
+
+        for(GeoLocation location : locations){
+            if(isInPolygon(location, polygon)){
+                pointsInPolygon = true;
+                break;
+            }
+        }
+
+        return  pointsInPolygon;
+    }
+
     public static double []  calculatePolyCenter(GeoLocation [] polygon) {
         double [] polyCenter= null;
         try{

@@ -271,15 +271,17 @@ public class AlertDetailFragment extends Fragment {
                                             for(GeoLocation location :dataSource.getAllData()){
                                                 historyPoints.add(new LatLng(location.getLatitude(), location.getLongitude()));
                                             }
-                                        }
 
-                                        if(historyPoints.size()>0){
-                                            Polygon polygon = mMap.addPolygon(new PolygonOptions()
-                                                    .addAll(historyPoints)
-                                                    .strokeColor(Color.BLUE));
-                                            Logger.log("Adding history points on the map,  count of points: "+ historyPoints.size());
-                                        }else{
-                                            Logger.log("Adding 000 i.e. zero history points on the map, no points in database");
+                                            if(historyPoints.size()>0){
+                                                Polygon polygon = mMap.addPolygon(new PolygonOptions()
+                                                        .addAll(historyPoints)
+                                                        .strokeColor(Color.BLUE));
+                                                WEAUtil.showMessageIfInDebugMode(ctxt, "No of history points in database : "+ historyPoints.size());
+                                                Logger.log("Adding history points on the map,  count of points: "+ historyPoints.size());
+                                            }else{
+                                                WEAUtil.showMessageIfInDebugMode(ctxt, "No of history points in database : "+ historyPoints.size());
+                                                Logger.log("Adding 000 i.e. zero history points on the map, no points in database");
+                                            }
                                         }
                                     }
 
@@ -308,6 +310,11 @@ public class AlertDetailFragment extends Fragment {
         mMap.clear();
 //        mMap.setMyLocationEnabled(true);
 
+        addUserLocationWhenAlertWasFirstShown();
+        drawPolygon();
+    }
+
+    private void addUserLocationWhenAlertWasFirstShown() {
         if(myLocation != null){
 
             if(alertState != null && alertState.getLocationWhenShown() != null){
@@ -321,7 +328,6 @@ public class AlertDetailFragment extends Fragment {
                         .title("Your location"));
             }
         }
-        drawPolygon();
     }
 
     private void drawPolygon(){

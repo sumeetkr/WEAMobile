@@ -43,9 +43,6 @@ public class WEABackgroundService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
 
-        //ToDo: Remove it
-        // WEAUtil.getUserActivityInfo(getApplicationContext());
-
         Log.d("WEA", "WEABackgroundService started at " + WEAUtil.getTimeStringFromEpoch(System.currentTimeMillis() / 1000) );
         Log.d("WEA", "Service onStart called with "+ intent);
         if(intent == null){
@@ -62,6 +59,9 @@ public class WEABackgroundService extends Service {
         }
 
         onHandleIntent(intent);
+
+        //ToDo: Move to an appropriate location
+        WEAUtil.getUserActivityInfo(getApplicationContext());
 
         return Service.START_NOT_STICKY;
     }
@@ -186,6 +186,7 @@ public class WEABackgroundService extends Service {
 
         @Override
         public void onReceive(final Context context, Intent intent) {
+//            ToDo: Move "open, add data and close" to a single function, with exception handling
             // [--- database start -- * has to be here *]
             //create / open the db (important - has to be before anything)
             Logger.log("Opening a connection to the database");
@@ -208,7 +209,7 @@ public class WEABackgroundService extends Service {
 
             AppConfiguration configuration = AppConfiguration.fromJson(json);
 
-            addOrUpdatedAlertsStateToSharedPreferences(configuration); //Save the indiviudal alerts
+            addOrUpdatedAlertsStateToSharedPreferences(configuration); //Save the individual alerts
 
             //---- Database Insertion Trial [db]
             addOrUpdatedAlertsStateToDatabase(configuration);

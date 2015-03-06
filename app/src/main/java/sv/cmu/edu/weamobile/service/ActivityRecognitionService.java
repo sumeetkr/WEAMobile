@@ -9,6 +9,7 @@ import android.content.Intent;
 import com.google.android.gms.location.ActivityRecognitionResult;
 
 import sv.cmu.edu.weamobile.data.UserActivity;
+import sv.cmu.edu.weamobile.utility.ActivityRecognition.UserActivityRecognizer;
 import sv.cmu.edu.weamobile.utility.Logger;
 
 public class ActivityRecognitionService extends IntentService{
@@ -29,7 +30,19 @@ public class ActivityRecognitionService extends IntentService{
 
             UserActivity activity = new UserActivity(result);
             Logger.log("ActivityRecognitionResult: " + activity.getActivityName() + " confidence: " + activity.getActivityConfidence());
+
+            broadcastNewActivityIntent("Activity name: "+activity.getActivityName() + "    Confidence: " + activity.getActivityConfidence());
+
+            UserActivityRecognizer.completeWakefulIntent(intent);
         }
+    }
+
+    private void broadcastNewActivityIntent(String name) {
+        Intent newActivityIntent = new Intent();
+        newActivityIntent.setAction("android.intent.action.NEW_ACTIVITY");
+        newActivityIntent.addCategory(Intent.CATEGORY_DEFAULT);
+        newActivityIntent.putExtra("message",name );
+        getApplicationContext().sendBroadcast(newActivityIntent);
     }
 
 }

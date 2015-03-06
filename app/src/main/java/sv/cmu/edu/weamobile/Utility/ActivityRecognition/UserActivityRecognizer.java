@@ -4,6 +4,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.content.WakefulBroadcastReceiver;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -15,11 +16,12 @@ import sv.cmu.edu.weamobile.utility.Logger;
 /**
  * Created by sumeet on 2/27/15.
  */
-public class UserActivityRecognizer implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener{
+public class UserActivityRecognizer extends WakefulBroadcastReceiver implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener{
     private Context context;
     private static final String TAG = "ActivityRecognition";
     private static ActivityRecognitionClient mActivityRecognitionClient;
     private static PendingIntent callbackIntent;
+    private static GooglePlayServicesClient.ConnectionCallbacks callback;
 
     public UserActivityRecognizer(Context context) {
         this.context=context;
@@ -37,6 +39,7 @@ public class UserActivityRecognizer implements GooglePlayServicesClient.Connecti
     public void stopActivityRecognitionScan(){
         try{
             mActivityRecognitionClient.removeActivityUpdates(callbackIntent);
+            mActivityRecognitionClient.unregisterConnectionCallbacks(callback);
             Logger.debug("stopActivityRecognitionScan");
         } catch (IllegalStateException e){
             Logger.log(e.getMessage());
@@ -53,10 +56,30 @@ public class UserActivityRecognizer implements GooglePlayServicesClient.Connecti
      */
     @Override
     public void onConnected(Bundle connectionHint) {
+        Logger.log("UserActivityRecognizer onConnected");
+
         Intent intent = new Intent(context, ActivityRecognitionService.class);
         callbackIntent = PendingIntent.getService(context, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
-        mActivityRecognitionClient.requestActivityUpdates(200, callbackIntent); // 0 sets it to update as fast as possible, just use this for testing!
+
+//        startWakefulService(context, intent);
+//        context.getApplicationContext().startService(intent);
+
+        mActivityRecognitionClient.requestActivityUpdates(0, callbackIntent); // 0 sets it to update as fast as possible, just use this for testing!
+//        mActivityRecognitionClient.requestActivityUpdates(100, callbackIntent); // 0 sets it to update as fast as possible, just use this for testing!
+        callback = new GooglePlayServicesClient.ConnectionCallbacks() {
+            @Override
+            public void onConnected(Bundle bundle) {
+                Logger.log("In connection callback connected" );
+            }
+
+            @Override
+            public void onDisconnected() {
+                Logger.log("In connection callback disconnected");
+            }
+        };
+        mActivityRecognitionClient.registerConnectionCallbacks(callback);
+
     }
 
     @Override
@@ -64,4 +87,8 @@ public class UserActivityRecognizer implements GooglePlayServicesClient.Connecti
         Logger.log("onDisconnected");
     }
 
+    @Override
+    public void onReceive(Context context, Intent intent) {
+
+    }
 }
