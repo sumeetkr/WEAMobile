@@ -23,7 +23,6 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 
 import java.util.ArrayList;
@@ -264,20 +263,55 @@ public class AlertDetailFragment extends Fragment {
                                     @Override
                                     public void onFinish() {
                                         Context ctxt = fragment.getActivity().getApplicationContext();
-                                        List<LatLng> historyPoints = new ArrayList<LatLng>();
 
                                         if(WEASharedPreferences.isLocationHistoryEnabled(ctxt)){
                                             LocationDataSource dataSource = new LocationDataSource(ctxt);
-                                            for(GeoLocation location :dataSource.getAllData()){
-                                                historyPoints.add(new LatLng(location.getLatitude(), location.getLongitude()));
+
+                                            double totalAccuracy = 0.0;
+                                            double avgAccuracy =100.0;
+                                            List<GeoLocation> rawLocations = dataSource.getAllData();
+                                            for(GeoLocation location :rawLocations){
+                                                totalAccuracy += location.getAccuracy();
+                                            }
+                                            if(rawLocations.size()>1){
+                                                avgAccuracy = totalAccuracy/rawLocations.size();
                                             }
 
-                                            if(historyPoints.size()>0){
-                                                Polygon polygon = mMap.addPolygon(new PolygonOptions()
-                                                        .addAll(historyPoints)
-                                                        .strokeColor(Color.BLUE));
+                                            List<LatLng> historyPoints = new ArrayList<LatLng>();
+                                            for(GeoLocation location :rawLocations){
+                                                // Remove out liars
+                                                if(location.getAccuracy()<2*avgAccuracy){
+                                                    historyPoints.add(new LatLng(location.getLatitude(), location.getLongitude()));
+                                                }
+                                            }
+
+                                            //old points should be in a different color
+                                            if(historyPoints.size()>3){
+                                                List<LatLng> oldPoints = new ArrayList<LatLng>();
+                                                for(int i =0; i< historyPoints.size()-3; i++){
+                                                    oldPoints.add(historyPoints.get(i));
+                                                }
+
+                                                mMap.addPolygon(new PolygonOptions()
+                                                        .addAll(oldPoints)
+                                                        .strokeColor(Color.BLUE)
+                                                        .strokeWidth(2));
+
+                                                //newer points should be in a different color
+                                                List<LatLng> newPoints = new ArrayList<LatLng>();
+                                                for(int i = historyPoints.size()-3; i<historyPoints.size(); i++){
+                                                    newPoints.add(historyPoints.get(i));
+                                                }
+
+                                                mMap.addPolygon(new PolygonOptions()
+                                                        .addAll(newPoints)
+                                                        .strokeColor(Color.MAGENTA));
+
                                                 WEAUtil.showMessageIfInDebugMode(ctxt, "No of history points in database : "+ historyPoints.size());
                                                 Logger.log("Adding history points on the map,  count of points: "+ historyPoints.size());
+
+                                                // Try to get direction and speed based on previous points
+
                                             }else{
                                                 WEAUtil.showMessageIfInDebugMode(ctxt, "No of history points in database : "+ historyPoints.size());
                                                 Logger.log("Adding 000 i.e. zero history points on the map, no points in database");

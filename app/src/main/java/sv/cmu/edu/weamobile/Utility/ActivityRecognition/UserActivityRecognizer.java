@@ -36,11 +36,13 @@ public class UserActivityRecognizer extends WakefulBroadcastReceiver implements 
         Logger.log("startActivityRecognitionScan");
     }
 
-    public void stopActivityRecognitionScan(){
+    public static void stopActivityRecognitionScan(){
         try{
-            mActivityRecognitionClient.removeActivityUpdates(callbackIntent);
-            mActivityRecognitionClient.unregisterConnectionCallbacks(callback);
-            Logger.debug("stopActivityRecognitionScan");
+            if(mActivityRecognitionClient!= null){
+                mActivityRecognitionClient.removeActivityUpdates(callbackIntent);
+                mActivityRecognitionClient.unregisterConnectionCallbacks(callback);
+                Logger.debug("stopActivityRecognitionScan");
+            }
         } catch (IllegalStateException e){
             Logger.log(e.getMessage());
         }
@@ -67,18 +69,19 @@ public class UserActivityRecognizer extends WakefulBroadcastReceiver implements 
 
         mActivityRecognitionClient.requestActivityUpdates(0, callbackIntent); // 0 sets it to update as fast as possible, just use this for testing!
 //        mActivityRecognitionClient.requestActivityUpdates(100, callbackIntent); // 0 sets it to update as fast as possible, just use this for testing!
-        callback = new GooglePlayServicesClient.ConnectionCallbacks() {
-            @Override
-            public void onConnected(Bundle bundle) {
-                Logger.log("In connection callback connected" );
-            }
-
-            @Override
-            public void onDisconnected() {
-                Logger.log("In connection callback disconnected");
-            }
-        };
-        mActivityRecognitionClient.registerConnectionCallbacks(callback);
+//        callback = new GooglePlayServicesClient.ConnectionCallbacks() {
+//            @Override
+//            public void onConnected(Bundle bundle) {
+//                Logger.log("In connection callback connected" );
+//            }
+//
+//            @Override
+//            public void onDisconnected() {
+//                Logger.log("In connection callback disconnected");
+//            }
+//        };
+//
+//        mActivityRecognitionClient.registerConnectionCallbacks(callback);
 
     }
 

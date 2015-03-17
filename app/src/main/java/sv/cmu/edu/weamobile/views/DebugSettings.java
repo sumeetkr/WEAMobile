@@ -24,6 +24,7 @@ public class DebugSettings extends ActionBarActivity {
     private CheckBox chkViewDebugMessages;
     private CheckBox chkStartActivityRecognition;
     private CheckBox chkShowLocationHistory;
+    private CheckBox chkMotion;
     private TextView txtMessages;
     private UserActivityRecognizer activityRecognizer;
     private NewActivityReceiver activityBroadcastReceiver;
@@ -38,6 +39,7 @@ public class DebugSettings extends ActionBarActivity {
         chkStartActivityRecognition = (CheckBox) findViewById(R.id.checkBoxActivityRecognition);
         chkShowLocationHistory = (CheckBox) findViewById(R.id.chkLocationHistory);
         txtMessages = (TextView) findViewById(R.id.txtDebugMessages);
+        chkMotion = (CheckBox) findViewById(R.id.chkMotion);
 
         chkViewDebugMessages.setChecked(WEASharedPreferences.isInDebugMode(getApplicationContext()));
         chkViewDebugMessages.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -53,14 +55,17 @@ public class DebugSettings extends ActionBarActivity {
 
         );
 
+        chkStartActivityRecognition.setChecked(WEASharedPreferences.isActivityRecognitionEnabled(getApplicationContext()));
         chkStartActivityRecognition.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked){
+                    WEASharedPreferences.setActivityRecognitionEnabled(getApplicationContext(), true);
                     if(activityRecognizer== null) activityRecognizer = new UserActivityRecognizer(ctxt);
                     txtMessages.setText("Looking for a new Activity.");
                     activityRecognizer.startActivityRecognitionScan();
                 }else{
+                    WEASharedPreferences.setActivityRecognitionEnabled(getApplicationContext(), false);
                     if(activityRecognizer != null){
                         activityRecognizer.stopActivityRecognitionScan();
                     }
@@ -77,6 +82,18 @@ public class DebugSettings extends ActionBarActivity {
                     WEASharedPreferences.setIsLocationHistoryEnabled(getApplicationContext(), true);
                 }else{
                     WEASharedPreferences.setIsLocationHistoryEnabled(getApplicationContext(), false);
+                }
+            }
+        });
+
+        chkMotion.setChecked(WEASharedPreferences.isMotionEnabled(getApplicationContext()));
+        chkMotion.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    WEASharedPreferences.setMotionEnabled(getApplicationContext(), true);
+                }else{
+                    WEASharedPreferences.setMotionEnabled(getApplicationContext(), false);
                 }
             }
         });

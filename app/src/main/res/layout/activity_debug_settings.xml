@@ -32,7 +32,7 @@
     <CheckBox
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Show location history"
+        android:text="Location history"
         android:id="@+id/chkLocationHistory"
         android:checked="false"
         android:layout_below="@+id/checkBoxDebugMessages"
@@ -44,8 +44,19 @@
         android:layout_height="wrap_content"
         android:text="___________________"
         android:id="@+id/txtDebugMessages"
+        android:layout_below="@+id/checkBoxActivityRecognition"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/checkBoxActivityRecognition" />
+        android:layout_marginTop="49dp" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Motion"
+        android:id="@+id/chkMotion"
+        android:checked="false"
+        android:layout_below="@+id/checkBoxActivityRecognition"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

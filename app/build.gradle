@@ -1,11 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 20
     signingConfigs {
-
+        debug {
+        }
 
     }
+    compileSdkVersion 20
     buildToolsVersion '20'
     defaultConfig {
         applicationId "sv.cmu.edu.weamobile"
