@@ -4,6 +4,8 @@ import android.location.Location;
 
 import com.google.gson.Gson;
 
+import java.sql.Timestamp;
+
 /**
  * Created by sumeet on 10/15/14.
  */
@@ -20,11 +22,19 @@ public class GeoLocation {
     private float batteryLevel =0.00f;
     private String packageVersion= "";
     private String additionalInfo="";
+    private Timestamp timestamp;
 
 //    public GeoLocation(String latitude, String longitude){
 //        this.lat = latitude;
 //        this.lng = longitude;
 //    }
+
+    public GeoLocation(String latitude, String longitude, float accuracy, Timestamp timestamp){
+        this.lat = latitude;
+        this.lng = longitude;
+        this.accuracy = accuracy;
+        setTimestamp(timestamp);
+    }
 
     public GeoLocation(String latitude, String longitude, float accuracy){
         this.lat = latitude;
@@ -104,5 +114,13 @@ public class GeoLocation {
 
     public void setAdditionalInfo(String additionalInfo) {
         this.additionalInfo = additionalInfo;
+    }
+
+    public Timestamp getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Timestamp timestamp) {
+        this.timestamp = timestamp;
     }
 }

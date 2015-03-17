@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,6 +59,7 @@ public class LocationDataSource extends WEADataSource<GeoLocation> {
 
     @Override
     public GeoLocation getData(int id) {
+        //not yet implemented
         return null;
     }
 
@@ -70,7 +72,6 @@ public class LocationDataSource extends WEADataSource<GeoLocation> {
     public List<GeoLocation> getAllData() {
 
         List<GeoLocation> locations = new ArrayList<GeoLocation>();
-
         try{
             open();
             Cursor cursor = database.rawQuery("select * from "+ LOCATION_TABLE, null);
@@ -79,7 +80,8 @@ public class LocationDataSource extends WEADataSource<GeoLocation> {
                 while (cursor.isAfterLast() == false) {
                     GeoLocation location = new GeoLocation(String.valueOf(cursor.getDouble(1)),
                             String.valueOf(cursor.getDouble(2)),
-                            (float) cursor.getFloat(3));
+                            (float) cursor.getFloat(3),
+                            Timestamp.valueOf(cursor.getString(4)));
 
                     locations.add(location);
                     cursor.moveToNext();

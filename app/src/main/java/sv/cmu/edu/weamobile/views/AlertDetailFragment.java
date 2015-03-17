@@ -44,6 +44,8 @@ import sv.cmu.edu.weamobile.utility.WEAUtil;
 import sv.cmu.edu.weamobile.utility.WEAVibrator;
 import sv.cmu.edu.weamobile.utility.db.LocationDataSource;
 
+import static android.location.Location.distanceBetween;
+
 
 /**
  * A fragment representing a single Alert detail screen.
@@ -280,10 +282,13 @@ public class AlertDetailFragment extends Fragment {
                                             List<LatLng> historyPoints = new ArrayList<LatLng>();
                                             for(GeoLocation location :rawLocations){
                                                 // Remove out liars
-                                                if(location.getAccuracy()<2*avgAccuracy){
+                                                if(location.getAccuracy() < 2*avgAccuracy){
                                                     historyPoints.add(new LatLng(location.getLatitude(), location.getLongitude()));
                                                 }
                                             }
+
+                                            WEAUtil.showMessageIfInDebugMode(ctxt, "No of history points in database : "+ historyPoints.size());
+                                            Logger.log("Adding history points on the map,  count of points: "+ historyPoints.size());
 
                                             //old points should be in a different color
                                             if(historyPoints.size()>3){
@@ -307,10 +312,23 @@ public class AlertDetailFragment extends Fragment {
                                                         .addAll(newPoints)
                                                         .strokeColor(Color.MAGENTA));
 
-                                                WEAUtil.showMessageIfInDebugMode(ctxt, "No of history points in database : "+ historyPoints.size());
-                                                Logger.log("Adding history points on the map,  count of points: "+ historyPoints.size());
-
                                                 // Try to get direction and speed based on previous points
+                                                float [] distanceBetween = new float[3];
+                                                distanceBetween(newPoints.get(1).latitude,
+                                                        newPoints.get(1).longitude,
+                                                        newPoints.get(2).latitude,
+                                                        newPoints.get(2).longitude, distanceBetween);
+
+                                                Logger.log("Distance between last point:" + distanceBetween[0]);
+
+                                                float [] distanceBetween2 = new float[3];
+                                                distanceBetween(newPoints.get(0).latitude,
+                                                        newPoints.get(0).longitude,
+                                                        newPoints.get(1).latitude,
+                                                        newPoints.get(1).longitude, distanceBetween2);
+
+                                                Logger.log("Distance between last point:" + distanceBetween2[0]);
+
 
                                             }else{
                                                 WEAUtil.showMessageIfInDebugMode(ctxt, "No of history points in database : "+ historyPoints.size());
