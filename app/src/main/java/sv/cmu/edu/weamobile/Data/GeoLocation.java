@@ -23,6 +23,8 @@ public class GeoLocation {
     private String packageVersion= "";
     private String additionalInfo="NA";
     private Timestamp timestamp;
+    private String Activity="NA";
+    private double ActivityConfidence = 0.0;
 
 //    public GeoLocation(String latitude, String longitude){
 //        this.lat = latitude;
@@ -122,5 +124,21 @@ public class GeoLocation {
 
     public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public String getActivity() {
+        return Activity;
+    }
+
+    public void setActivity(String activity) {
+        Activity = activity;
+    }
+
+    public double getActivityConfidence() {
+        return ActivityConfidence;
+    }
+
+    public void setActivityConfidence(double activityConfidence) {
+        ActivityConfidence = activityConfidence;
     }
 }

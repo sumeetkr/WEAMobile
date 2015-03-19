@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import sv.cmu.edu.weamobile.R;
 import sv.cmu.edu.weamobile.utility.ActivityRecognition.UserActivityRecognizer;
+import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.Logger;
 import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
 import sv.cmu.edu.weamobile.utility.WEAUtil;
@@ -55,19 +56,27 @@ public class DebugSettings extends ActionBarActivity {
 
         );
 
-        chkStartActivityRecognition.setChecked(WEASharedPreferences.isActivityRecognitionEnabled(getApplicationContext()));
+        boolean isActivityEnabled = WEASharedPreferences.isActivityRecognitionEnabled(getApplicationContext());
+        chkStartActivityRecognition.setChecked(isActivityEnabled);
+        if(isActivityEnabled) registerNewActivityReceiver();
+
         chkStartActivityRecognition.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked){
+
                     WEASharedPreferences.setActivityRecognitionEnabled(getApplicationContext(), true);
-                    WEAUtil.getUserActivityInfo(getApplicationContext());
                     txtMessages.setText("Asking GOOGLE for a new Activity.");
+
+                    registerNewActivityReceiver();
+                    WEAUtil.getUserActivityInfo(getApplicationContext());
+
                 }else{
                     WEASharedPreferences.setActivityRecognitionEnabled(getApplicationContext(), false);
                     if(activityRecognizer != null){
                         activityRecognizer.stopActivityRecognitionScan();
                     }
+                    unregisterActivityBroadcastReceiver();
                     txtMessages.setText("Activity check stopped.");
                 }
             }
@@ -96,20 +105,27 @@ public class DebugSettings extends ActionBarActivity {
                 }
             }
         });
-
-        registerNewActivityReceiver();
     }
 
     private void registerNewActivityReceiver() {
-        activityBroadcastReceiver = new NewActivityReceiver(new Handler());
+        if(activityBroadcastReceiver == null){
+            activityBroadcastReceiver = new NewActivityReceiver(new Handler());
 
-        Logger.log("WEA", "New configuration receiver created in main activity");
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("android.intent.action.NEW_ACTIVITY");
-        filter.addCategory(Intent.CATEGORY_DEFAULT);
-        getApplicationContext().registerReceiver(activityBroadcastReceiver, filter);
+            Logger.log("WEA", "New activityBroadcastReceiver created in debug activity");
+            IntentFilter filter = new IntentFilter();
+            filter.addAction("android.intent.action.NEW_ACTIVITY");
+            filter.addCategory(Intent.CATEGORY_DEFAULT);
+            getApplicationContext().registerReceiver(activityBroadcastReceiver, filter);
+        }
     }
 
+    private void unregisterActivityBroadcastReceiver() {
+        Logger.log("unregisterActivityBroadcastReceiver called");
+        if(activityBroadcastReceiver!= null){
+            getApplication().unregisterReceiver(activityBroadcastReceiver);
+            activityBroadcastReceiver = null;
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -137,11 +153,7 @@ public class DebugSettings extends ActionBarActivity {
     protected void onDestroy(){
         WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
                 "Called onDestroy of debug settings view");
-        if(activityBroadcastReceiver!= null){
-            getApplication().unregisterReceiver(activityBroadcastReceiver);
-            activityBroadcastReceiver = null;
-        }
-
+        unregisterActivityBroadcastReceiver();
         super.onDestroy();
     }
 
@@ -159,7 +171,8 @@ public class DebugSettings extends ActionBarActivity {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        txtMessages.setText(intent.getStringExtra("message"));
+                        txtMessages.setText("ActivityType : " + intent.getStringExtra(Constants.ACTIVITY_TYPE) +
+                        " Confidence : " + intent.getIntExtra(Constants.ACTIVITY_CONFIDENCE,0) + "%");
                     }
                 });
             }

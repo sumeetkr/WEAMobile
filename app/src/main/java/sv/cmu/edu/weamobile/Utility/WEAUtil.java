@@ -126,7 +126,9 @@ public class WEAUtil {
         return version;
     }
 
-    public static void sendHeartBeatAndGetConfigurationAsync(Context context){
+    public static void sendHeartBeatAndGetConfigurationAsync(Context context,
+                                                             String lastKnownActivity,
+                                                             int lastKnownActivityConfidence) {
         GeoLocation location = new GeoLocation("0.00", "0.00", 0.00f);
         GPSTracker tracker =null;
         try{
@@ -142,6 +144,8 @@ public class WEAUtil {
 
             location.setBatteryLevel(batteryLevel);
             location.setPackageVersion(WEAUtil.getPackageVersion(context));
+            location.setActivity(lastKnownActivity);
+            location.setActivityConfidence(lastKnownActivityConfidence);
 
         }catch(Exception ex){
             Logger.log(ex.getMessage());
@@ -151,15 +155,18 @@ public class WEAUtil {
                 if(tracker != null) tracker.stopUsingGPS();
                 WEAHttpClient.sendHeartbeat(location.getJson(), context, Constants.URL_TO_GET_CONFIGURATION + WEAUtil.getIMEI(context));
                 LocationDataSource dataSource = new LocationDataSource(context);
-                dataSource.insertData(location);
 
-//                getUserActivityInfo(context);
+                //TODO: Need to move it at right location
+                dataSource.insertData(location);
 
             }catch (Exception ex){
                 Logger.log(ex.getMessage());
             }
         }
-        //fetch application configuration from server
+    }
+
+    public static void sendHeartBeatAndGetConfigurationAsync(Context context){
+        sendHeartBeatAndGetConfigurationAsync(context,"NA", 0);
     }
 
     public  static  void  getUserActivityInfo(Context context) {
@@ -177,4 +184,5 @@ public class WEAUtil {
 //            if(activityRecognizer != null) activityRecognizer.stopActivityRecognitionScan();
         }
     }
+
 }

@@ -31,4 +31,6 @@ public class Constants {
 
     public static final String THANKS_FOR_FEEDBACK = "Thanks for Feedback !! CMU WEA+ team";
     public static final String SHOWING_FEEDBACK_FORM = "Loading feedback form...";
+    public static final String ACTIVITY_TYPE ="activity_type";
+    public static final String ACTIVITY_CONFIDENCE ="activity_confidence";
 }

@@ -14,6 +14,7 @@ import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.ActivityRecognitionResult;
 
 import sv.cmu.edu.weamobile.data.UserActivity;
+import sv.cmu.edu.weamobile.service.ActivityRecognitionService;
 import sv.cmu.edu.weamobile.utility.Logger;
 import sv.cmu.edu.weamobile.utility.WEAUtil;
 
@@ -89,7 +90,7 @@ public class UserActivityRecognizer extends Service implements
 
         //This issue wasted so much time
         //https://code.google.com/p/android/issues/detail?id=61850
-        Intent intent = new Intent(this, UserActivityRecognizer.class);
+        Intent intent = new Intent(this, ActivityRecognitionService.class);
         callbackIntent = PendingIntent.getService(this, 0, intent,
                 PendingIntent.FLAG_CANCEL_CURRENT);
 
@@ -115,7 +116,7 @@ public class UserActivityRecognizer extends Service implements
     public int onStartCommand(Intent intent, int flags, int startId){
 
         Log.d("WEA", "UserActivityRecognizer started at " + WEAUtil.getTimeStringFromEpoch(System.currentTimeMillis() / 1000));
-        Log.d("WEA", "Service onStart called with "+ intent);
+        Log.d("WEA", " UserActivityRecognizer Service onStart called with "+ intent);
 
         if(intent.getAction() !=null && START_ACTIVITY_RECOGNITION.compareTo(intent.getAction())==0){
                 startActivityRecognitionScan();

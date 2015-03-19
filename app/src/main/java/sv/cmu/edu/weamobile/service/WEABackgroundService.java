@@ -18,6 +18,7 @@ import sv.cmu.edu.weamobile.data.Alert;
 import sv.cmu.edu.weamobile.data.AlertState;
 import sv.cmu.edu.weamobile.data.AppConfiguration;
 import sv.cmu.edu.weamobile.utility.AlertHelper;
+import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.Logger;
 import sv.cmu.edu.weamobile.utility.WEAHttpClient;
 import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
@@ -30,8 +31,11 @@ public class WEABackgroundService extends Service {
 
     private final IBinder mBinder = new LocalBinder();
     private BroadcastReceiver newConfigurationHandler;
-
+    private NewActivityReceiver activityBroadcastReceiver;
     private AlertDataSource alertDataSource = new AlertDataSource(this);
+    private String lastKnownActivity = "NA";
+    private int lastKnownActivityConfidence = 0;
+    private Handler handler;
 
 
     public class LocalBinder extends Binder {
@@ -43,6 +47,7 @@ public class WEABackgroundService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
 
+        handler = new Handler();
         Log.d("WEA", "WEABackgroundService started at " + WEAUtil.getTimeStringFromEpoch(System.currentTimeMillis() / 1000) );
         Log.d("WEA", "Service onStart called with "+ intent);
         if(intent == null){
@@ -51,19 +56,35 @@ public class WEABackgroundService extends Service {
             intent.setAction(WEABackgroundService.FETCH_CONFIGURATION);
         }
 
+        registerNewConfigurationReceiver();
+        registerNewActivityReceiver();
+
+//        TODO:removed for debugging only
+//        onHandleIntent(intent);
+
+
+        return Service.START_NOT_STICKY;
+    }
+
+    private void registerNewConfigurationReceiver() {
         if(newConfigurationHandler == null){
-            newConfigurationHandler= new NewConfigurationReceiver(new Handler());
+            newConfigurationHandler= new NewConfigurationReceiver(handler);
             LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(newConfigurationHandler,
                     new IntentFilter("new-config-event"));
 
         }
+    }
 
-//        onHandleIntent(intent);
+    private void registerNewActivityReceiver() {
+        if (activityBroadcastReceiver == null){
+            activityBroadcastReceiver = new NewActivityReceiver(handler);
 
-        //ToDo: Move to an appropriate location
-        WEAUtil.getUserActivityInfo(getApplicationContext());
-
-        return Service.START_NOT_STICKY;
+            Logger.log("WEA", "New configuration receiver created in main activity");
+            IntentFilter filter = new IntentFilter();
+            filter.addAction("android.intent.action.NEW_ACTIVITY");
+            filter.addCategory(Intent.CATEGORY_DEFAULT);
+            getApplicationContext().registerReceiver(activityBroadcastReceiver, filter);
+        }
     }
 
     protected void onHandleIntent(Intent intent) {
@@ -74,7 +95,7 @@ public class WEABackgroundService extends Service {
                 fetchConfiguration();
             }else if(SHOW_ALERT.equals(action)){
                 int alertId= intent.getIntExtra(("alertId"),-1);
-                AlertHelper.showAlertIfInTargetOrIsNotGeotargeted(getApplicationContext(), alertId);
+                showAlertAfterCheckingOtherConditions(alertId);
             }
         }
         AlarmBroadcastReceiver.completeWakefulIntent(intent);
@@ -89,6 +110,31 @@ public class WEABackgroundService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Logger.log("WEABackgroundService onDestroy called");
+
+        if(activityBroadcastReceiver!= null){
+            getApplication().unregisterReceiver(activityBroadcastReceiver);
+            activityBroadcastReceiver = null;
+        }
+
+        if(newConfigurationHandler != null){
+            getApplication().unregisterReceiver(newConfigurationHandler);
+            newConfigurationHandler = null;
+        }
+    }
+
+    private void showAlertAfterCheckingOtherConditions(int alertId) {
+
+        //Get info on UserActivity
+
+//        WEAUtil.getUserActivityInfo(getApplicationContext());
+
+        // Get info on location history
+
+        // Get info on motion i.e. speed and direction
+
+        //Combine the above three info to find if alert is to be shown or not
+
+        AlertHelper.showAlertIfInTargetOrIsNotGeotargeted(getApplicationContext(), alertId);
     }
 
     private void fetchConfiguration() {
@@ -96,8 +142,15 @@ public class WEABackgroundService extends Service {
         //read configuration and setup up new alarm
         //if problem in getting/receiving configuration, set default alarm
 
-        WEAUtil.sendHeartBeatAndGetConfigurationAsync(getApplicationContext());
-
+        // Get info on motion i.e. speed and direction
+        //Get info on UserActivity
+        WEAUtil.getUserActivityInfo(getApplicationContext());
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                WEAUtil.sendHeartBeatAndGetConfigurationAsync(getApplicationContext(), lastKnownActivity, lastKnownActivityConfidence);
+            }
+        }, 1000);
     }
 
     private void addOrUpdatedAlertsStateToSharedPreferences(AppConfiguration configuration) {
@@ -230,4 +283,27 @@ public class WEABackgroundService extends Service {
         }
 
     }
+
+    private class NewActivityReceiver extends BroadcastReceiver{
+
+        private final Handler handler;
+
+        public NewActivityReceiver(Handler handler) {
+            this.handler = handler;
+        }
+
+        @Override
+        public void onReceive(Context context, final Intent intent) {
+            if (handler != null) {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        lastKnownActivity = intent.getStringExtra(Constants.ACTIVITY_TYPE);
+                        lastKnownActivityConfidence = intent.getIntExtra(Constants.ACTIVITY_CONFIDENCE, 0);
+                        Logger.log("BackgroundService received new activity notification " + intent.getStringExtra(Constants.ACTIVITY_TYPE));
+                    }
+                });
+            }
+        }
+    };
 }
