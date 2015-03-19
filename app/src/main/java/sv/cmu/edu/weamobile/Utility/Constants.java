@@ -33,4 +33,5 @@ public class Constants {
     public static final String SHOWING_FEEDBACK_FORM = "Loading feedback form...";
     public static final String ACTIVITY_TYPE ="activity_type";
     public static final String ACTIVITY_CONFIDENCE ="activity_confidence";
+    public static final String WEA_GPS_PROVIDER = "wea_gps_provider";
 }

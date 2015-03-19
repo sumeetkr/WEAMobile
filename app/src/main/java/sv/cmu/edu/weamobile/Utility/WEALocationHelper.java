@@ -7,16 +7,7 @@ import java.util.List;
 
 import sv.cmu.edu.weamobile.data.GeoLocation;
 
-public class WEAPointInPoly {
-    public static void main(String args[]) {
-        double[] lats = {30.57, 30.65, 30.65, 30.39, 30.39, 30,57};
-        double[] longs = {-90.86, -90.75, -90.57, -90.6, -90.9, -90.86};
-        
-        int npol = 5;
-        System.out.println("Outside test case:" + pointInPoly(npol, lats, longs, 40.57, -90.86));
-        System.out.println("Boundary test case:" + pointInPoly(npol, lats, longs, 30.39, -90.9));
-        System.out.println("Inside test case:" + pointInPoly(npol, lats, longs, 30.58, -90.80));
-    }
+public class WEALocationHelper {
 
     /**
      * pointInPoly(...): determines whether a point lies within a polygon or not; the method creates an infinite ray horizontally from the test point, and counts the number of edges it crosses. 
@@ -51,7 +42,7 @@ public class WEAPointInPoly {
         }
 
         Logger.log("Verifying presence in polygon.");
-        return WEAPointInPoly.pointInPoly(polygon.length, lats, longs, Double.parseDouble(location.getLat()), Double.parseDouble(location.getLng()));
+        return WEALocationHelper.pointInPoly(polygon.length, lats, longs, Double.parseDouble(location.getLat()), Double.parseDouble(location.getLng()));
     }
 
     public static  boolean areAnyPointsInPolygon(List<GeoLocation> locations, GeoLocation [] polygon){
@@ -98,6 +89,44 @@ public class WEAPointInPoly {
         );
 
         return distance;
+    }
+
+    public static Location getLocationFromCoordinates(double latitude, double longitude){
+        Location location = new Location(Constants.WEA_GPS_PROVIDER);
+        location.setLatitude(latitude);
+        location.setLongitude(longitude);
+        return  location;
+    }
+
+    public static float getCurrentHeading(Location locationFrom, Location locationTo){
+        return locationFrom.bearingTo(locationTo);
+    }
+
+    public static double getSpeedMPH(Location locationFrom, Location locationTo, double timeInSeconds){
+        double distanceInMiles = locationFrom.distanceTo(locationTo)*0.000621371;
+        if(timeInSeconds==0) timeInSeconds =1;
+        return distanceInMiles*60*60/timeInSeconds;
+    }
+
+    public static Location getFutureLocation(Location currentLocation,
+                                            double heading,
+                                            double speedMph,
+                                            double durationInSeconds)
+    {
+        double earthRadius= 3964.037911746;
+        double pi = Math.PI;
+        double x = speedMph * Math.sin(heading * pi / 180) * durationInSeconds/ 3600;
+        double y = speedMph * Math.cos(heading * pi / 180) * durationInSeconds / 3600;
+
+
+        double newLat = currentLocation.getLatitude() + 180 / pi * y / earthRadius;
+        double newLong = currentLocation.getLongitude() + 180 / pi / Math.sin(currentLocation.getLatitude() * pi / 180) * x / earthRadius;
+
+        Location finalLocation = new Location(currentLocation);
+        finalLocation.setLatitude(newLat);
+        finalLocation.setLongitude(newLong);
+
+        return finalLocation;
     }
 
     private static double[] getCentroid(List<GeoLocation> points) {

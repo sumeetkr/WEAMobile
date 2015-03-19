@@ -87,7 +87,7 @@ public class AlertHelper {
                         //The code here needs to be refactored for future extension
                         LocationDataSource dataSource = new LocationDataSource(context);
                         List<GeoLocation> locations = dataSource.getAllData();
-                        if(WEAPointInPoly.areAnyPointsInPolygon(locations, alert.getPolygon())){
+                        if(WEALocationHelper.areAnyPointsInPolygon(locations, alert.getPolygon())){
                             String message = "User's location history was found in the alert region, showing alert";
                             Logger.log(message);
                             WEAUtil.showMessageIfInDebugMode(context, message);
@@ -150,7 +150,7 @@ public class AlertHelper {
     }
 
     public static String getContextTextToShow(Alert alert, GeoLocation myLocation) {
-        double distance = WEAPointInPoly.getDistance(alert.getPolygon(), myLocation);
+        double distance = WEALocationHelper.getDistance(alert.getPolygon(), myLocation);
         return "You are at a distance " + String.valueOf(distance).substring(0,3) + " miles";
     }
 

@@ -59,8 +59,7 @@ public class WEABackgroundService extends Service {
         registerNewConfigurationReceiver();
         registerNewActivityReceiver();
 
-//        TODO:removed for debugging only
-//        onHandleIntent(intent);
+        onHandleIntent(intent);
 
 
         return Service.START_NOT_STICKY;

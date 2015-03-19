@@ -52,7 +52,7 @@
     <CheckBox
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Motion"
+        android:text="Motion Predection"
         android:id="@+id/chkMotion"
         android:checked="false"
         android:layout_below="@+id/checkBoxActivityRecognition"

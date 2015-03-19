@@ -111,7 +111,7 @@ public class GeoLocation {
     }
 
     public String getAdditionalInfo() {
-        return additionalInfo;
+        return additionalInfo + " Activity: " + getActivity()+ " Confidence :" +getActivityConfidence();
     }
 
     public void setAdditionalInfo(String additionalInfo) {
