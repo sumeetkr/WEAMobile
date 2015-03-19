@@ -21,7 +21,7 @@ public class GeoLocation {
     private int id;
     private float batteryLevel =0.00f;
     private String packageVersion= "";
-    private String additionalInfo="";
+    private String additionalInfo="NA";
     private Timestamp timestamp;
 
 //    public GeoLocation(String latitude, String longitude){

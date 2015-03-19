@@ -164,8 +164,12 @@ public class WEAUtil {
 
     public  static  void  getUserActivityInfo(Context context) {
         try {
-            activityRecognizer = new UserActivityRecognizer(context);
-            activityRecognizer.startActivityRecognitionScan();
+            Intent service = new Intent(context, UserActivityRecognizer.class);
+            service.setAction(UserActivityRecognizer.START_ACTIVITY_RECOGNITION);
+            context.startService(service);
+
+//            activityRecognizer = new UserActivityRecognizer(context);
+//            activityRecognizer.startActivityRecognitionScan();
 //            Thread.sleep(500,0);
         } catch (Exception e) {
             e.printStackTrace();

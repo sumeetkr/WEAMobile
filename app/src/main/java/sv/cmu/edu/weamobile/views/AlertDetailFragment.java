@@ -270,7 +270,7 @@ public class AlertDetailFragment extends Fragment {
                                             LocationDataSource dataSource = new LocationDataSource(ctxt);
 
                                             double totalAccuracy = 0.0;
-                                            double avgAccuracy =100.0;
+                                            double avgAccuracy =100.0;// in metres
                                             List<GeoLocation> rawLocations = dataSource.getAllData();
                                             for(GeoLocation location :rawLocations){
                                                 totalAccuracy += location.getAccuracy();
@@ -282,18 +282,19 @@ public class AlertDetailFragment extends Fragment {
                                             List<LatLng> historyPoints = new ArrayList<LatLng>();
                                             for(GeoLocation location :rawLocations){
                                                 // Remove out liars
-                                                if(location.getAccuracy() < 2*avgAccuracy){
+//                                                if(location.getAccuracy() < 2*avgAccuracy){
                                                     historyPoints.add(new LatLng(location.getLatitude(), location.getLongitude()));
-                                                }
+//                                                }
                                             }
 
                                             WEAUtil.showMessageIfInDebugMode(ctxt, "No of history points in database : "+ historyPoints.size());
                                             Logger.log("Adding history points on the map,  count of points: "+ historyPoints.size());
 
                                             //old points should be in a different color
-                                            if(historyPoints.size()>3){
+                                            int newPointsCount = 6; // these points will be considered for velocity calculation
+                                            if(historyPoints.size()> newPointsCount){
                                                 List<LatLng> oldPoints = new ArrayList<LatLng>();
-                                                for(int i =0; i< historyPoints.size()-3; i++){
+                                                for(int i =0; i< historyPoints.size()- newPointsCount; i++){
                                                     oldPoints.add(historyPoints.get(i));
                                                 }
 
@@ -304,8 +305,10 @@ public class AlertDetailFragment extends Fragment {
 
                                                 //newer points should be in a different color
                                                 List<LatLng> newPoints = new ArrayList<LatLng>();
-                                                for(int i = historyPoints.size()-3; i<historyPoints.size(); i++){
+                                                for(int i = historyPoints.size()-newPointsCount; i<historyPoints.size(); i++){
                                                     newPoints.add(historyPoints.get(i));
+                                                    Logger.log("Latitude :" + historyPoints.get(i).latitude +
+                                                            " Longitude: " + historyPoints.get(i).longitude );
                                                 }
 
                                                 mMap.addPolygon(new PolygonOptions()

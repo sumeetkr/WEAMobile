@@ -61,9 +61,8 @@ public class DebugSettings extends ActionBarActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked){
                     WEASharedPreferences.setActivityRecognitionEnabled(getApplicationContext(), true);
-                    if(activityRecognizer== null) activityRecognizer = new UserActivityRecognizer(ctxt);
-                    txtMessages.setText("Looking for a new Activity.");
-                    activityRecognizer.startActivityRecognitionScan();
+                    WEAUtil.getUserActivityInfo(getApplicationContext());
+                    txtMessages.setText("Asking GOOGLE for a new Activity.");
                 }else{
                     WEASharedPreferences.setActivityRecognitionEnabled(getApplicationContext(), false);
                     if(activityRecognizer != null){

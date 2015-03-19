@@ -58,7 +58,7 @@ public class WEABackgroundService extends Service {
 
         }
 
-        onHandleIntent(intent);
+//        onHandleIntent(intent);
 
         //ToDo: Move to an appropriate location
         WEAUtil.getUserActivityInfo(getApplicationContext());
@@ -83,6 +83,12 @@ public class WEABackgroundService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Logger.log("WEABackgroundService onDestroy called");
     }
 
     private void fetchConfiguration() {
