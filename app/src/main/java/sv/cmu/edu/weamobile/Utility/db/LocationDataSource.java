@@ -62,9 +62,9 @@ public class LocationDataSource extends WEADataSource<GeoLocation> {
         insertValues.put(FIELD_LNG, data.getLongitude() );
         insertValues.put(ACCURACY, Double.valueOf(data.getAccuracy()));
         insertValues.put(PRIMARY_ACTIVITY_TYPE, data.getActivityType());
-        insertValues.put(PRIMARY_ACTIVITY_CONFIDENCE, Integer.valueOf(data.getActivityConfidence()));
+        insertValues.put(PRIMARY_ACTIVITY_CONFIDENCE, data.getActivityConfidence());
         insertValues.put(SECONDARY_ACTIVITY_TYPE, data.getSecondaryActivityType());
-        insertValues.put(SECONDARY_ACTIVITY_CONFIDENCE, Integer.valueOf(data.getSecondaryActivityConfidence()));
+        insertValues.put(SECONDARY_ACTIVITY_CONFIDENCE,data.getSecondaryActivityConfidence());
         insert(insertValues);
     }
 

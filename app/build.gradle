@@ -2,6 +2,9 @@ apply plugin: 'com.android.application'
 
 android {
     signingConfigs {
+        debug {
+            
+        }
     }
     compileSdkVersion 20
     buildToolsVersion '20'

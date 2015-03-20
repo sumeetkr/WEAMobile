@@ -34,8 +34,7 @@ public class WEABackgroundService extends Service {
     private BroadcastReceiver newConfigurationHandler;
     private NewActivityReceiver activityBroadcastReceiver;
     private AlertDataSource alertDataSource = new AlertDataSource(this);
-    private int lastKnownActivityType = -1;
-    private int lastKnownActivityConfidence = 0;
+    private UserActivity lastActivity;
     private Handler handler;
 
 
@@ -150,8 +149,7 @@ public class WEABackgroundService extends Service {
             @Override
             public void run() {
                 WEAUtil.sendHeartBeatAndGetConfigurationAsync(getApplicationContext(),
-                        lastKnownActivityType,
-                        lastKnownActivityConfidence);
+                        lastActivity);
             }
         }, 1000);
     }
@@ -301,10 +299,7 @@ public class WEABackgroundService extends Service {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        UserActivity activity = (UserActivity) intent.getSerializableExtra(Constants.ACTIVITY);
-
-                        lastKnownActivityType = activity.getPrimaryActivityType();
-                        lastKnownActivityConfidence = activity.getActivityConfidence();
+                        lastActivity = (UserActivity) intent.getSerializableExtra(Constants.ACTIVITY);
                         Logger.log("BackgroundService received new activity notification " + intent.getStringExtra(Constants.ACTIVITY_TYPE));
                     }
                 });

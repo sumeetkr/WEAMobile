@@ -128,8 +128,7 @@ public class WEAUtil {
     }
 
     public static void sendHeartBeatAndGetConfigurationAsync(Context context,
-                                                             int lastKnownActivityType,
-                                                             int lastKnownActivityConfidence) {
+                                                             UserActivity activity) {
         GeoLocation location = new GeoLocation("0.00", "0.00", 0.00f);
         GPSTracker tracker =null;
         try{
@@ -145,9 +144,15 @@ public class WEAUtil {
 
             location.setBatteryLevel(batteryLevel);
             location.setPackageVersion(WEAUtil.getPackageVersion(context));
-            location.setActivityType(lastKnownActivityType);
-            location.setActivityConfidence(lastKnownActivityConfidence);
-            location.setAdditionalInfo("Activity: "+ UserActivity.getFriendlyName(lastKnownActivityType) + " Confidence :" +lastKnownActivityConfidence);
+            if(activity!= null){
+                location.setActivityType(activity.getPrimaryActivityType());
+                location.setActivityConfidence(activity.getActivityConfidence());
+                location.setSecondaryActivity(activity.getSecondaryActivityTYpe());
+                location.setSecondaryActivityConfidence(activity.getSecondaryActivityConfidence());
+            }
+
+            location.setAdditionalInfo("Activity: "+ UserActivity.getFriendlyName(activity.getPrimaryActivityType()) +
+                    " Confidence :" +activity.getActivityConfidence());
 
         }catch(Exception ex){
             Logger.log(ex.getMessage());
@@ -168,7 +173,7 @@ public class WEAUtil {
     }
 
     public static void sendHeartBeatAndGetConfigurationAsync(Context context){
-        sendHeartBeatAndGetConfigurationAsync(context, -1, 0);
+        sendHeartBeatAndGetConfigurationAsync(context, null);
     }
 
     public  static  void  getUserActivityInfo(Context context) {

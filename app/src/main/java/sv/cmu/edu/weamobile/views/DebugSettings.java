@@ -14,6 +14,7 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import sv.cmu.edu.weamobile.R;
+import sv.cmu.edu.weamobile.data.UserActivity;
 import sv.cmu.edu.weamobile.utility.ActivityRecognition.UserActivityRecognizer;
 import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.Logger;
@@ -182,12 +183,24 @@ public class DebugSettings extends ActionBarActivity {
 
         @Override
         public void onReceive(Context context, final Intent intent) {
+            UserActivity activity = (UserActivity) intent.getSerializableExtra(Constants.ACTIVITY);
+
+            final String lastKnownActivity = UserActivity.getFriendlyName(activity.getPrimaryActivityType());
+            final int lastKnownActivityConfidence = activity.getActivityConfidence();
+
+            final String lastKnownSecondaryActivity = UserActivity.getFriendlyName(activity.getSecondaryActivityTYpe());
+            final int lastKnownSecondaryActivityConfidence = activity.getSecondaryActivityConfidence();
+
+            Logger.log("DebugSettings received new activity notification " + intent.getStringExtra(Constants.ACTIVITY_TYPE));
             if (handler != null) {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        txtMessages.setText("ActivityType : " + intent.getStringExtra(Constants.ACTIVITY_TYPE) +
-                        " Confidence : " + intent.getIntExtra(Constants.ACTIVITY_CONFIDENCE,0) + "%");
+                        txtMessages.setText(
+                                "ActivityType : " + lastKnownActivity +
+                        "\n Confidence : " + lastKnownActivityConfidence + "%\n"+
+                        "Secondary ActivityType : " + lastKnownSecondaryActivity +
+                        "\n Secondary Activity Confidence : " + lastKnownSecondaryActivityConfidence + "%");
                     }
                 });
             }
