@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import sv.cmu.edu.weamobile.data.GeoLocation;
+import sv.cmu.edu.weamobile.data.UserActivity;
 import sv.cmu.edu.weamobile.utility.ActivityRecognition.UserActivityRecognizer;
 import sv.cmu.edu.weamobile.utility.db.LocationDataSource;
 
@@ -127,7 +128,7 @@ public class WEAUtil {
     }
 
     public static void sendHeartBeatAndGetConfigurationAsync(Context context,
-                                                             String lastKnownActivity,
+                                                             int lastKnownActivityType,
                                                              int lastKnownActivityConfidence) {
         GeoLocation location = new GeoLocation("0.00", "0.00", 0.00f);
         GPSTracker tracker =null;
@@ -144,8 +145,9 @@ public class WEAUtil {
 
             location.setBatteryLevel(batteryLevel);
             location.setPackageVersion(WEAUtil.getPackageVersion(context));
-            location.setActivity(lastKnownActivity);
+            location.setActivityType(lastKnownActivityType);
             location.setActivityConfidence(lastKnownActivityConfidence);
+            location.setAdditionalInfo("Activity: "+ UserActivity.getFriendlyName(lastKnownActivityType) + " Confidence :" +lastKnownActivityConfidence);
 
         }catch(Exception ex){
             Logger.log(ex.getMessage());
@@ -166,7 +168,7 @@ public class WEAUtil {
     }
 
     public static void sendHeartBeatAndGetConfigurationAsync(Context context){
-        sendHeartBeatAndGetConfigurationAsync(context,"NA", 0);
+        sendHeartBeatAndGetConfigurationAsync(context, -1, 0);
     }
 
     public  static  void  getUserActivityInfo(Context context) {

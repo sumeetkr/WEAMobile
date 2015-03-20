@@ -10,11 +10,6 @@ import java.sql.Timestamp;
  * Created by sumeet on 10/15/14.
  */
 public class GeoLocation {
-//            {
-//                "lng": "-94.71",
-//                    "lat": "29.34",
-//                    "id": 1
-//            },
     private String lat;
     private String lng;
     private float accuracy = 0.00f;
@@ -23,13 +18,29 @@ public class GeoLocation {
     private String packageVersion= "";
     private String additionalInfo="NA";
     private Timestamp timestamp;
-    private String Activity="NA";
-    private double ActivityConfidence = 0.0;
+    private int primaryActivityType =-1;
+    private int activityConfidence = 0;
+    private int secondaryActivityType= -1;
+    private int secondaryActivityConfidence = 0;
 
 //    public GeoLocation(String latitude, String longitude){
 //        this.lat = latitude;
 //        this.lng = longitude;
 //    }
+
+    public GeoLocation(String latitude, String longitude, float accuracy,
+                       int primaryActivityType, int primaryActivityConfidence,
+                       int secondaryActivityType, int secondaryActivityConfidence,
+                       Timestamp timestamp){
+        this.lat = latitude;
+        this.lng = longitude;
+        this.accuracy = accuracy;
+        setActivityType(primaryActivityType);
+        setActivityConfidence(primaryActivityConfidence);
+        setSecondaryActivity(secondaryActivityType);
+        setActivityConfidence(secondaryActivityConfidence);
+        setTimestamp(timestamp);
+    }
 
     public GeoLocation(String latitude, String longitude, float accuracy, Timestamp timestamp){
         this.lat = latitude;
@@ -111,7 +122,7 @@ public class GeoLocation {
     }
 
     public String getAdditionalInfo() {
-        return additionalInfo + " Activity: " + getActivity()+ " Confidence :" +getActivityConfidence();
+        return additionalInfo;
     }
 
     public void setAdditionalInfo(String additionalInfo) {
@@ -126,19 +137,35 @@ public class GeoLocation {
         this.timestamp = timestamp;
     }
 
-    public String getActivity() {
-        return Activity;
+    public int getActivityType() {
+        return primaryActivityType;
     }
 
-    public void setActivity(String activity) {
-        Activity = activity;
+    public void setActivityType(int activityType) {
+        this.primaryActivityType = activityType;
     }
 
-    public double getActivityConfidence() {
-        return ActivityConfidence;
+    public int getActivityConfidence() {
+        return activityConfidence;
     }
 
-    public void setActivityConfidence(double activityConfidence) {
-        ActivityConfidence = activityConfidence;
+    public void setActivityConfidence(int activityConfidence) {
+        this.activityConfidence = activityConfidence;
+    }
+
+    public int getSecondaryActivityType() {
+        return secondaryActivityType;
+    }
+
+    public void setSecondaryActivity(int secondaryActivityType) {
+        this.secondaryActivityType = secondaryActivityType;
+    }
+
+    public int getSecondaryActivityConfidence() {
+        return secondaryActivityConfidence;
+    }
+
+    public void setSecondaryActivityConfidence(int secondaryActivityConfidence) {
+        this.secondaryActivityConfidence = secondaryActivityConfidence;
     }
 }

@@ -149,7 +149,25 @@ public class WEASharedPreferences {
         }
     }
 
-    public static boolean isMotionEnabled(Context context){
+    public static boolean isActivityHistoryEnabled(Context context){
+        boolean result = false;
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
+        if (sharedPreferences != null) {
+            result = sharedPreferences.getBoolean(Constants.IS_ACTIVITY_HISTORY_ENABLED, false);
+        }
+        return result;
+    }
+
+    public static void setActivityHistoryEnabled(Context context, boolean enable) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
+        if (sharedPreferences != null) {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean(Constants.IS_ACTIVITY_HISTORY_ENABLED, enable);
+            editor.commit();
+            Logger.log("Saved activity history mode to shared preferences "+ enable);
+        }
+    }
+    public static boolean isMotionPredictionEnabled(Context context){
         boolean result = false;
         SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
         if (sharedPreferences != null) {

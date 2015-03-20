@@ -3,6 +3,7 @@ package sv.cmu.edu.weamobile.service;
 /**
  * Created by sumeet on 2/27/15.
  */
+
 import android.app.IntentService;
 import android.content.Intent;
 
@@ -36,7 +37,7 @@ public class ActivityRecognitionService extends IntentService {
             UserActivity activity = new UserActivity(result);
             Logger.log("ActivityRecognitionResult: " + activity.getActivityName() + " confidence: " + activity.getActivityConfidence());
 
-            broadcastNewActivityIntent(activity.getActivityName(), activity.getActivityConfidence());
+            broadcastNewActivityIntent(activity, activity.getActivityName(), activity.getActivityConfidence());
 
             activitiesResultsCount += 1;
             Logger.log("Activity result count : " + activitiesResultsCount);
@@ -56,7 +57,9 @@ public class ActivityRecognitionService extends IntentService {
     }
 
 
-    private void broadcastNewActivityIntent(String activityName, int activityConfidence) {
+    private void broadcastNewActivityIntent(UserActivity activity,
+                                            String activityName,
+                                            int activityConfidence) {
         Logger.log("ActivityRecognitionService broadcastNewActivityIntent called");
 
         Intent newActivityIntent = new Intent();
@@ -64,7 +67,7 @@ public class ActivityRecognitionService extends IntentService {
         newActivityIntent.addCategory(Intent.CATEGORY_DEFAULT);
         newActivityIntent.putExtra(Constants.ACTIVITY_TYPE, activityName);
         newActivityIntent.putExtra(Constants.ACTIVITY_CONFIDENCE, activityConfidence);
+        newActivityIntent.putExtra(Constants.ACTIVITY, activity);
         getApplicationContext().sendBroadcast(newActivityIntent);
     }
-
 }

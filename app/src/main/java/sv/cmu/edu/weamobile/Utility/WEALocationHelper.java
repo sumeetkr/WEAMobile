@@ -2,6 +2,9 @@ package sv.cmu.edu.weamobile.utility;//30.57,-90.86 30.65,-90.75 30.65,-90.57 30
 
 import android.location.Location;
 
+import com.google.android.gms.maps.model.LatLng;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -43,6 +46,34 @@ public class WEALocationHelper {
 
         Logger.log("Verifying presence in polygon.");
         return WEALocationHelper.pointInPoly(polygon.length, lats, longs, Double.parseDouble(location.getLat()), Double.parseDouble(location.getLng()));
+    }
+
+    public static boolean isInPolygon(LatLng location, GeoLocation [] polygon) {
+        double [] longs = new double[polygon.length];
+        double [] lats = new double[polygon.length];
+
+        for(int i = 0; i<polygon.length; i++){
+            lats[i]= Double.parseDouble(polygon[i].getLat());
+            longs[i] = Double.parseDouble(polygon[i].getLng());
+        }
+
+        Logger.log("Verifying presence in polygon.");
+        return WEALocationHelper.pointInPoly(polygon.length, lats, longs,
+                location.latitude,
+                location.longitude);
+    }
+
+    public static  boolean areAnyPointsInPolygon2(List<LatLng> locations, GeoLocation [] polygon){
+        boolean pointsInPolygon = false;
+
+        for(LatLng location : locations){
+            if(isInPolygon(location, polygon)){
+                pointsInPolygon = true;
+                break;
+            }
+        }
+
+        return  pointsInPolygon;
     }
 
     public static  boolean areAnyPointsInPolygon(List<GeoLocation> locations, GeoLocation [] polygon){
@@ -127,6 +158,50 @@ public class WEALocationHelper {
         finalLocation.setLongitude(newLong);
 
         return finalLocation;
+    }
+
+    public static List<LatLng> getFuturePredictionsOfLatLngs(List<GeoLocation> historyPoints) {
+
+        int newPointsCount = historyPoints.size();
+        List<LatLng> futurePoints = new ArrayList<LatLng>();
+        if(newPointsCount >3){
+            Location loc1 = WEALocationHelper.getLocationFromCoordinates(
+                    historyPoints.get(newPointsCount - 3).getLatitude(),
+                    historyPoints.get(newPointsCount - 3).getLongitude());
+            Location loc2 = WEALocationHelper.getLocationFromCoordinates(
+                    historyPoints.get(newPointsCount-2).getLatitude(),
+                    historyPoints.get(newPointsCount-2).getLongitude());
+            Location loc3 = WEALocationHelper.getLocationFromCoordinates(
+                    historyPoints.get(newPointsCount-1).getLatitude(),
+                    historyPoints.get(newPointsCount-1).getLongitude());
+
+            double timDiffInSecs1 = (historyPoints.get(historyPoints.size()-1).getTimestamp().getTime()
+                    - historyPoints.get(historyPoints.size()-2).getTimestamp().getTime())/(1000);
+            double speed1 = WEALocationHelper.getSpeedMPH(loc2, loc3, timDiffInSecs1);
+
+            double timDiffInSecs2 = (historyPoints.get(historyPoints.size()-2).getTimestamp().getTime()
+                    - historyPoints.get(historyPoints.size()-3).getTimestamp().getTime())/(1000);
+            double speed2 = WEALocationHelper.getSpeedMPH(loc1, loc2, timDiffInSecs2);
+
+            double heading1 = WEALocationHelper.getCurrentHeading(loc2, loc3);
+            double heading2 = WEALocationHelper.getCurrentHeading(loc1, loc2);
+
+            //give more weight to newer info
+            double heading = (0.7*heading1+0.3*heading2);
+            double speed = (0.7*speed1+0.3* speed2);
+
+            Logger.log("Speed: " + speed + " heading: " + heading);
+
+            if(Math.abs(speed)>= 0.01){ //else assume the user is still
+                for (int j=0; j<13; j++){
+                    //get every 5 minutes, for next hour
+                    Location futureLocation = WEALocationHelper.getFutureLocation(loc3, heading, speed, j * 5 * 60);
+                    futurePoints.add(new LatLng(futureLocation.getLatitude(), futureLocation.getLongitude()));
+                }
+            }
+        }
+
+        return futurePoints;
     }
 
     private static double[] getCentroid(List<GeoLocation> points) {

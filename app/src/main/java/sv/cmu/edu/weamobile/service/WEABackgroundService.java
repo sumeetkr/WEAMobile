@@ -17,6 +17,7 @@ import java.util.List;
 import sv.cmu.edu.weamobile.data.Alert;
 import sv.cmu.edu.weamobile.data.AlertState;
 import sv.cmu.edu.weamobile.data.AppConfiguration;
+import sv.cmu.edu.weamobile.data.UserActivity;
 import sv.cmu.edu.weamobile.utility.AlertHelper;
 import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.Logger;
@@ -33,7 +34,7 @@ public class WEABackgroundService extends Service {
     private BroadcastReceiver newConfigurationHandler;
     private NewActivityReceiver activityBroadcastReceiver;
     private AlertDataSource alertDataSource = new AlertDataSource(this);
-    private String lastKnownActivity = "NA";
+    private int lastKnownActivityType = -1;
     private int lastKnownActivityConfidence = 0;
     private Handler handler;
 
@@ -144,10 +145,13 @@ public class WEABackgroundService extends Service {
         // Get info on motion i.e. speed and direction
         //Get info on UserActivity
         WEAUtil.getUserActivityInfo(getApplicationContext());
+        //wait some time to get user activity, which is added to to the heartbeat
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                WEAUtil.sendHeartBeatAndGetConfigurationAsync(getApplicationContext(), lastKnownActivity, lastKnownActivityConfidence);
+                WEAUtil.sendHeartBeatAndGetConfigurationAsync(getApplicationContext(),
+                        lastKnownActivityType,
+                        lastKnownActivityConfidence);
             }
         }, 1000);
     }
@@ -297,8 +301,10 @@ public class WEABackgroundService extends Service {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        lastKnownActivity = intent.getStringExtra(Constants.ACTIVITY_TYPE);
-                        lastKnownActivityConfidence = intent.getIntExtra(Constants.ACTIVITY_CONFIDENCE, 0);
+                        UserActivity activity = (UserActivity) intent.getSerializableExtra(Constants.ACTIVITY);
+
+                        lastKnownActivityType = activity.getPrimaryActivityType();
+                        lastKnownActivityConfidence = activity.getActivityConfidence();
                         Logger.log("BackgroundService received new activity notification " + intent.getStringExtra(Constants.ACTIVITY_TYPE));
                     }
                 });

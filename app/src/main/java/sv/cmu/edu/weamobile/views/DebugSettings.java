@@ -25,6 +25,7 @@ public class DebugSettings extends ActionBarActivity {
     private CheckBox chkViewDebugMessages;
     private CheckBox chkStartActivityRecognition;
     private CheckBox chkShowLocationHistory;
+    private CheckBox chkShowActivityHistory;
     private CheckBox chkMotion;
     private TextView txtMessages;
     private UserActivityRecognizer activityRecognizer;
@@ -41,6 +42,7 @@ public class DebugSettings extends ActionBarActivity {
         chkShowLocationHistory = (CheckBox) findViewById(R.id.chkLocationHistory);
         txtMessages = (TextView) findViewById(R.id.txtDebugMessages);
         chkMotion = (CheckBox) findViewById(R.id.chkMotion);
+        chkShowActivityHistory = (CheckBox) findViewById(R.id.chkActivityHistory);
 
         chkViewDebugMessages.setChecked(WEASharedPreferences.isInDebugMode(getApplicationContext()));
         chkViewDebugMessages.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -94,7 +96,20 @@ public class DebugSettings extends ActionBarActivity {
             }
         });
 
-        chkMotion.setChecked(WEASharedPreferences.isMotionEnabled(getApplicationContext()));
+        chkShowActivityHistory.setChecked(WEASharedPreferences.isActivityHistoryEnabled(getApplicationContext()));
+        chkShowActivityHistory.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    WEASharedPreferences.setActivityHistoryEnabled(getApplicationContext(), true);
+                }else{
+                    WEASharedPreferences.setActivityHistoryEnabled(getApplicationContext(), false);
+                }
+            }
+        });
+
+
+        chkMotion.setChecked(WEASharedPreferences.isMotionPredictionEnabled(getApplicationContext()));
         chkMotion.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {

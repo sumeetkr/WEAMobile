@@ -70,6 +70,9 @@ public class UserActivityRecognizer extends Service implements
             if(googleApiClient != null){
 //                googleApiClient.unregisterConnectionCallbacks((GoogleApiClient.ConnectionCallbacks) this);
                 googleApiClient.disconnect();
+                if(callbackIntent != null){
+                    ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(googleApiClient, callbackIntent);
+                }
             }
         } catch (IllegalStateException e){
             Logger.log(e.getMessage());

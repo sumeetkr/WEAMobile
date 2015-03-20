@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.method.LinkMovementMethod;
@@ -23,6 +22,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolygonOptions;
 
@@ -33,6 +33,7 @@ import sv.cmu.edu.weamobile.R;
 import sv.cmu.edu.weamobile.data.Alert;
 import sv.cmu.edu.weamobile.data.AlertState;
 import sv.cmu.edu.weamobile.data.GeoLocation;
+import sv.cmu.edu.weamobile.data.UserActivity;
 import sv.cmu.edu.weamobile.utility.AlertHelper;
 import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.GPSTracker;
@@ -172,7 +173,7 @@ public class AlertDetailFragment extends Fragment {
 //            @Override
 //            public void onClick(View v) {
 //                if(textToSpeech!=null) textToSpeech.shutdown();
-//                Intent intent = new Intent(getActivity(), MainActivity.class);
+//                Intent intent = new Intent(getActivityType(), MainActivity.class);
 //                startActivity(intent);
 //            }
 //        });
@@ -265,38 +266,31 @@ public class AlertDetailFragment extends Fragment {
                                     public void onFinish() {
                                         Context ctxt = fragment.getActivity().getApplicationContext();
 
-                                        if(WEASharedPreferences.isLocationHistoryEnabled(ctxt) || WEASharedPreferences.isMotionEnabled(ctxt)){
+                                        boolean activityHistoryEnabled = WEASharedPreferences.isActivityHistoryEnabled(ctxt);
+
+                                        if(WEASharedPreferences.isLocationHistoryEnabled(ctxt)
+                                                || WEASharedPreferences.isMotionPredictionEnabled(ctxt)
+                                                || activityHistoryEnabled){
+
                                             LocationDataSource dataSource = new LocationDataSource(ctxt);
 
-//                                            double totalAccuracy = 0.0;
-//                                            double avgAccuracy =100.0;// in metres
                                             List<GeoLocation> historyPoints = dataSource.getAllData();
-//                                            for(GeoLocation location :rawLocations){
-//                                                totalAccuracy += location.getAccuracy();
-//                                            }
-//                                            if(rawLocations.size()>1){
-//                                                avgAccuracy = totalAccuracy/rawLocations.size();
-//                                            }
 
-//                                            List<LatLng> historyPoints = new ArrayList<LatLng>();
-//                                            for(GeoLocation location :rawLocations){
-//                                                // Remove out liars
-////                                                if(location.getAccuracy() < 2*avgAccuracy){
-//                                                    historyPoints.add(new LatLng(location.getLatitude(), location.getLongitude()));
-////                                                }
-//                                            }
-
-                                            WEAUtil.showMessageIfInDebugMode(ctxt, "No of history points in database : "+ historyPoints.size());
-                                            Logger.log("Adding history points on the map,  count of points: "+ historyPoints.size());
-
-                                            //old points should be in a different color
-                                            // these points will be considered for velocity calculation
                                             // Should be >= 3
-                                            int newPointsCount = 3;
+                                            int newPointsCount = 6;
                                             if(historyPoints.size()> newPointsCount){
                                                 List<LatLng> oldPoints = new ArrayList<LatLng>();
                                                 for(int i =0; i< historyPoints.size()- newPointsCount; i++){
-                                                    oldPoints.add(new LatLng(historyPoints.get(i).getLatitude(), historyPoints.get(i).getLongitude()));
+                                                    LatLng latLng = new LatLng(historyPoints.get(i).getLatitude(), historyPoints.get(i).getLongitude());
+                                                    oldPoints.add(latLng);
+
+                                                    if(activityHistoryEnabled){
+                                                        Marker marker = mMap.addMarker(new MarkerOptions()
+                                                                .position(latLng)
+                                                                .title(UserActivity.getFriendlyName(historyPoints.get(i).getActivityType()))
+                                                                .icon(UserActivity.getBitmap(historyPoints.get(i).getActivityType()
+                                                                        , historyPoints.get(i).getSecondaryActivityType())));
+                                                    }
                                                 }
 
                                                 if(WEASharedPreferences.isLocationHistoryEnabled(ctxt)){
@@ -309,56 +303,42 @@ public class AlertDetailFragment extends Fragment {
                                                 //newer points should be in a different color
                                                 List<LatLng> newPoints = new ArrayList<LatLng>();
                                                 for(int i = historyPoints.size()-newPointsCount; i<historyPoints.size(); i++){
-                                                    newPoints.add(new LatLng(historyPoints.get(i).getLatitude(), historyPoints.get(i).getLongitude()));
+                                                    LatLng latLng = new LatLng(historyPoints.get(i).getLatitude(), historyPoints.get(i).getLongitude());
+                                                    newPoints.add(latLng);
+
                                                     Logger.log(historyPoints.get(i).getLatitude() +
                                                             ", " + historyPoints.get(i).getLongitude());
+
+                                                    if(activityHistoryEnabled){
+                                                        Marker marker = mMap.addMarker(new MarkerOptions()
+                                                                .position(latLng)
+                                                                .title(UserActivity.getFriendlyName(historyPoints.get(i).getActivityType()))
+                                                                .icon(UserActivity.getBitmap(historyPoints.get(i).getActivityType()
+                                                                        , historyPoints.get(i).getSecondaryActivityType())));
+                                                    }
                                                 }
 
 
                                                 mMap.addPolygon(new PolygonOptions()
                                                         .addAll(newPoints)
-                                                        .strokeColor(Color.MAGENTA));
+                                                        .strokeColor(Color.YELLOW));
 
+                                                if(WEASharedPreferences.isMotionPredictionEnabled(ctxt)){
+                                                    List<LatLng> futurePoints = WEALocationHelper.getFuturePredictionsOfLatLngs(historyPoints);
 
-                                                // Try to get direction and speed based on previous points
-//                                                float [] distanceBetween = new float[3];
-//                                                distanceBetween(newPoints.get(1).latitude,
-//                                                        newPoints.get(1).longitude,
-//                                                        newPoints.get(2).latitude,
-//                                                        newPoints.get(2).longitude, distanceBetween);
-//
-//                                                Logger.log("Distance between last point:" + distanceBetween[0]);
-//
-//                                                float [] distanceBetween2 = new float[3];
-//                                                distanceBetween(newPoints.get(0).latitude,
-//                                                        newPoints.get(0).longitude,
-//                                                        newPoints.get(1).latitude,
-//                                                        newPoints.get(1).longitude, distanceBetween2);
+                                                    if(futurePoints.size()>0){
+                                                        mMap.addPolygon(new PolygonOptions()
+                                                                .addAll(futurePoints)
+                                                                .strokeColor(Color.GREEN));
 
-
-                                                if(WEASharedPreferences.isMotionEnabled(ctxt)){
-                                                    Location loc1 = WEALocationHelper.getLocationFromCoordinates(newPoints.get(newPointsCount-3).latitude, newPoints.get(newPointsCount-3).longitude);
-                                                    Location loc2 = WEALocationHelper.getLocationFromCoordinates(newPoints.get(newPointsCount-2).latitude, newPoints.get(newPointsCount-2).longitude);
-                                                    Location loc3 = WEALocationHelper.getLocationFromCoordinates(newPoints.get(newPointsCount-1).latitude, newPoints.get(newPointsCount-1).longitude);
-
-                                                    //TODO: Need to get right time difference, 5 minutes is not always correct
-                                                    double timDiffInSecs = (historyPoints.get(historyPoints.size()-1).getTimestamp().getTime() - historyPoints.get(historyPoints.size()-2).getTimestamp().getTime())/(1000);
-                                                    double speed = WEALocationHelper.getSpeedMPH(loc2, loc3, timDiffInSecs);
-                                                    double heading = WEALocationHelper.getCurrentHeading(loc1, loc3);
-
-                                                    List<LatLng> futurePoints = new ArrayList<LatLng>();
-                                                    for (int j=0; j<13; j++){
-                                                        //get every 5 minutes
-                                                        Location futureLocation = WEALocationHelper.getFutureLocation(loc3, heading, speed, j * 5 * 60);
-                                                        futurePoints.add(new LatLng(futureLocation.getLatitude(), futureLocation.getLongitude()));
+                                                        Logger.log("Added future points on the map, count:" + futurePoints.size());
+                                                    }else{
+                                                        Toast.makeText(getActivity(), "Looks like you are still, so no future locations", Toast.LENGTH_SHORT).show();
                                                     }
-
-                                                    mMap.addPolygon(new PolygonOptions()
-                                                            .addAll(futurePoints)
-                                                            .strokeColor(Color.YELLOW));
-
-                                                    Logger.log("Added future points on the map");
                                                 }
+
+                                                WEAUtil.showMessageIfInDebugMode(ctxt, "No of history points in database : " + historyPoints.size());
+                                                Logger.log("Adding history points on the map,  count of points: "+ historyPoints.size());
 
                                             }else{
                                                 WEAUtil.showMessageIfInDebugMode(ctxt, "No of history points in database : "+ historyPoints.size());
