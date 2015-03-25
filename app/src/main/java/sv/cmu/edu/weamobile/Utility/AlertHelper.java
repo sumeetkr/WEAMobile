@@ -17,6 +17,7 @@ import sv.cmu.edu.weamobile.data.Alert;
 import sv.cmu.edu.weamobile.data.AlertState;
 import sv.cmu.edu.weamobile.data.AppConfiguration;
 import sv.cmu.edu.weamobile.data.GeoLocation;
+import sv.cmu.edu.weamobile.utility.db.LocationDataSource;
 import sv.cmu.edu.weamobile.views.MainActivity;
 
 
@@ -43,7 +44,8 @@ public class AlertHelper {
     public static void showAlert( Context context,
                                    Alert alert,
                                    GeoLocation location,
-                                   AppConfiguration configuration) {
+                                   AppConfiguration configuration,
+                                    String messageWhyShowingAlert) {
         Logger.log("Its the alert time");
         WEAUtil.showMessageIfInDebugMode(context, "Checking if alert is active");
 
@@ -52,12 +54,11 @@ public class AlertHelper {
             if(location != null){
                 location.setBatteryLevel(WEAUtil.getBatteryLevel(context));
                 state.setLocationWhenShown(location);
+                location.setAdditionalInfo(location.getAdditionalInfo()+ messageWhyShowingAlert);
             }
 
             state.setInPolygonOrAlertNotGeoTargeted(true);
             WEASharedPreferences.saveAlertState(context, state);
-
-           
 
             Intent dialogIntent = new Intent(context, MainActivity.class);
             dialogIntent.putExtra("item_id", String.valueOf(alert.getId()));
@@ -84,19 +85,40 @@ public class AlertHelper {
                 if(tracker.canGetLocation()){
                     if(alert.isGeoFiltering() ){
                         Logger.log("The phone can get location, will check if in target");
-                        tracker.keepLookingForPresenceInPolygonAndShowAlertIfNecessary(context, alert, configuration);
+                        //first check location history
+                        //The code here needs to be refactored for future extension
+                        LocationDataSource dataSource = new LocationDataSource(context);
+                        List<GeoLocation> locations = dataSource.getAllData();
+                        //check history of user locations
+                        //Also predict his future locations
+                        if(WEALocationHelper.areAnyPointsInPolygon(locations, alert.getPolygon())){
+                            String message = "User's location history was found in the alert region, showing alert";
+                            Logger.log(message);
+                            WEAUtil.showMessageIfInDebugMode(context, message);
+                            showAlert(context, alert, tracker.getNetworkGeoLocation(), configuration, message);
+
+                        }else if(WEALocationHelper.areAnyPointsInPolygon2(
+                                WEALocationHelper.getFuturePredictionsOfLatLngs(locations)
+                                , alert.getPolygon())){
+                            String message = "User's predicted location was found in the alert region, showing alert";
+                            Logger.log(message);
+                            WEAUtil.showMessageIfInDebugMode(context, message);
+                            showAlert(context, alert, tracker.getNetworkGeoLocation(), configuration, message);
+                        }else{
+                            tracker.keepLookingForPresenceInPolygonAndShowAlertIfNecessary(context, alert, configuration);
+                        }
                     }else{
-                        String message = "Geo-filtering off, showing alert";
+                        String message = "Geo-filtering is off, showing alert";
                         Logger.log(message);
                         WEAUtil.showMessageIfInDebugMode(context, message);
-                        showAlert(context, alert, tracker.getNetworkGeoLocation(), configuration);
+                        showAlert(context, alert, tracker.getNetworkGeoLocation(), configuration, message);
                     }
                 }else{
                     Logger.log("Location not known");
-                    String message ="GPS location not know, please enable GPS for Geo-filtering.";
+                    String message ="GPS location not know, please enable GPS for Geo-filtering, showing alert";
                     Logger.log(message);
                     WEAUtil.showMessageIfInDebugMode(context, message);
-                    showAlert(context, alert, null, configuration);
+                    showAlert(context, alert, null, configuration, message);
                 }
             }
         }
@@ -133,13 +155,13 @@ public class AlertHelper {
         return  alertStates;
     }
 
-    public static String getFedbackURL( Context context, Alert alert){
+    public static String getFeedbackURL(Context context, Alert alert){
         return Constants.FEEDBACK_URL_ROOT + alert.getId()+
                 "/" +WEAUtil.getIMEI(context);
     }
 
     public static String getContextTextToShow(Alert alert, GeoLocation myLocation) {
-        double distance = WEAPointInPoly.getDistance(alert.getPolygon(), myLocation);
+        double distance = WEALocationHelper.getDistance(alert.getPolygon(), myLocation);
         return "You are at a distance " + String.valueOf(distance).substring(0,3) + " miles";
     }
 

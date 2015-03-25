@@ -5,10 +5,8 @@ package sv.cmu.edu.weamobile.utility.db;
  */
 
 
-import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -16,7 +14,6 @@ import android.util.Log;
 
 import sv.cmu.edu.weamobile.data.Alert;
 import sv.cmu.edu.weamobile.data.AlertState;
-import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.Logger;
 
 /*
@@ -24,10 +21,10 @@ import sv.cmu.edu.weamobile.utility.Logger;
   The onUpgrade() method will simply delete all existing data and re-create the table.
   It also defines several constants for the table name and the table columns.
  */
-public class MySQLiteHelper extends SQLiteOpenHelper {
+public class WEASQLiteHelper extends SQLiteOpenHelper {
 
     //Database Name
-    private static final String DATABASE_NAME = "alerts.db";
+    private static final String DATABASE_NAME = "WEAMobile.db";
 
     //Defining the table Alerts & its columns
     public static final String TABLE_ALERTS = "alerts";
@@ -48,14 +45,12 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     public static final String COLUMN_ALERTSTATE_SCHEDULEDFOR = "scheduledFor";
     public static final String COLUMN_ALERTSTATE_TEXT = "text";
 
-
-
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 5;
 
     /*
             The following create statement creates a table for storing individual properties of the alerts
      */
-    private static final String DATABASE_CREATE = "create table "
+    private static final String ALERT_TABLE_CREATE_SQL = "create table "
             + TABLE_ALERTS + "(" + COLUMN_ID
             + " integer primary key autoincrement, " + COLUMN_TEXT
             + " text, "+ COLUMN_SCHEDULED_FOR
@@ -80,7 +75,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
             +" );";
 
 
-    public MySQLiteHelper(Context context) {
+    public WEASQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
@@ -88,20 +83,24 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase database) {
         Logger.log("MySQLiteHelper","========== MYSQLITE HELPER CREATE =======");
 
-        database.execSQL(DATABASE_CREATE);
+        database.execSQL(ALERT_TABLE_CREATE_SQL);
         Logger.log("MySQLiteHelper"," [ Created table alerts ]");
 
         database.execSQL(DATABASE_CREATE_ALERTSTATE);
         Logger.log("MySQLiteHelper","[ CREATED TABLE ALERTSTATE ]");
+
+        database.execSQL(LocationDataSource.CREATE_LOCATION_TABLE_SQL);
+        Logger.log("MySQLiteHelper","[ CREATED TABLE LOCATION ]");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.w(MySQLiteHelper.class.getName(),
+        Log.w(WEASQLiteHelper.class.getName(),
                 "Upgrading database from version " + oldVersion + " to "
                         + newVersion + ", which will destroy all old data");
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ALERTS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ALERTSTATE);
+        db.execSQL("DROP TABLE IF EXISTS " + LocationDataSource.LOCATION_TABLE);
         onCreate(db);
     }
 
@@ -144,9 +143,6 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
                     updateAlertState(as);
 
                 }
-
-
-
     }
 
     private void insertAlertState(AlertState alertState) {

@@ -44,7 +44,6 @@ import sv.cmu.edu.weamobile.utility.WEATextToSpeech;
 import sv.cmu.edu.weamobile.utility.WEAUtil;
 import sv.cmu.edu.weamobile.utility.WEAVibrator;
 import sv.cmu.edu.weamobile.utility.db.AlertDataSource;
-import sv.cmu.edu.weamobile.utility.db.MySQLiteHelper;
 
 public class MainActivity extends FragmentActivity
         implements AlertListFragment.Callbacks {

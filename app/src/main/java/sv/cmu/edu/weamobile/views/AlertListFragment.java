@@ -105,7 +105,7 @@ public class AlertListFragment extends ListFragment {
                 addItem(alert);
             }
 
-//            for(Alert alert:configuration.getAlerts(getActivity().getApplicationContext())){
+//            for(Alert alert:configuration.getAlerts(getActivityType().getApplicationContext())){
 //                addItem(alert);
 //            }
 

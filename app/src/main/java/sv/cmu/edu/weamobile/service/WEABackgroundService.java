@@ -17,7 +17,9 @@ import java.util.List;
 import sv.cmu.edu.weamobile.data.Alert;
 import sv.cmu.edu.weamobile.data.AlertState;
 import sv.cmu.edu.weamobile.data.AppConfiguration;
+import sv.cmu.edu.weamobile.data.UserActivity;
 import sv.cmu.edu.weamobile.utility.AlertHelper;
+import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.Logger;
 import sv.cmu.edu.weamobile.utility.WEAHttpClient;
 import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
@@ -30,8 +32,10 @@ public class WEABackgroundService extends Service {
 
     private final IBinder mBinder = new LocalBinder();
     private BroadcastReceiver newConfigurationHandler;
-
+    private NewActivityReceiver activityBroadcastReceiver;
     private AlertDataSource alertDataSource = new AlertDataSource(this);
+    private UserActivity lastActivity;
+    private Handler handler;
 
 
     public class LocalBinder extends Binder {
@@ -43,7 +47,7 @@ public class WEABackgroundService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
 
-
+        handler = new Handler();
         Log.d("WEA", "WEABackgroundService started at " + WEAUtil.getTimeStringFromEpoch(System.currentTimeMillis() / 1000) );
         Log.d("WEA", "Service onStart called with "+ intent);
         if(intent == null){
@@ -52,16 +56,34 @@ public class WEABackgroundService extends Service {
             intent.setAction(WEABackgroundService.FETCH_CONFIGURATION);
         }
 
+        registerNewConfigurationReceiver();
+        registerNewActivityReceiver();
+
+        onHandleIntent(intent);
+
+
+        return Service.START_NOT_STICKY;
+    }
+
+    private void registerNewConfigurationReceiver() {
         if(newConfigurationHandler == null){
-            newConfigurationHandler= new NewConfigurationReceiver(new Handler());
+            newConfigurationHandler= new NewConfigurationReceiver(handler);
             LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(newConfigurationHandler,
                     new IntentFilter("new-config-event"));
 
         }
+    }
 
-        onHandleIntent(intent);
+    private void registerNewActivityReceiver() {
+        if (activityBroadcastReceiver == null){
+            activityBroadcastReceiver = new NewActivityReceiver(handler);
 
-        return Service.START_NOT_STICKY;
+            Logger.log("WEA", "New configuration receiver created in main activity");
+            IntentFilter filter = new IntentFilter();
+            filter.addAction("android.intent.action.NEW_ACTIVITY");
+            filter.addCategory(Intent.CATEGORY_DEFAULT);
+            getApplicationContext().registerReceiver(activityBroadcastReceiver, filter);
+        }
     }
 
     protected void onHandleIntent(Intent intent) {
@@ -72,7 +94,7 @@ public class WEABackgroundService extends Service {
                 fetchConfiguration();
             }else if(SHOW_ALERT.equals(action)){
                 int alertId= intent.getIntExtra(("alertId"),-1);
-                AlertHelper.showAlertIfInTargetOrIsNotGeotargeted(getApplicationContext(), alertId);
+                showAlertAfterCheckingOtherConditions(alertId);
             }
         }
         AlarmBroadcastReceiver.completeWakefulIntent(intent);
@@ -83,13 +105,53 @@ public class WEABackgroundService extends Service {
         return mBinder;
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Logger.log("WEABackgroundService onDestroy called");
+
+        if(activityBroadcastReceiver!= null){
+            getApplication().unregisterReceiver(activityBroadcastReceiver);
+            activityBroadcastReceiver = null;
+        }
+
+        if(newConfigurationHandler != null){
+            getApplication().unregisterReceiver(newConfigurationHandler);
+            newConfigurationHandler = null;
+        }
+    }
+
+    private void showAlertAfterCheckingOtherConditions(int alertId) {
+
+        //Get info on UserActivity
+
+//        WEAUtil.getUserActivityInfo(getApplicationContext());
+
+        // Get info on location history
+
+        // Get info on motion i.e. speed and direction
+
+        //Combine the above three info to find if alert is to be shown or not
+
+        AlertHelper.showAlertIfInTargetOrIsNotGeotargeted(getApplicationContext(), alertId);
+    }
+
     private void fetchConfiguration() {
         Log.d("WEA", "Got request to fetch new configuration");
         //read configuration and setup up new alarm
         //if problem in getting/receiving configuration, set default alarm
 
-        WEAHttpClient.getConfigurationAsync(getApplicationContext());
-
+        // Get info on motion i.e. speed and direction
+        //Get info on UserActivity
+        WEAUtil.getUserActivityInfo(getApplicationContext());
+        //wait some time to get user activity, which is added to to the heartbeat
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                WEAUtil.sendHeartBeatAndGetConfigurationAsync(getApplicationContext(),
+                        lastActivity);
+            }
+        }, 1000);
     }
 
     private void addOrUpdatedAlertsStateToSharedPreferences(AppConfiguration configuration) {
@@ -184,6 +246,7 @@ public class WEABackgroundService extends Service {
 
         @Override
         public void onReceive(final Context context, Intent intent) {
+//            ToDo: Move "open, add data and close" to a single function, with exception handling
             // [--- database start -- * has to be here *]
             //create / open the db (important - has to be before anything)
             Logger.log("Opening a connection to the database");
@@ -206,7 +269,7 @@ public class WEABackgroundService extends Service {
 
             AppConfiguration configuration = AppConfiguration.fromJson(json);
 
-            addOrUpdatedAlertsStateToSharedPreferences(configuration); //Save the indiviudal alerts
+            addOrUpdatedAlertsStateToSharedPreferences(configuration); //Save the individual alerts
 
             //---- Database Insertion Trial [db]
             addOrUpdatedAlertsStateToDatabase(configuration);
@@ -221,4 +284,26 @@ public class WEABackgroundService extends Service {
         }
 
     }
+
+    private class NewActivityReceiver extends BroadcastReceiver{
+
+        private final Handler handler;
+
+        public NewActivityReceiver(Handler handler) {
+            this.handler = handler;
+        }
+
+        @Override
+        public void onReceive(Context context, final Intent intent) {
+            if (handler != null) {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        lastActivity = (UserActivity) intent.getSerializableExtra(Constants.ACTIVITY);
+                        Logger.log("BackgroundService received new activity notification " + intent.getStringExtra(Constants.ACTIVITY_TYPE));
+                    }
+                });
+            }
+        }
+    };
 }

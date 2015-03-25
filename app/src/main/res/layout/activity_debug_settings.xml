@@ -14,9 +14,57 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Allow debug messages"
-        android:id="@+id/checkBox"
+        android:id="@+id/checkBoxDebugMessages"
         android:layout_below="@+id/textView"
         android:layout_marginTop="10dp"
         android:layout_alignParentLeft="true" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show Current Activity"
+        android:id="@+id/checkBoxActivityRecognition"
+        android:checked="false"
+        android:layout_below="@+id/chkActivityHistory"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Location history"
+        android:id="@+id/chkLocationHistory"
+        android:checked="false"
+        android:layout_below="@+id/checkBoxDebugMessages"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="___________________"
+        android:id="@+id/txtDebugMessages"
+        android:layout_below="@+id/checkBoxActivityRecognition"
+        android:layout_alignParentLeft="true" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Motion Prediction"
+        android:id="@+id/chkMotion"
+        android:checked="false"
+        android:layout_below="@+id/chkLocationHistory"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Activity History"
+        android:id="@+id/chkActivityHistory"
+        android:checked="false"
+        android:layout_below="@+id/chkMotion"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

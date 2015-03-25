@@ -8,5 +8,6 @@
 .idea/.name
 .idea/misc.xml
 .idea/modules.xml
+app/build.gradle
 app/app.iml
 .idea/

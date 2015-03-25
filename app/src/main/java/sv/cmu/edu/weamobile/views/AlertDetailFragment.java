@@ -1,6 +1,7 @@
 package sv.cmu.edu.weamobile.views;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -21,23 +22,29 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolygonOptions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import sv.cmu.edu.weamobile.R;
 import sv.cmu.edu.weamobile.data.Alert;
 import sv.cmu.edu.weamobile.data.AlertState;
 import sv.cmu.edu.weamobile.data.GeoLocation;
+import sv.cmu.edu.weamobile.data.UserActivity;
 import sv.cmu.edu.weamobile.utility.AlertHelper;
 import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.GPSTracker;
 import sv.cmu.edu.weamobile.utility.Logger;
 import sv.cmu.edu.weamobile.utility.WEAHttpClient;
-import sv.cmu.edu.weamobile.utility.WEAPointInPoly;
+import sv.cmu.edu.weamobile.utility.WEALocationHelper;
 import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
 import sv.cmu.edu.weamobile.utility.WEATextToSpeech;
 import sv.cmu.edu.weamobile.utility.WEAUtil;
 import sv.cmu.edu.weamobile.utility.WEAVibrator;
+import sv.cmu.edu.weamobile.utility.db.LocationDataSource;
 
 
 /**
@@ -166,7 +173,7 @@ public class AlertDetailFragment extends Fragment {
 //            @Override
 //            public void onClick(View v) {
 //                if(textToSpeech!=null) textToSpeech.shutdown();
-//                Intent intent = new Intent(getActivity(), MainActivity.class);
+//                Intent intent = new Intent(getActivityType(), MainActivity.class);
 //                startActivity(intent);
 //            }
 //        });
@@ -232,7 +239,7 @@ public class AlertDetailFragment extends Fragment {
             if (mMap == null) {
                 // Try to obtain the map from the SupportMapFragment.
                 try{
-                    Fragment fragment = getFragmentManager().findFragmentById(R.id.map);
+                    final Fragment fragment = getFragmentManager().findFragmentById(R.id.map);
                     mMap = ((SupportMapFragment) fragment).getMap();
                     // Check if we were successful in obtaining the map.
                     if (mMap != null) {
@@ -242,7 +249,7 @@ public class AlertDetailFragment extends Fragment {
 
                             @Override
                             public void onCameraChange(CameraPosition arg0) {
-                                LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                                final LatLngBounds.Builder builder = new LatLngBounds.Builder();
                                 for (GeoLocation location : alert.getPolygon()) {
                                     builder.include(new LatLng(location.getLatitude(), location.getLongitude()));
                                 }
@@ -257,7 +264,87 @@ public class AlertDetailFragment extends Fragment {
                                 mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 100), 1000, new GoogleMap.CancelableCallback() {
                                     @Override
                                     public void onFinish() {
+                                        Context ctxt = fragment.getActivity().getApplicationContext();
 
+                                        boolean activityHistoryEnabled = WEASharedPreferences.isActivityHistoryEnabled(ctxt);
+
+                                        if(WEASharedPreferences.isLocationHistoryEnabled(ctxt)
+                                                || WEASharedPreferences.isMotionPredictionEnabled(ctxt)
+                                                || activityHistoryEnabled){
+
+                                            LocationDataSource dataSource = new LocationDataSource(ctxt);
+
+                                            List<GeoLocation> historyPoints = dataSource.getAllData();
+
+                                            // Should be >= 3
+                                            int newPointsCount = 6;
+                                            if(historyPoints.size()> newPointsCount){
+                                                List<LatLng> oldPoints = new ArrayList<LatLng>();
+                                                for(int i =0; i< historyPoints.size()- newPointsCount; i++){
+                                                    LatLng latLng = new LatLng(historyPoints.get(i).getLatitude(), historyPoints.get(i).getLongitude());
+                                                    oldPoints.add(latLng);
+
+                                                    if(activityHistoryEnabled){
+                                                        Marker marker = mMap.addMarker(new MarkerOptions()
+                                                                .position(latLng)
+                                                                .title(UserActivity.getFriendlyName(historyPoints.get(i).getActivityType()))
+                                                                .icon(UserActivity.getBitmap(historyPoints.get(i).getActivityType()
+                                                                        , historyPoints.get(i).getSecondaryActivityType())));
+                                                    }
+                                                }
+
+                                                if(WEASharedPreferences.isLocationHistoryEnabled(ctxt)){
+                                                    mMap.addPolygon(new PolygonOptions()
+                                                            .addAll(oldPoints)
+                                                            .strokeColor(Color.BLUE)
+                                                            .strokeWidth(2));
+                                                }
+
+                                                //newer points should be in a different color
+                                                List<LatLng> newPoints = new ArrayList<LatLng>();
+                                                for(int i = historyPoints.size()-newPointsCount; i<historyPoints.size(); i++){
+                                                    LatLng latLng = new LatLng(historyPoints.get(i).getLatitude(), historyPoints.get(i).getLongitude());
+                                                    newPoints.add(latLng);
+
+                                                    Logger.log(historyPoints.get(i).getLatitude() +
+                                                            ", " + historyPoints.get(i).getLongitude());
+
+                                                    if(activityHistoryEnabled){
+                                                        Marker marker = mMap.addMarker(new MarkerOptions()
+                                                                .position(latLng)
+                                                                .title(UserActivity.getFriendlyName(historyPoints.get(i).getActivityType()))
+                                                                .icon(UserActivity.getBitmap(historyPoints.get(i).getActivityType()
+                                                                        , historyPoints.get(i).getSecondaryActivityType())));
+                                                    }
+                                                }
+
+
+                                                mMap.addPolygon(new PolygonOptions()
+                                                        .addAll(newPoints)
+                                                        .strokeColor(Color.YELLOW));
+
+                                                if(WEASharedPreferences.isMotionPredictionEnabled(ctxt)){
+                                                    List<LatLng> futurePoints = WEALocationHelper.getFuturePredictionsOfLatLngs(historyPoints);
+
+                                                    if(futurePoints.size()>0){
+                                                        mMap.addPolygon(new PolygonOptions()
+                                                                .addAll(futurePoints)
+                                                                .strokeColor(Color.GREEN));
+
+                                                        Logger.log("Added future points on the map, count:" + futurePoints.size());
+                                                    }else{
+                                                        Toast.makeText(getActivity(), "Looks like you are still, so no future locations", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }
+
+                                                WEAUtil.showMessageIfInDebugMode(ctxt, "No of history points in database : " + historyPoints.size());
+                                                Logger.log("Adding history points on the map,  count of points: "+ historyPoints.size());
+
+                                            }else{
+                                                WEAUtil.showMessageIfInDebugMode(ctxt, "No of history points in database : "+ historyPoints.size());
+                                                Logger.log("Adding 000 i.e. zero history points on the map, no points in database");
+                                            }
+                                        }
                                     }
 
                                     @Override
@@ -285,6 +372,11 @@ public class AlertDetailFragment extends Fragment {
         mMap.clear();
 //        mMap.setMyLocationEnabled(true);
 
+        addUserLocationWhenAlertWasFirstShown();
+        drawPolygon();
+    }
+
+    private void addUserLocationWhenAlertWasFirstShown() {
         if(myLocation != null){
 
             if(alertState != null && alertState.getLocationWhenShown() != null){
@@ -298,40 +390,50 @@ public class AlertDetailFragment extends Fragment {
                         .title("Your location"));
             }
         }
-        drawPolygon();
     }
 
     private void drawPolygon(){
-        if(mMap!=null && alert.isGeoFiltering()){
-            PolygonOptions polyOptions = new PolygonOptions()
-                    .strokeColor(Color.RED);
+        try{
+            if(mMap!=null){
+                PolygonOptions polyOptions = new PolygonOptions()
+                        .strokeColor(Color.RED);
 
-            GeoLocation[] locations = alert.getPolygon();
-            for(GeoLocation location:locations){
-                polyOptions.add(new LatLng(Double.parseDouble(location.getLat()), Double.parseDouble(location.getLng())));
+                GeoLocation[] locations = alert.getPolygon();
+
+                if(locations != null & locations.length>2){
+                    for(GeoLocation location:locations){
+                        polyOptions.add(new LatLng(Double.parseDouble(location.getLat()), Double.parseDouble(location.getLng())));
+                    }
+
+                    mMap.addPolygon(polyOptions);
+                    setCenter();
+                }
             }
-
-            mMap.addPolygon(polyOptions);
-            setCenter();
+        }catch(Exception ex){
+            Logger.log(ex.getMessage());
         }
     }
 
     private void setCenter(){
 
-        if(alert.getPolygon() != null){
+        try{
+            if(alert.getPolygon() != null){
 
-            double [] centerLocation = WEAPointInPoly.calculatePolyCenter(alert.getPolygon());
+                double [] centerLocation = WEALocationHelper.calculatePolyCenter(alert.getPolygon());
 
-            CameraUpdate center=
-                    CameraUpdateFactory.newLatLng(new LatLng(centerLocation[0], centerLocation[1]));
+                CameraUpdate center=
+                        CameraUpdateFactory.newLatLng(new LatLng(centerLocation[0], centerLocation[1]));
 
-            mMap.moveCamera(center);
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(12));
-        }else{
-            CameraUpdate zoom=CameraUpdateFactory.zoomTo(17);
-            mMap.animateCamera(zoom);
+                mMap.moveCamera(center);
+                mMap.animateCamera(CameraUpdateFactory.zoomTo(12));
+            }else{
+                CameraUpdate zoom=CameraUpdateFactory.zoomTo(17);
+                mMap.animateCamera(zoom);
+            }
+
+        }catch(Exception ex){
+            Logger.log(ex.getMessage());
         }
-
     }
 
     public void shutdownSpeech() {

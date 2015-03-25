@@ -21,6 +21,8 @@ public class WEAVibrator{
     }
 
     public void stop(){
-        vibrator.cancel();
+        if(vibrator != null){
+            vibrator.cancel();
+        }
     }
 }

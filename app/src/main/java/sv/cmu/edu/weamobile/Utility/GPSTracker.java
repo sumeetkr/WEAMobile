@@ -201,16 +201,16 @@ public class GPSTracker extends Service implements LocationListener {
             GeoLocation geoLocation = new GeoLocation(Double.toString(location.getLatitude()),Double.toString(location.getLongitude()), location.getAccuracy());
             if(alert != null && configuration != null){
                 String message= "Got GPS update";
-                if(geoLocation == null || WEAPointInPoly.isInPolygon(geoLocation, alert.getPolygon())){
+                if(geoLocation == null || WEALocationHelper.isInPolygon(geoLocation, alert.getPolygon())){
                     message = "Present in polygon or location not known, will show alert";
-                    AlertHelper.showAlert(mContext, alert, geoLocation, configuration);
+                    AlertHelper.showAlert(mContext, alert, geoLocation, configuration, message);
                     stopUsingGPS();
-                }else if(WEAPointInPoly.getDistance(alert.getPolygon(), geoLocation) < 0.1){
+                }else if(WEALocationHelper.getDistance(alert.getPolygon(), geoLocation) < 0.1){
                     noOfTimesToCheck = 60;
                     message ="Alert Time!! You are close, but not inside the polygon, remaining times to check "
                             + (noOfTimesToCheck -countOfUpdates + 1);
 
-                }else if(WEAPointInPoly.getDistance(alert.getPolygon(), geoLocation) < 0.2){
+                }else if(WEALocationHelper.getDistance(alert.getPolygon(), geoLocation) < 0.2){
                     noOfTimesToCheck = 20;
                     message ="Alert Time!! You are close, but not inside the polygon, remaining times to check "
                             + (noOfTimesToCheck -countOfUpdates +1);

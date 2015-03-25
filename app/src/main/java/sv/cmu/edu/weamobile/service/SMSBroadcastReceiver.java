@@ -8,7 +8,7 @@ import android.telephony.SmsMessage;
 import android.util.Log;
 
 import sv.cmu.edu.weamobile.utility.Constants;
-import sv.cmu.edu.weamobile.utility.WEAHttpClient;
+import sv.cmu.edu.weamobile.utility.WEAUtil;
 
 public class SMSBroadcastReceiver extends BroadcastReceiver {
     public SMSBroadcastReceiver() {
@@ -66,7 +66,7 @@ public class SMSBroadcastReceiver extends BroadcastReceiver {
                 Integer start_index = messageReceived.indexOf(Constants.SMS_CODE_FOR_WEA_MESSAGES);
                 Log.w("smsreceiver", "Raw message: " + messageReceived.replace("\n", "").replace("  ", ""));
                 if (start_index != -1) {
-                    WEAHttpClient.getConfigurationAsync(context);
+                    WEAUtil.sendHeartBeatAndGetConfigurationAsync(context);
 //                    String meaningful_part = messageReceived.substring(start_index);
 //                    process_meaningful_part(context, meaningful_part);
                 }
