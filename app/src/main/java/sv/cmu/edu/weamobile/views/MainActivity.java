@@ -404,8 +404,6 @@ public class MainActivity extends FragmentActivity
             // In single-pane mode, simply start the detail activity
             // for the selected item ID.
             //if without map, show dialog
-
-
             Alert alert = AlertHelper.getAlertFromId(
                     getApplicationContext(),
                     id);

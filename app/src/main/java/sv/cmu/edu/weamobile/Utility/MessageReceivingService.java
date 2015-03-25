@@ -17,7 +17,26 @@ import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.StatusLine;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
+
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import sv.cmu.edu.weamobile.R;
 import sv.cmu.edu.weamobile.views.MainActivity;
@@ -30,6 +49,9 @@ import sv.cmu.edu.weamobile.views.MainActivity;
 public class MessageReceivingService extends Service {
     private GoogleCloudMessaging gcm;
     public static SharedPreferences savedValues;
+
+    //Staging Registration URL : Registers an endpoint for Amazon SNS through this server.
+    public static String SERVER_REGISTRATION_URL = "http://wea.herokuapp.com/wea/api/registration/android";
 
     public static void sendToApp(Bundle extras, Context context){
 
@@ -113,7 +135,10 @@ public class MessageReceivingService extends Service {
                     Log.e("REGISTRATION ID", token);
                     //now register the endpoint
 
-                    AWSHelperUtility.createEndpoint(token);
+                    //------ if you want to bypass the server mechanism and register an endpoint yourself you would
+                    //------ uncomment the following line.
+                    //AWSHelperUtility.createEndpoint(token);
+                    askServerToRegister(token);
                 } 
                 catch (IOException e) {
                     Log.i("Registration Error", e.getMessage());
@@ -123,8 +148,85 @@ public class MessageReceivingService extends Service {
         }.execute(null, null, null);
     }
 
+    private void askServerToRegister(String token) {
+
+                HashMap hm = new HashMap();
+                hm.put("token",token);
+
+                AsyncHttpPost aTask = new AsyncHttpPost(hm);
+                aTask.execute(SERVER_REGISTRATION_URL);
+    }
+
     public IBinder onBind(Intent arg0) {
         return null;
+    }
+
+    class AsyncHttpPost extends AsyncTask<String, String, String> {
+        private HashMap<String, String> mData = null;// post data
+
+        /**
+         * constructor
+         */
+        public AsyncHttpPost(HashMap<String, String> data) {
+            mData = data;
+        }
+
+        /**
+         * background
+         */
+        @Override
+        protected String doInBackground(String... params) {
+            Log.i("ASYNCTASK","Registering token with server");
+
+            byte[] result = null;
+            String str = "";
+            HttpClient client = new DefaultHttpClient();
+            HttpPost post = new HttpPost(params[0]);// in this case, params[0] is URL
+
+            //Set header
+            post.setHeader(HTTP.CONTENT_TYPE,
+                    "application/json");
+
+            try {
+                // set up post data
+                JSONObject json = new JSONObject(mData);
+
+                StringEntity se = new StringEntity(json.toString());
+                se.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+                post.setEntity(se);
+
+
+                HttpResponse response = client.execute(post);
+                StatusLine statusLine = response.getStatusLine();
+
+                if(statusLine.getStatusCode() == HttpURLConnection.HTTP_INTERNAL_ERROR) {
+                    Log.e("INTERNAL ERROR: 500", Integer.toString(statusLine.getStatusCode()));
+                    result = EntityUtils.toByteArray(response.getEntity());
+                    str = new String(result, "UTF-8");
+                    Log.e("INTERNAL ERROR: 500: " ,"STRING"+ str);
+                }
+
+                if(statusLine.getStatusCode() == HttpURLConnection.HTTP_OK){
+                    result = EntityUtils.toByteArray(response.getEntity());
+                    str = new String(result, "UTF-8");
+                }
+            }
+            catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            catch (Exception e) {
+            }
+            return str;
+        }
+
+        /**
+         * on getting result
+         */
+        @Override
+        protected void onPostExecute(String result) {
+            // something...
+            Log.e("RESULT",result);
+        }
     }
 
 }

@@ -27,37 +27,30 @@ import sv.cmu.edu.weamobile.R;
 public class AWSHelperUtility {
 
     //Constants
+
+    /* Constants for Harsh
     public static String IDENTITY_POOL_ID="us-east-1:d165f78e-74d2-49c9-91f2-dc27c6c45125";
     public static String GCM_PROJECT_NUMBER = "258636788597";
     public static String AWS_ACCESS_ID = "AKIAI3DKVXUUFFLKGF2Q";
     public static String AWS_ACCESS_SECRET = "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";
     public static String AWS_ARN = "arn:aws:sns:us-east-1:198769273005:app/GCM/weamobile";
     public static String AWS_TOPIC_ARN = "arn:aws:sns:us-east-1:198769273005:weamobile";
+    */
 
 
-    //Private Variables
-    private CognitoCachingCredentialsProvider credentialsProvider;
-
-    // Step 1: Initialize the Amazon Cognito credentials provider
-    public void initCognito(Context context)
-    {
-
-        credentialsProvider = new CognitoCachingCredentialsProvider(
-                context, // Context
-                IDENTITY_POOL_ID, // Identity Pool ID
-                Regions.US_EAST_1 // Region
-        );
-
-        //debug
-        Log.d("LogTag", "my ID is " + credentialsProvider.getIdentityId());
-    }
-
+    //these Id's are given by Joel Krebs.
+    public static String GCM_PROJECT_NUMBER = "258636788597";
+    public static String AWS_ACCESS_ID = "AKIAJL4WANOABODPZYYA";
+    public static String AWS_ACCESS_SECRET = "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";
+    public static String AWS_ARN = "arn:aws:sns:us-east-1:639742306000:app/GCM/WEA";
+    public static String AWS_TOPIC_ARN = "arn:aws:sns:us-east-1:639742306000:WEA_ALERTS";
 
     /*
         This function registers an Endpoint with Amazon AWS automatically through a access key and secret key
         You can change the above (You probably want a better auth system than giving direct access to aws creds)
         You would also want to subscribe to a topic.
      */
+
     public static void createEndpoint(String registrationId)
     {
         Log.i("DEBUG_ARN","Creating Endpoint");
@@ -97,6 +90,8 @@ public class AWSHelperUtility {
 
 
     }
+
+
 
 
 
