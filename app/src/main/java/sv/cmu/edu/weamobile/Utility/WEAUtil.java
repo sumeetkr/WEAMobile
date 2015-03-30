@@ -160,7 +160,7 @@ public class WEAUtil {
         finally{
             try{
                 if(tracker != null) tracker.stopUsingGPS();
-                WEAHttpClient.sendHeartbeat(location.getJson(), context, Constants.URL_TO_GET_CONFIGURATION + WEAUtil.getIMEI(context));
+                WEAHttpClient.sendHeartbeat(location.getJson(), context, Constants.URL_TO_GET_CONFIGURATION + WEASharedPreferences.getStringProperty(context,"phone_id"));
                 LocationDataSource dataSource = new LocationDataSource(context);
 
                 //TODO: Need to move it at right location

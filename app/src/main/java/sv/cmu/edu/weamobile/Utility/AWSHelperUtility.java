@@ -39,7 +39,7 @@ public class AWSHelperUtility {
 
 
     //these Id's are given by Joel Krebs.
-    public static String GCM_PROJECT_NUMBER = "258636788597";
+    public static String GCM_PROJECT_NUMBER = "842017813674";
     public static String AWS_ACCESS_ID = "AKIAJL4WANOABODPZYYA";
     public static String AWS_ACCESS_SECRET = "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";
     public static String AWS_ARN = "arn:aws:sns:us-east-1:639742306000:app/GCM/WEA";

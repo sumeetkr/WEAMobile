@@ -51,7 +51,7 @@ public class MessageReceivingService extends Service {
     public static SharedPreferences savedValues;
 
     //Staging Registration URL : Registers an endpoint for Amazon SNS through this server.
-    public static String SERVER_REGISTRATION_URL = "http://wea.herokuapp.com/wea/api/registration/android";
+    public static String SERVER_REGISTRATION_URL = "http://wea-stage.herokuapp.com/wea/api/registration/android";
 
     public static void sendToApp(Bundle extras, Context context){
 
@@ -81,7 +81,9 @@ public class MessageReceivingService extends Service {
         gcm = GoogleCloudMessaging.getInstance(getBaseContext());
         SharedPreferences savedValues = PreferenceManager.getDefaultSharedPreferences(this);
         if(savedValues.getBoolean(getString(R.string.first_launch), true)){
+            //On the first launch: Register the application with the Server:
             register();
+
             SharedPreferences.Editor editor = savedValues.edit();
             editor.putBoolean(getString(R.string.first_launch), false);
             editor.commit();
@@ -131,7 +133,7 @@ public class MessageReceivingService extends Service {
                 String token;
                 try {
                     token = gcm.register(AWSHelperUtility.GCM_PROJECT_NUMBER);
-                    Log.i("registrationId", token);
+
                     Log.e("REGISTRATION ID", token);
                     //now register the endpoint
 
@@ -152,9 +154,9 @@ public class MessageReceivingService extends Service {
 
                 HashMap hm = new HashMap();
                 hm.put("token",token);
-
-                AsyncHttpPost aTask = new AsyncHttpPost(hm);
+                AsyncHttpPost aTask = new AsyncHttpPost(hm,this);
                 aTask.execute(SERVER_REGISTRATION_URL);
+
     }
 
     public IBinder onBind(Intent arg0) {
@@ -163,12 +165,16 @@ public class MessageReceivingService extends Service {
 
     class AsyncHttpPost extends AsyncTask<String, String, String> {
         private HashMap<String, String> mData = null;// post data
+        private Context mContext;
+
 
         /**
          * constructor
          */
-        public AsyncHttpPost(HashMap<String, String> data) {
+        public AsyncHttpPost(HashMap<String, String> data, Context c) {
+
             mData = data;
+            mContext = c;
         }
 
         /**
@@ -209,7 +215,21 @@ public class MessageReceivingService extends Service {
                 if(statusLine.getStatusCode() == HttpURLConnection.HTTP_OK){
                     result = EntityUtils.toByteArray(response.getEntity());
                     str = new String(result, "UTF-8");
+
                 }
+                String responseBody = EntityUtils.toString(response.getEntity());
+
+                //From the Response Parse JSON
+                Log.e("RESPONSE_RETURNED:",responseBody);
+
+                //Convert to JSON Object
+                JSONObject json_response = new JSONObject(responseBody);
+                String id = json_response.getString("message");
+
+
+                WEASharedPreferences.setStringProperty(mContext,"phone_id",id);
+
+
             }
             catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
@@ -226,6 +246,7 @@ public class MessageReceivingService extends Service {
         protected void onPostExecute(String result) {
             // something...
             Log.e("RESULT",result);
+
         }
     }
 
