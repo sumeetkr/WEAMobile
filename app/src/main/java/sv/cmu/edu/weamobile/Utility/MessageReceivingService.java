@@ -226,8 +226,10 @@ public class MessageReceivingService extends Service {
                 JSONObject json_response = new JSONObject(responseBody);
                 String id = json_response.getString("message");
 
+                //Here's where the server sends back a phone id which can be retrieved later for the hearbeat
 
                 WEASharedPreferences.setStringProperty(mContext,"phone_id",id);
+                Log.i("PHONE_ID","======= PHONE ID ======== >>> "+id);
 
 
             }
