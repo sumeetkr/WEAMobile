@@ -53,10 +53,10 @@ public class MessageReceivingService extends Service {
     //Staging Registration URL : Registers an endpoint for Amazon SNS through this server.
     public static String SERVER_REGISTRATION_URL = "http://wea-stage.herokuapp.com/wea/api/registration/android";
 
+    /*
+     * Amazon Provided Method to send the notification to the app via intent / or trigger the app.
+     */
     public static void sendToApp(Bundle extras, Context context){
-
-
-            Log.e("SEND_TO_APP","SendToApp Method Executed. Not in foreground.");
            if (extras.containsKey("default"))
            {
                 Intent newIntent = new Intent();
@@ -70,8 +70,12 @@ public class MessageReceivingService extends Service {
     }
 
     public void onCreate(){
-        super.onCreate();
+
         Log.e("DEBUG", "Message Receiving service created");
+
+        super.onCreate();
+
+        //Get Shared Preferences.
         final String preferences = getString(R.string.preferences);
         savedValues = getSharedPreferences(preferences, Context.MODE_PRIVATE);
         // In later versions multi_process is no longer the default
@@ -80,10 +84,15 @@ public class MessageReceivingService extends Service {
         }
         gcm = GoogleCloudMessaging.getInstance(getBaseContext());
         SharedPreferences savedValues = PreferenceManager.getDefaultSharedPreferences(this);
+        /*
+            First Launch : These functions get executed only on the first Launch of your app.
+            Remember to restart on making any changes.
+         */
         if(savedValues.getBoolean(getString(R.string.first_launch), true)){
             //On the first launch: Register the application with the Server:
             register();
 
+            //Write out that we have done a first launch.
             SharedPreferences.Editor editor = savedValues.edit();
             editor.putBoolean(getString(R.string.first_launch), false);
             editor.commit();
@@ -96,7 +105,11 @@ public class MessageReceivingService extends Service {
         sendToApp(new Bundle(), this);
     }
 
+    /*
+            Amazon Provided method that saves the method to the shared prefs.
+     */
     protected static void saveToLog(Bundle extras, Context context){
+
         SharedPreferences.Editor editor=savedValues.edit();
         String numOfMissedMessages = context.getString(R.string.num_of_missed_messages);
         int linesOfMessageCount = 0;
@@ -112,6 +125,10 @@ public class MessageReceivingService extends Service {
         postNotification(new Intent(context, MainActivity.class), context, extras.getString("default"));
     }
 
+   /*
+    * This function just posts an Android Style Notification in the title bar at the top.
+    * Currently no intent is attached on opening it.
+    */
     protected static void postNotification(Intent intentAction, Context context, String message){
         final NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -126,6 +143,9 @@ public class MessageReceivingService extends Service {
         mNotificationManager.notify(R.string.notification_number, notification);
     }
 
+    /*
+        This is where the bulk of the registration process happens.
+     */
     private void register() {
         Log.e("DEBUG", "Register Executed.");
         new AsyncTask(){
@@ -134,12 +154,15 @@ public class MessageReceivingService extends Service {
                 try {
                     token = gcm.register(AWSHelperUtility.GCM_PROJECT_NUMBER);
 
+                    //This will print out the token or the unique registration id.
                     Log.e("REGISTRATION ID", token);
                     //now register the endpoint
 
-                    //------ if you want to bypass the server mechanism and register an endpoint yourself you would
-                    //------ uncomment the following line.
+                    //If you want to bypass Joao's server and create an endpoint yourself on AWS:
+                    //Uncomment the following:
                     //AWSHelperUtility.createEndpoint(token);
+
+                    //Ask the wea server to register the token and send us back an id.
                     askServerToRegister(token);
                 } 
                 catch (IOException e) {
@@ -150,10 +173,16 @@ public class MessageReceivingService extends Service {
         }.execute(null, null, null);
     }
 
+    /*
+            Takes the token provided, sends it to the WEA Server via
+            AsyncHTTPPost Task.
+     */
     private void askServerToRegister(String token) {
 
+                //Hashmap is for a parameter list to be passed.
                 HashMap hm = new HashMap();
                 hm.put("token",token);
+
                 AsyncHttpPost aTask = new AsyncHttpPost(hm,this);
                 aTask.execute(SERVER_REGISTRATION_URL);
 
@@ -163,6 +192,9 @@ public class MessageReceivingService extends Service {
         return null;
     }
 
+    /*
+            AsyncTask for creating Post Calls.
+     */
     class AsyncHttpPost extends AsyncTask<String, String, String> {
         private HashMap<String, String> mData = null;// post data
         private Context mContext;
@@ -226,9 +258,14 @@ public class MessageReceivingService extends Service {
                 JSONObject json_response = new JSONObject(responseBody);
                 String id = json_response.getString("message");
 
-                //Here's where the server sends back a phone id which can be retrieved later for the hearbeat
-
+                //tags : [phone_id,registration_id]
+                //Here's where the server sends back a phone id which can be retrieved later for the heartbeat
                 WEASharedPreferences.setStringProperty(mContext,"phone_id",id);
+
+                // Note : Since this is an asynctask there's no guarantee that it will be called before
+                // the hearbeat call and so the first sync might not be able to connect, but subsequent
+                // calls should be fine. *need to test*
+
                 Log.i("PHONE_ID","======= PHONE ID ======== >>> "+id);
 
 
