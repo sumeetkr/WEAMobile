@@ -142,6 +142,8 @@ public class Alert {
     private boolean isPhoneExpectedToVibrate;
     private boolean isTextToSpeechExpected;
     private boolean geoFiltering;
+    private boolean historyBasedFiltering;
+    private boolean motionPredictionBasedFiltering;
 
     public int getId() {
         return id;
@@ -317,4 +319,19 @@ public class Alert {
         return jsonString;
     }
 
+    public boolean isHistoryBasedFiltering() {
+        return historyBasedFiltering;
+    }
+
+    public void setHistoryBasedFiltering(boolean historyBasedFiltering) {
+        this.historyBasedFiltering = historyBasedFiltering;
+    }
+
+    public boolean isMotionPredictionBasedFiltering() {
+        return motionPredictionBasedFiltering;
+    }
+
+    public void setMotionPredictionBasedFiltering(boolean motionPredictionBasedFiltering) {
+        this.motionPredictionBasedFiltering = motionPredictionBasedFiltering;
+    }
 }
