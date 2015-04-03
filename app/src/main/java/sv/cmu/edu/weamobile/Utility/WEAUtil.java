@@ -168,20 +168,20 @@ public class WEAUtil {
                 if(tracker != null) tracker.stopUsingGPS();
 
                 String phoneId = WEASharedPreferences.getStringProperty(context,Constants.PHONE_ID);
+                String token = WEASharedPreferences.getStringProperty(context, Constants.PHONE_TOKEN);
 
-                if(phoneId!= null && !phoneId.isEmpty()){
+                if(phoneId!= null && !phoneId.isEmpty() && token!= null && !token.isEmpty()){
+
                     WEAHttpClient.sendHeartbeat(location.getJson(), context, Constants.URL_TO_GET_CONFIGURATION +phoneId );
-                    LocationDataSource dataSource = new LocationDataSource(context);
 
                     //TODO: Need to move it at right location
+                    LocationDataSource dataSource = new LocationDataSource(context);
                     dataSource.insertData(location);
 
                 }else{
-                    //ToDO: Need to rethink about the below code
-                    //probably phone is not registered, messaging service creation will do that
+                    //probably phone is not registered, do it now
                     WEAHttpClient.registerPhoneAync(context);
                 }
-
             }catch (Exception ex){
                 Logger.log(ex.getMessage());
             }

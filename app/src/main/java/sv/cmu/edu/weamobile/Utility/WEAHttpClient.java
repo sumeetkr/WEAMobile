@@ -230,6 +230,7 @@ public class WEAHttpClient {
                         token = gcm.register(AWSHelperUtility.GCM_PROJECT_NUMBER);
 
                         if(token!= null && !token.isEmpty()){
+                            Logger.log("Got new token");
                             WEASharedPreferences.setStringProperty(context, Constants.PHONE_TOKEN, token);
                         }
                         else
@@ -242,45 +243,49 @@ public class WEAHttpClient {
                     }
                     Logger.log(token);
 
-                    HashMap hm = new HashMap();
-                    hm.put("token",token);
-                    JSONObject json = new JSONObject(hm);
-                    StringEntity entity = new StringEntity(json.toString());
+                    String phoneId = WEASharedPreferences.getStringProperty(context, Constants.PHONE_ID);
 
-                    Logger.log("send alert state ", server_url);
-                    AsyncHttpClient client = new AsyncHttpClient();
+                    if(phoneId != null && !phoneId.isEmpty()){
+                        HashMap hm = new HashMap();
+                        hm.put("token",token);
+                        JSONObject json = new JSONObject(hm);
+                        StringEntity entity = new StringEntity(json.toString());
 
-                    client.post(context, server_url, entity, "application/json", new AsyncHttpResponseHandler() {
-                        @Override
-                        public void onSuccess(String response) {
-                            Logger.log("WEA sending alert state", "Success - ");
-                            JSONObject json_response = null;
-                            try {
-                                json_response = new JSONObject(response);
-                                String id = json_response.getString("message");
+                        Logger.log("Registering phone ", server_url);
+                        AsyncHttpClient client = new AsyncHttpClient();
 
-                                //tags : [phone_id,registration_id]
-                                //Here's where the server sends back a phone id which can be retrieved later for the heartbeat
-                                if(id!= null && !id.isEmpty()){
-                                    WEASharedPreferences.setStringProperty(context, Constants.PHONE_ID, id);
+                        client.post(context, server_url, entity, "application/json", new AsyncHttpResponseHandler() {
+                            @Override
+                            public void onSuccess(String response) {
+                                Logger.log("WEA sending alert state", "Success - ");
+                                JSONObject json_response = null;
+                                try {
+                                    json_response = new JSONObject(response);
+                                    String id = json_response.getString("message");
+
+                                    //tags : [phone_id,registration_id]
+                                    //Here's where the server sends back a phone id which can be retrieved later for the heartbeat
+                                    if(id!= null && !id.isEmpty()){
+                                        WEASharedPreferences.setStringProperty(context, Constants.PHONE_ID, id);
+                                    }
+
+                                    // Note : Since this is an asynctask there's no guarantee that it will be called before
+                                    // the hearbeat call and so the first sync might not be able to connect, but subsequent
+                                    // calls should be fine. *need to test*
+
+                                    Logger.log("PHONE_ID","======= PHONE ID ======== >>> "+id);
+                                } catch (JSONException e) {
+                                    Logger.log(e.getMessage());
                                 }
-
-                                // Note : Since this is an asynctask there's no guarantee that it will be called before
-                                // the hearbeat call and so the first sync might not be able to connect, but subsequent
-                                // calls should be fine. *need to test*
-
-                                Logger.log("PHONE_ID","======= PHONE ID ======== >>> "+id);
-                            } catch (JSONException e) {
-                                Logger.log(e.getMessage());
                             }
-                        }
 
-                        @Override
-                        public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
+                            @Override
+                            public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
 
-                            Log.w("WEA sending alert state", "Failure in sending - " + "Status code -" + statusCode + " Error response -" + errorResponse);
-                        }
-                    });
+                                Log.w("WEA sending alert state", "Failure in sending - " + "Status code -" + statusCode + " Error response -" + errorResponse);
+                            }
+                        });
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

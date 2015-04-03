@@ -3,13 +3,11 @@ package sv.cmu.edu.weamobile.views;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
@@ -33,11 +31,9 @@ import sv.cmu.edu.weamobile.data.AppConfiguration;
 import sv.cmu.edu.weamobile.service.WEAAlarmManager;
 import sv.cmu.edu.weamobile.service.WEABackgroundService;
 import sv.cmu.edu.weamobile.service.WEANewConfigurationIntent;
-import sv.cmu.edu.weamobile.utility.AWSHelperUtility;
 import sv.cmu.edu.weamobile.utility.AlertHelper;
 import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.Logger;
-import sv.cmu.edu.weamobile.utility.MessageReceivingService;
 import sv.cmu.edu.weamobile.utility.WEAHttpClient;
 import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
 import sv.cmu.edu.weamobile.utility.WEATextToSpeech;
@@ -69,9 +65,10 @@ public class MainActivity extends FragmentActivity
 
     //Amazon AWS
     // Since this activity is SingleTop, there can only ever be one instance. This variable corresponds to this instance.
-    public static Boolean inBackground = true;
-    private SharedPreferences savedValues;
-    private String numOfMissedMessages;
+    //
+    //    public static Boolean inBackground = true;
+    //    private SharedPreferences savedValues;
+    //    private String numOfMissedMessages;
 
 
     @Override
@@ -109,29 +106,24 @@ public class MainActivity extends FragmentActivity
 
         registerNewConfigurationReceiver();
         if(getIntent().getAction()!= null && getIntent().getAction() == "android.intent.action.MAIN"){
+
             Logger.log("scheduling alarm");
             WEAAlarmManager.setupRepeatingAlarmToWakeUpApplicationToFetchConfiguration(
                     this.getApplicationContext(),
                     Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES * 60 * 1000);
 
             // Register phone if not registered
-            Logger.log("Registering device");
-            String phoneId = WEASharedPreferences.getStringProperty(getApplicationContext(),Constants.PHONE_ID);
-            String token = WEASharedPreferences.getStringProperty(getApplicationContext(), Constants.PHONE_TOKEN);
-            if(phoneId== null || token == null || (phoneId!= null && phoneId.isEmpty()) || (token!= null && token.isEmpty())){
-                WEAHttpClient.registerPhoneAync(getApplicationContext());
-            }
+//            Logger.log("Registering device");
+//            String phoneId = WEASharedPreferences.getStringProperty(getApplicationContext(),Constants.PHONE_ID);
+//            String token = WEASharedPreferences.getStringProperty(getApplicationContext(), Constants.PHONE_TOKEN);
+//            if(phoneId== null || token == null || (phoneId!= null && phoneId.isEmpty()) || (token!= null && token.isEmpty())){
+//                WEAHttpClient.registerPhoneAync(getApplicationContext());
+//            }
 
         }
 
         WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
                 "Reached onCreate of main view");
-
-        //register the amazon aws client
-        if (isMyServiceRunning(MessageReceivingService.class) == false) {
-            startService(new Intent(this, MessageReceivingService.class));
-        }
-
     }
 
     //To  check if your service is running
@@ -148,7 +140,6 @@ public class MainActivity extends FragmentActivity
 
     public void onStop(){
         super.onStop();
-        inBackground = true;
     }
 
     private void setSwitchEvents() {
@@ -307,7 +298,7 @@ public class MainActivity extends FragmentActivity
 
     @Override
     protected void onDestroy(){
-        inBackground = true;
+//        inBackground = true;
         WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
                 "Called onDestroy of main view");
         if(newAlertReciver!= null){
@@ -421,59 +412,59 @@ public class MainActivity extends FragmentActivity
         }
     }
 
-    private void showNotification() {
-        //amazon
-        getActionBar().setIcon(R.drawable.ic_emergency);
-        inBackground = false;
-        savedValues = MessageReceivingService.savedValues;
-        int numOfMissedMessages = 0;
-        if(savedValues != null){
-            numOfMissedMessages = savedValues.getInt(this.numOfMissedMessages, 0);
-        }
-        String newMessage = getMessage(numOfMissedMessages);
-        if(newMessage!=""){
-            Log.i("displaying message", newMessage);
-            Log.i("TEXTVIEW",newMessage);
-            if (newMessage.contains("default")) {
-                AWSHelperUtility.showNotification(this, "New Alert", newMessage);
-            }
-        }
-    }
+//    private void showNotification() {
+//        //amazon
+//        getActionBar().setIcon(R.drawable.ic_emergency);
+//        inBackground = false;
+//        savedValues = MessageReceivingService.savedValues;
+//        int numOfMissedMessages = 0;
+//        if(savedValues != null){
+//            numOfMissedMessages = savedValues.getInt(this.numOfMissedMessages, 0);
+//        }
+//        String newMessage = getMessage(numOfMissedMessages);
+//        if(newMessage!=""){
+//            Log.i("displaying message", newMessage);
+//            Log.i("TEXTVIEW",newMessage);
+//            if (newMessage.contains("default")) {
+//                AWSHelperUtility.showNotification(this, "New Alert", newMessage);
+//            }
+//        }
+//    }
 
     // If messages have been missed, check the backlog. Otherwise check the current intent for a new message.
-    private String getMessage(int numOfMissedMessages) {
-        String message = "";
-        String linesOfMessageCount = getString(R.string.lines_of_message_count);
-        if(numOfMissedMessages > 0){
-            String plural = numOfMissedMessages > 1 ? "s" : "";
-            Log.i("onResume","missed " + numOfMissedMessages + " message" + plural);
-            //Log.i("TEXTVIEW","You missed " + numOfMissedMessages +" message" + plural + ". Your most recent was:\n");
-            for(int i = 0; i < savedValues.getInt(linesOfMessageCount, 0); i++){
-                String line = savedValues.getString("MessageLine"+i, "");
-                message+= (line + "\n");
-            }
-            NotificationManager mNotification = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            mNotification.cancel(R.string.notification_number);
-            SharedPreferences.Editor editor=savedValues.edit();
-            editor.putInt(this.numOfMissedMessages, 0);
-            editor.putInt(linesOfMessageCount, 0);
-            editor.commit();
-        }
-        else{
-            Log.i("onResume","no missed messages");
-            Intent intent = getIntent();
-            if(intent!=null){
-                Bundle extras = intent.getExtras();
-                if(extras!=null){
-                    for(String key: extras.keySet()){
-                        message+= key + "=" + extras.getString(key) + "\n";
-                    }
-                }
-            }
-        }
-        message+="\n";
-        return message;
-    }
+//    private String getMessage(int numOfMissedMessages) {
+//        String message = "";
+//        String linesOfMessageCount = getString(R.string.lines_of_message_count);
+//        if(numOfMissedMessages > 0){
+//            String plural = numOfMissedMessages > 1 ? "s" : "";
+//            Log.i("onResume","missed " + numOfMissedMessages + " message" + plural);
+//            //Log.i("TEXTVIEW","You missed " + numOfMissedMessages +" message" + plural + ". Your most recent was:\n");
+//            for(int i = 0; i < savedValues.getInt(linesOfMessageCount, 0); i++){
+//                String line = savedValues.getString("MessageLine"+i, "");
+//                message+= (line + "\n");
+//            }
+//            NotificationManager mNotification = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+//            mNotification.cancel(R.string.notification_number);
+//            SharedPreferences.Editor editor=savedValues.edit();
+//            editor.putInt(this.numOfMissedMessages, 0);
+//            editor.putInt(linesOfMessageCount, 0);
+//            editor.commit();
+//        }
+//        else{
+//            Log.i("onResume","no missed messages");
+//            Intent intent = getIntent();
+//            if(intent!=null){
+//                Bundle extras = intent.getExtras();
+//                if(extras!=null){
+//                    for(String key: extras.keySet()){
+//                        message+= key + "=" + extras.getString(key) + "\n";
+//                    }
+//                }
+//            }
+//        }
+//        message+="\n";
+//        return message;
+//    }
 
     private AlertDialog createDialog(final Context context, final Alert alert1){
 
