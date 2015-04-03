@@ -89,19 +89,23 @@ public class UserActivityRecognizer extends Service implements
      */
     @Override
     public void onConnected(Bundle connectionHint) {
-        Logger.log("UserActivityRecognizer onConnected");
+        try{
+            Logger.log("UserActivityRecognizer onConnected");
 
-        //This issue wasted so much time
-        //https://code.google.com/p/android/issues/detail?id=61850
-        Intent intent = new Intent(this, ActivityRecognitionService.class);
-        callbackIntent = PendingIntent.getService(this, 0, intent,
-                PendingIntent.FLAG_CANCEL_CURRENT);
+            //This issue wasted so much time
+            //https://code.google.com/p/android/issues/detail?id=61850
+            Intent intent = new Intent(this, ActivityRecognitionService.class);
+            callbackIntent = PendingIntent.getService(this, 0, intent,
+                    PendingIntent.FLAG_CANCEL_CURRENT);
 
-        Logger.log("isConnectionCallbacksRegistered: " + String.valueOf(googleApiClient.isConnectionCallbacksRegistered(this)));
-        Logger.log("isConnected: " + String.valueOf(googleApiClient.isConnected()));
+            Logger.log("isConnectionCallbacksRegistered: " + String.valueOf(googleApiClient.isConnectionCallbacksRegistered(this)));
+            Logger.log("isConnected: " + String.valueOf(googleApiClient.isConnected()));
 
-        ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(googleApiClient, 0, callbackIntent);
+            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(googleApiClient, 0, callbackIntent);
 
+        }catch (Exception ex){
+            Logger.log(ex.getMessage());
+        }
     }
 
     @Override

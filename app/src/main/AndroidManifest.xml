@@ -40,17 +40,16 @@
             android:label="@string/app_name" >
         </activity>
 
-        <service
-            android:name="sv.cmu.edu.weamobile.utility.MessageReceivingService"
-            android:label="sv.cmu.edu.weamobile.utility.MessageReceivingService" >
-            <intent-filter>
-
-                <action android:name="sv.cmu.edu.weamobile.utility.ExternalReceiver" />
-                <category android:name="sv.cmu.edu.weamobile" />
-            </intent-filter>
-        </service>
+        <!--<service-->
+            <!--android:name="sv.cmu.edu.weamobile.utility.MessageReceivingService"-->
+            <!--android:label="sv.cmu.edu.weamobile.utility.MessageReceivingService" >-->
+            <!--<intent-filter>-->
+                <!--<action android:name="sv.cmu.edu.weamobile.utility.ExternalReceiver" />-->
+                <!--<category android:name="sv.cmu.edu.weamobile" />-->
+            <!--</intent-filter>-->
+        <!--</service>-->
         <receiver
-            android:name="sv.cmu.edu.weamobile.utility.ExternalReceiver"
+            android:name=".utility.AWSNotificationReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />

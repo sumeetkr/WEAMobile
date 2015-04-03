@@ -167,7 +167,7 @@ public class WEAUtil {
                 //ToDo: Move this code to its right place
                 if(tracker != null) tracker.stopUsingGPS();
 
-                String phoneId = WEASharedPreferences.getStringProperty(context,"phone_id");
+                String phoneId = WEASharedPreferences.getStringProperty(context,Constants.PHONE_ID);
 
                 if(phoneId!= null && !phoneId.isEmpty()){
                     WEAHttpClient.sendHeartbeat(location.getJson(), context, Constants.URL_TO_GET_CONFIGURATION +phoneId );

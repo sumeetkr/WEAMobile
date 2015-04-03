@@ -30,6 +30,7 @@ import java.net.HttpURLConnection;
 import java.util.HashMap;
 
 import sv.cmu.edu.weamobile.R;
+import sv.cmu.edu.weamobile.service.WEABackgroundService;
 import sv.cmu.edu.weamobile.views.MainActivity;
 
 /*
@@ -50,12 +51,23 @@ public class MessageReceivingService extends Service {
     public static void sendToApp(Bundle extras, Context context){
            if (extras.containsKey("default"))
            {
-                Intent newIntent = new Intent();
-                newIntent.setClass(context, MainActivity.class);
-                newIntent.putExtras(extras);
-                newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(newIntent);
-            }
+//                Intent newIntent = new Intent();
+//                newIntent.setClass(context, MainActivity.class);
+//                newIntent.putExtras(extras);
+//                newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                context.startActivity(newIntent);
+
+//               Intent dialogIntent = new Intent(context, MainActivity.class);
+//               dialogIntent.putExtra(Constants.FETCH_CONFIG, "fetch_config");
+//               dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//
+//               WEAUtil.showMessageIfInDebugMode(context, "Received a notification, asking main view to refetch");
+//               context.startActivity(dialogIntent);
+
+               Intent startServiceIntent = new Intent(context, WEABackgroundService.class);
+               startServiceIntent.setAction(WEABackgroundService.FETCH_CONFIGURATION);
+               context.startService(startServiceIntent);
+           }
 
     }
 
@@ -243,7 +255,7 @@ public class MessageReceivingService extends Service {
                 // the hearbeat call and so the first sync might not be able to connect, but subsequent
                 // calls should be fine. *need to test*
 
-                Log.i("PHONE_ID","======= PHONE ID ======== >>> "+id);
+                Logger.log("PHONE_ID","======= PHONE ID ======== >>> "+id);
 
 
             }

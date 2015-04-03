@@ -109,11 +109,19 @@ public class MainActivity extends FragmentActivity
 
         registerNewConfigurationReceiver();
         if(getIntent().getAction()!= null && getIntent().getAction() == "android.intent.action.MAIN"){
-
-            Log.d("WEA", "scheduling alarm");
+            Logger.log("scheduling alarm");
             WEAAlarmManager.setupRepeatingAlarmToWakeUpApplicationToFetchConfiguration(
                     this.getApplicationContext(),
                     Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES * 60 * 1000);
+
+            // Register phone if not registered
+            Logger.log("Registering device");
+            String phoneId = WEASharedPreferences.getStringProperty(getApplicationContext(),Constants.PHONE_ID);
+            String token = WEASharedPreferences.getStringProperty(getApplicationContext(), Constants.PHONE_TOKEN);
+            if(phoneId== null || token == null || (phoneId!= null && phoneId.isEmpty()) || (token!= null && token.isEmpty())){
+                WEAHttpClient.registerPhoneAync(getApplicationContext());
+            }
+
         }
 
         WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
@@ -123,7 +131,6 @@ public class MainActivity extends FragmentActivity
         if (isMyServiceRunning(MessageReceivingService.class) == false) {
             startService(new Intent(this, MessageReceivingService.class));
         }
-
 
     }
 
@@ -190,6 +197,9 @@ public class MainActivity extends FragmentActivity
 
         if(getIntent().hasExtra(Constants.ALERT_ID)){
             refreshListAndSelectItem();
+        }else if(getIntent().hasExtra(Constants.FETCH_CONFIG)){
+            fetchConfig();
+
         }else{
             refreshListAndShowUnSeenAlert();
         }

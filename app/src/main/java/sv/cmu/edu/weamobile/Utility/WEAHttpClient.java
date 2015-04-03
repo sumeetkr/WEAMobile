@@ -218,66 +218,75 @@ public class WEAHttpClient {
     public static void registerPhoneAync(final Context context){
 
         final String server_url = Constants.SERVER_REGISTRATION_URL;
-        String response = "";
-        try {
 
-            new AsyncTask() {
-                @Override
-                protected Object doInBackground(Object[] params) {
-                    try {
+        new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object[] params) {
+                try {
+
+                    String token = WEASharedPreferences.getStringProperty(context, Constants.PHONE_TOKEN);
+                    if(token == null || (token!= null && token.isEmpty()) ){
                         GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(context);
-                        String token = gcm.register(AWSHelperUtility.GCM_PROJECT_NUMBER);
+                        token = gcm.register(AWSHelperUtility.GCM_PROJECT_NUMBER);
 
-                        Logger.log(token);
-                        HashMap hm = new HashMap();
-                        hm.put("token",token);
-                        JSONObject json = new JSONObject(hm);
-                        StringEntity entity = new StringEntity(json.toString());
-
-                        Logger.log("send alert state ", server_url);
-                        AsyncHttpClient client = new AsyncHttpClient();
-
-                        client.post(context, server_url, entity, "application/json", new AsyncHttpResponseHandler() {
-                            @Override
-                            public void onSuccess(String response) {
-                                Logger.log("WEA sending alert state", "Success - ");
-                                JSONObject json_response = null;
-                                try {
-                                    json_response = new JSONObject(response);
-                                    String id = json_response.getString("message");
-
-                                    //tags : [phone_id,registration_id]
-                                    //Here's where the server sends back a phone id which can be retrieved later for the heartbeat
-                                    WEASharedPreferences.setStringProperty(context,"phone_id",id);
-
-                                    // Note : Since this is an asynctask there's no guarantee that it will be called before
-                                    // the hearbeat call and so the first sync might not be able to connect, but subsequent
-                                    // calls should be fine. *need to test*
-
-                                    Logger.log("PHONE_ID","======= PHONE ID ======== >>> "+id);
-                                } catch (JSONException e) {
-                                    Logger.log(e.getMessage());
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(int statusCode, org.apache.http.Header[] headers, byte[] errorResponse, Throwable e) {
-
-                                Log.w("WEA sending alert state", "Failure in sending - " + "Status code -" + statusCode + " Error response -" + errorResponse);
-                            }
-                        });
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                        if(token!= null && !token.isEmpty()){
+                            WEASharedPreferences.setStringProperty(context, Constants.PHONE_TOKEN, token);
+                        }
+                        else
+                        {
+                            // if token is null, you cannot register phone
+                            WEAUtil.showMessageIfInDebugMode(context, "Could not get AWS token");
+                            Logger.log("Could not get AWS token");
+                            return null;
+                        }
                     }
+                    Logger.log(token);
 
-                    return null;
+                    HashMap hm = new HashMap();
+                    hm.put("token",token);
+                    JSONObject json = new JSONObject(hm);
+                    StringEntity entity = new StringEntity(json.toString());
+
+                    Logger.log("send alert state ", server_url);
+                    AsyncHttpClient client = new AsyncHttpClient();
+
+                    client.post(context, server_url, entity, "application/json", new AsyncHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(String response) {
+                            Logger.log("WEA sending alert state", "Success - ");
+                            JSONObject json_response = null;
+                            try {
+                                json_response = new JSONObject(response);
+                                String id = json_response.getString("message");
+
+                                //tags : [phone_id,registration_id]
+                                //Here's where the server sends back a phone id which can be retrieved later for the heartbeat
+                                if(id!= null && !id.isEmpty()){
+                                    WEASharedPreferences.setStringProperty(context, Constants.PHONE_ID, id);
+                                }
+
+                                // Note : Since this is an asynctask there's no guarantee that it will be called before
+                                // the hearbeat call and so the first sync might not be able to connect, but subsequent
+                                // calls should be fine. *need to test*
+
+                                Logger.log("PHONE_ID","======= PHONE ID ======== >>> "+id);
+                            } catch (JSONException e) {
+                                Logger.log(e.getMessage());
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
+
+                            Log.w("WEA sending alert state", "Failure in sending - " + "Status code -" + statusCode + " Error response -" + errorResponse);
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            }.execute();
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            response = "failed : + " + e.getMessage();
-            Log.d("WEA JsonSender",e.getMessage());
-        }
+
+                return null;
+            }
+        }.execute();
     }
 }

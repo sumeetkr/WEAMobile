@@ -61,7 +61,7 @@ public class AlertHelper {
             WEASharedPreferences.saveAlertState(context, state);
 
             Intent dialogIntent = new Intent(context, MainActivity.class);
-            dialogIntent.putExtra("item_id", String.valueOf(alert.getId()));
+            dialogIntent.putExtra(Constants.ALERT_ID, String.valueOf(alert.getId()));
             dialogIntent.putExtra(Constants.CONFIG_JSON, configuration.getJson());
             dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 

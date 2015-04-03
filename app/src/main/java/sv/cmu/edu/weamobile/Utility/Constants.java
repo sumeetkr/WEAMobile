@@ -12,7 +12,9 @@ public class Constants {
     public static final String FEEDBACK_URL_ROOT = BASE_URL+"/feedback/"; //alertid/phoneid
     public static final String STATE_URL_ROOT = BASE_URL+"/wea/api/seen/"; //alertid/phoneid
     public static final String REGISTRATION_URL_ROOT = BASE_URL+"/wea/api/registration/"; //emsi/participant
-    public static String SERVER_REGISTRATION_URL = "http://wea-stage.herokuapp.com/wea/api/registration/android";
+    public static final String FETCH_CONFIG = "fetch_config";
+    public static final String PHONE_ID = "phone_id";
+    public static final String SERVER_REGISTRATION_URL = "http://wea-stage.herokuapp.com/wea/api/registration/android";
     public static final int TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES = 5;
     public static final int TIME_THRESHOLD_TO_SHOW_ALERT_IN_SECONDS = 2;
     public static final String SMS_CODE_FOR_WEA_MESSAGES = "myPAWS1";
@@ -40,4 +42,5 @@ public class Constants {
     public static final String ACTIVITY_CONFIDENCE ="activity_confidence";
     public static final String WEA_GPS_PROVIDER = "wea_gps_provider";
 
+    public static final String PHONE_TOKEN = "phone_token";
 }
