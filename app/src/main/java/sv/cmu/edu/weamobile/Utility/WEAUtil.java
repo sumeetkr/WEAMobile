@@ -1,5 +1,8 @@
 package sv.cmu.edu.weamobile.utility;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -7,6 +10,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.BatteryManager;
 import android.os.PowerManager;
+import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
 import android.widget.Toast;
 
@@ -17,6 +21,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import sv.cmu.edu.weamobile.R;
 import sv.cmu.edu.weamobile.data.GeoLocation;
 import sv.cmu.edu.weamobile.data.UserActivity;
 import sv.cmu.edu.weamobile.utility.ActivityRecognition.UserActivityRecognizer;
@@ -159,12 +164,23 @@ public class WEAUtil {
         }
         finally{
             try{
+                //ToDo: Move this code to its right place
                 if(tracker != null) tracker.stopUsingGPS();
-                WEAHttpClient.sendHeartbeat(location.getJson(), context, Constants.URL_TO_GET_CONFIGURATION + WEASharedPreferences.getStringProperty(context,"phone_id"));
-                LocationDataSource dataSource = new LocationDataSource(context);
 
-                //TODO: Need to move it at right location
-                dataSource.insertData(location);
+                String phoneId = WEASharedPreferences.getStringProperty(context,"phone_id");
+
+                if(phoneId!= null && !phoneId.isEmpty()){
+                    WEAHttpClient.sendHeartbeat(location.getJson(), context, Constants.URL_TO_GET_CONFIGURATION +phoneId );
+                    LocationDataSource dataSource = new LocationDataSource(context);
+
+                    //TODO: Need to move it at right location
+                    dataSource.insertData(location);
+
+                }else{
+                    //ToDO: Need to rethink about the below code
+                    //probably phone is not registered, messaging service creation will do that
+                    WEAHttpClient.registerPhoneAync(context);
+                }
 
             }catch (Exception ex){
                 Logger.log(ex.getMessage());
@@ -191,5 +207,24 @@ public class WEAUtil {
 //            if(activityRecognizer != null) activityRecognizer.stopActivityRecognitionScan();
         }
     }
+
+    /*
+    * This function just posts an Android Style Notification in the title bar at the top.
+    * Currently no intent is attached on opening it.
+    */
+    public static void postNotification(Intent intentAction, Context context, String message){
+        final NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        final PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intentAction, PendingIntent.FLAG_UPDATE_CURRENT);
+        final Notification notification = new NotificationCompat.Builder(context).setSmallIcon(R.drawable.ic_launcher)
+                .setContentTitle("Message Received!")
+                .setContentText(message)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
+                .getNotification();
+
+        mNotificationManager.notify(R.string.notification_number, notification);
+    }
+
 
 }

@@ -1,8 +1,5 @@
 package sv.cmu.edu.weamobile.utility;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -12,21 +9,17 @@ import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
@@ -34,9 +27,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import sv.cmu.edu.weamobile.R;
 import sv.cmu.edu.weamobile.views.MainActivity;
@@ -66,7 +57,6 @@ public class MessageReceivingService extends Service {
                 context.startActivity(newIntent);
             }
 
-
     }
 
     public void onCreate(){
@@ -82,24 +72,24 @@ public class MessageReceivingService extends Service {
         if(VERSION.SDK_INT >  9){
             savedValues = getSharedPreferences(preferences, Context.MODE_MULTI_PROCESS);
         }
+
         gcm = GoogleCloudMessaging.getInstance(getBaseContext());
-        SharedPreferences savedValues = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         /*
             First Launch : These functions get executed only on the first Launch of your app.
             Remember to restart on making any changes.
          */
-        if(savedValues.getBoolean(getString(R.string.first_launch), true)){
+        if(sharedPreferences.getBoolean(getString(R.string.first_launch), true)){
             //On the first launch: Register the application with the Server:
+            //ToDo: What if first launch had an issue and the phone was not registered :(
+            // like it happened to my phone
             register();
 
             //Write out that we have done a first launch.
-            SharedPreferences.Editor editor = savedValues.edit();
+            SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putBoolean(getString(R.string.first_launch), false);
             editor.commit();
         }
-        //Let's mark ourselves as initialized.
-        SharedPreferences.Editor editor = savedValues.edit();
-
 
         // Let AndroidMobilePushApp know we have just initialized and there may be stored messages
         sendToApp(new Bundle(), this);
@@ -122,25 +112,12 @@ public class MessageReceivingService extends Service {
         editor.putInt(context.getString(R.string.lines_of_message_count), linesOfMessageCount);
         editor.putInt(numOfMissedMessages, savedValues.getInt(numOfMissedMessages, 0) + 1);
         editor.commit();
-        postNotification(new Intent(context, MainActivity.class), context, extras.getString("default"));
-    }
 
-   /*
-    * This function just posts an Android Style Notification in the title bar at the top.
-    * Currently no intent is attached on opening it.
-    */
-    protected static void postNotification(Intent intentAction, Context context, String message){
-        final NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-        final PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intentAction, PendingIntent.FLAG_UPDATE_CURRENT);
-        final Notification notification = new NotificationCompat.Builder(context).setSmallIcon(R.drawable.ic_launcher)
-                .setContentTitle("Message Received!")
-                .setContentText(message)
-                .setContentIntent(pendingIntent)
-                .setAutoCancel(true)
-                .getNotification();
-
-        mNotificationManager.notify(R.string.notification_number, notification);
+        //show notification only for debugging
+        //Users should only see full alert
+        if(WEASharedPreferences.isShowNotificationsEnabled(context)){
+            WEAUtil.postNotification(new Intent(context, MainActivity.class), context, extras.getString("default"));
+        }
     }
 
     /*

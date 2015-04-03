@@ -167,6 +167,7 @@ public class WEASharedPreferences {
             Logger.log("Saved activity history mode to shared preferences "+ enable);
         }
     }
+
     public static boolean isMotionPredictionEnabled(Context context){
         boolean result = false;
         SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
@@ -183,6 +184,25 @@ public class WEASharedPreferences {
             editor.putBoolean(Constants.IS_MOTION_ENABLED,enable);
             editor.commit();
             Logger.log("Saved motion mode to shared preferences "+ enable);
+        }
+    }
+
+    public static boolean isShowNotificationsEnabled(Context context){
+        boolean result = false;
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
+        if (sharedPreferences != null) {
+            result = sharedPreferences.getBoolean(Constants.IS_SHOW_NOTIFICATIONS_ENABLED, false);
+        }
+        return result;
+    }
+
+    public static void setShowNotificationsEnabled(Context context, boolean enable) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
+        if (sharedPreferences != null) {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean(Constants.IS_SHOW_NOTIFICATIONS_ENABLED,enable);
+            editor.commit();
+            Logger.log("Saved show notifications enabled to shared preferences "+ enable);
         }
     }
 

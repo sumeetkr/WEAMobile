@@ -144,43 +144,6 @@ public class MainActivity extends FragmentActivity
         inBackground = true;
     }
 
-
-    // If messages have been missed, check the backlog. Otherwise check the current intent for a new message.
-    private String getMessage(int numOfMissedMessages) {
-        String message = "";
-        String linesOfMessageCount = getString(R.string.lines_of_message_count);
-        if(numOfMissedMessages > 0){
-            String plural = numOfMissedMessages > 1 ? "s" : "";
-            Log.i("onResume","missed " + numOfMissedMessages + " message" + plural);
-            //Log.i("TEXTVIEW","You missed " + numOfMissedMessages +" message" + plural + ". Your most recent was:\n");
-            for(int i = 0; i < savedValues.getInt(linesOfMessageCount, 0); i++){
-                String line = savedValues.getString("MessageLine"+i, "");
-                message+= (line + "\n");
-            }
-            NotificationManager mNotification = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            mNotification.cancel(R.string.notification_number);
-            SharedPreferences.Editor editor=savedValues.edit();
-            editor.putInt(this.numOfMissedMessages, 0);
-            editor.putInt(linesOfMessageCount, 0);
-            editor.commit();
-        }
-        else{
-            Log.i("onResume","no missed messages");
-            Intent intent = getIntent();
-            if(intent!=null){
-                Bundle extras = intent.getExtras();
-                if(extras!=null){
-                    for(String key: extras.keySet()){
-                        message+= key + "=" + extras.getString(key) + "\n";
-                    }
-                }
-            }
-        }
-        message+="\n";
-        return message;
-    }
-
-
     private void setSwitchEvents() {
         mySwitch = (Switch) findViewById(R.id.switch2);
 
@@ -200,7 +163,7 @@ public class MainActivity extends FragmentActivity
                     } else {
                         mySwitch.setText("Alerts disabled");
                     }
-                }else{
+                } else {
                     programTryingToChangeSwitch = false;
                 }
             }
@@ -219,7 +182,6 @@ public class MainActivity extends FragmentActivity
     @Override
     protected void onResume(){
         super.onResume();
-        getActionBar().setIcon(R.drawable.ic_emergency);
 
         registerNewConfigurationReceiver();
 
@@ -242,21 +204,10 @@ public class MainActivity extends FragmentActivity
 //        }
         updateLastCheckTimeStatus();
 
-        //amazon
-        inBackground = false;
-        savedValues = MessageReceivingService.savedValues;
-        int numOfMissedMessages = 0;
-        if(savedValues != null){
-            numOfMissedMessages = savedValues.getInt(this.numOfMissedMessages, 0);
-        }
-        String newMessage = getMessage(numOfMissedMessages);
-        if(newMessage!=""){
-            Log.i("displaying message", newMessage);
-            Log.i("TEXTVIEW",newMessage);
-            if (newMessage.contains("default")) {
-                AWSHelperUtility.showNotification(this, "New Alert", newMessage);
-            }
-        }
+
+//        We do not need to show notification,
+//        We fetch new alert and show an alert
+//        showNotification();
     }
 
     private void refreshListAndShowUnSeenAlert() {
@@ -458,6 +409,60 @@ public class MainActivity extends FragmentActivity
                 Logger.log(ex.getMessage());
             }
         }
+    }
+
+    private void showNotification() {
+        //amazon
+        getActionBar().setIcon(R.drawable.ic_emergency);
+        inBackground = false;
+        savedValues = MessageReceivingService.savedValues;
+        int numOfMissedMessages = 0;
+        if(savedValues != null){
+            numOfMissedMessages = savedValues.getInt(this.numOfMissedMessages, 0);
+        }
+        String newMessage = getMessage(numOfMissedMessages);
+        if(newMessage!=""){
+            Log.i("displaying message", newMessage);
+            Log.i("TEXTVIEW",newMessage);
+            if (newMessage.contains("default")) {
+                AWSHelperUtility.showNotification(this, "New Alert", newMessage);
+            }
+        }
+    }
+
+    // If messages have been missed, check the backlog. Otherwise check the current intent for a new message.
+    private String getMessage(int numOfMissedMessages) {
+        String message = "";
+        String linesOfMessageCount = getString(R.string.lines_of_message_count);
+        if(numOfMissedMessages > 0){
+            String plural = numOfMissedMessages > 1 ? "s" : "";
+            Log.i("onResume","missed " + numOfMissedMessages + " message" + plural);
+            //Log.i("TEXTVIEW","You missed " + numOfMissedMessages +" message" + plural + ". Your most recent was:\n");
+            for(int i = 0; i < savedValues.getInt(linesOfMessageCount, 0); i++){
+                String line = savedValues.getString("MessageLine"+i, "");
+                message+= (line + "\n");
+            }
+            NotificationManager mNotification = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            mNotification.cancel(R.string.notification_number);
+            SharedPreferences.Editor editor=savedValues.edit();
+            editor.putInt(this.numOfMissedMessages, 0);
+            editor.putInt(linesOfMessageCount, 0);
+            editor.commit();
+        }
+        else{
+            Log.i("onResume","no missed messages");
+            Intent intent = getIntent();
+            if(intent!=null){
+                Bundle extras = intent.getExtras();
+                if(extras!=null){
+                    for(String key: extras.keySet()){
+                        message+= key + "=" + extras.getString(key) + "\n";
+                    }
+                }
+            }
+        }
+        message+="\n";
+        return message;
     }
 
     private AlertDialog createDialog(final Context context, final Alert alert1){

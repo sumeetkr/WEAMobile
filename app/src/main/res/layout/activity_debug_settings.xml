@@ -25,7 +25,7 @@
         android:text="Show Current Activity"
         android:id="@+id/checkBoxActivityRecognition"
         android:checked="false"
-        android:layout_below="@+id/chkActivityHistory"
+        android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
@@ -66,5 +66,15 @@
         android:layout_below="@+id/chkMotion"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show Notifications"
+        android:id="@+id/chkShowNotifications"
+        android:layout_below="@+id/chkActivityHistory"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:checked="false" />
 
 </RelativeLayout>
