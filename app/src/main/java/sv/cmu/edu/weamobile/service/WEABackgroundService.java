@@ -14,7 +14,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
-import sv.cmu.edu.weamobile.data.AlertState;
+import sv.cmu.edu.weamobile.data.MessageState;
 import sv.cmu.edu.weamobile.data.Configuration;
 import sv.cmu.edu.weamobile.data.Message;
 import sv.cmu.edu.weamobile.data.UserActivity;
@@ -25,6 +25,7 @@ import sv.cmu.edu.weamobile.utility.WEAHttpClient;
 import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
 import sv.cmu.edu.weamobile.utility.WEAUtil;
 import sv.cmu.edu.weamobile.utility.db.MessageDataSource;
+import sv.cmu.edu.weamobile.utility.db.MessageStateDataSource;
 
 public class WEABackgroundService extends Service {
     public static final String FETCH_CONFIGURATION = "sv.cmu.edu.weamobile.service.action.FETCH_CONFIGURATION";
@@ -168,13 +169,19 @@ public class WEABackgroundService extends Service {
 
     }
 
-    private void addOrUpdatedAlertsStateToSharedPreferences(Configuration configuration) {
+    private void addOrUpdatedMessageStatesToDatabase(Configuration configuration) {
         if(configuration!= null){
-            List<Message> alerts = configuration.getMessages();
-            if(alerts.size() >0){
-                for(Message alert: alerts) {
-                    if(alert.isActive() || alert.isOfFuture()){
-                        WEASharedPreferences.addAlertStateToPreferences(getApplicationContext(), alert);
+            List<Message> messages = configuration.getMessages();
+            if(messages.size() >0){
+                for(Message message: messages) {
+                    //Only create messagestate for future/current alerts, no use of old alerts
+                    if(message.isActive() || message.isOfFuture()){
+//                        WEASharedPreferences.addAlertStateToPreferences(getApplicationContext(), message);
+
+                        MessageState state = new MessageState(message.getId(), message.getScheduledFor());
+                        MessageStateDataSource messageStateDataSource = new MessageStateDataSource(this);
+                        messageStateDataSource.insertDataIfNotPresent(state);
+
                     }
                 }
             }
@@ -211,12 +218,12 @@ public class WEABackgroundService extends Service {
 
     private void sendAlertScheduledInfoToServer(Message alert) {
         try{
-            AlertState alertState = AlertHelper.getAlertState(getApplicationContext(), alert);
-            alertState.setState(AlertState.State.scheduled);
-            WEASharedPreferences.saveAlertState(getApplicationContext(), alertState);
+            MessageState messageState = AlertHelper.getAlertState(getApplicationContext(), alert);
+            messageState.setState(MessageState.State.scheduled);
+            WEASharedPreferences.saveAlertState(getApplicationContext(), messageState);
             WEAHttpClient.sendAlertState(getApplicationContext(),
-                    alertState.getJson(),
-                    String.valueOf(alertState.getId()));
+                    messageState.getJson(),
+                    String.valueOf(messageState.getId()));
 
         }
         catch (Exception ex){
@@ -271,9 +278,9 @@ public class WEABackgroundService extends Service {
 
             Configuration configuration = Configuration.fromJson(json);
 
-//            addOrUpdatedAlertsStateToSharedPreferences(configuration); //Save the individual alerts
-
             addOrUpdatedMessagesToDatabase(configuration);
+
+            addOrUpdatedMessageStatesToDatabase(configuration); //Save the individual alerts
 
             setupAlarmToShowAlertAtRightTime(configuration);
 

@@ -13,7 +13,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import sv.cmu.edu.weamobile.data.Alert;
-import sv.cmu.edu.weamobile.data.AlertState;
+import sv.cmu.edu.weamobile.data.MessageState;
 import sv.cmu.edu.weamobile.utility.Logger;
 
 /*
@@ -45,7 +45,7 @@ public class WEASQLiteHelper extends SQLiteOpenHelper {
     public static final String COLUMN_ALERTSTATE_SCHEDULEDFOR = "scheduledFor";
     public static final String COLUMN_ALERTSTATE_TEXT = "text";
 
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
 
     /*
             The following create statement creates a table for storing individual properties of the alerts
@@ -94,6 +94,10 @@ public class WEASQLiteHelper extends SQLiteOpenHelper {
 
         database.execSQL(MessageDataSource.CREATE_MESSAGE_TABLE_SQL);
         Logger.log("MySQLiteHelper","[ CREATED TABLE MESSAGE ]");
+
+        database.execSQL(MessageStateDataSource.CREATE_MESSAGE_TABLE_SQL);
+        Logger.log("MySQLiteHelper","[ CREATED TABLE MESSAGE STATE]");
+
     }
 
     @Override
@@ -105,12 +109,13 @@ public class WEASQLiteHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ALERTSTATE);
         db.execSQL("DROP TABLE IF EXISTS " + LocationDataSource.LOCATION_TABLE);
         db.execSQL("DROP TABLE IF EXISTS " + MessageDataSource.MESSAGE_TABLE);
+        db.execSQL("DROP TABLE IF EXISTS " + MessageStateDataSource.MESSAGE_STATE_TABLE);
         onCreate(db);
     }
 
 
     //update alert state (AS exists)
-    public void updateAlertState(AlertState as)
+    public void updateAlertState(MessageState as)
     {
         Logger.log("MySQLiteHelper","=== UPDATING ALERT STATE ==");
         //first find out if the alert exists in the database
@@ -128,7 +133,7 @@ public class WEASQLiteHelper extends SQLiteOpenHelper {
     //Adding a new alert State from an ALERT object
     public void addAlertStateToDatabase(Alert alert) {
                 Logger.log("MySQLiteHelper","=== ADDING ALERT STATE TO DB ==");
-                AlertState as = new AlertState(alert.getId(), alert.getScheduledFor());
+                MessageState as = new MessageState(alert.getId(), alert.getScheduledFor());
 
                 //Check if alert exists in the database
                 if (CheckIsDataAlreadyInDBorNot(TABLE_ALERTSTATE,COLUMN_ALERTSTATE_ID,Integer.toString(alert.getId())))
@@ -142,20 +147,20 @@ public class WEASQLiteHelper extends SQLiteOpenHelper {
                     Logger.log("MySQLiteHelper","* Does not exist, inserting");
                     //no it does not, create a new alert (blank alert state)
                     // insertAlert(alert);
-                    insertAlertState(new AlertState(alert.getId(),alert.getScheduledFor()));
+                    insertAlertState(new MessageState(alert.getId(),alert.getScheduledFor()));
                     //now create the alert state & update it
                     updateAlertState(as);
 
                 }
     }
 
-    private void insertAlertState(AlertState alertState) {
+    private void insertAlertState(MessageState messageState) {
         ContentValues insertValues = new ContentValues();
-        insertValues.put(COLUMN_ALERTSTATE_ID, alertState.getUniqueId());
-        insertValues.put(COLUMN_ALERTSTATE_SCHEDULEDFOR, alertState.getScheduledFor());
-        insertValues.put(COLUMN_ALERTSTATE_TEXT, alertState.getJson());
+        insertValues.put(COLUMN_ALERTSTATE_ID, messageState.getUniqueId());
+        insertValues.put(COLUMN_ALERTSTATE_SCHEDULEDFOR, messageState.getScheduledFor());
+        insertValues.put(COLUMN_ALERTSTATE_TEXT, messageState.getJson());
         long rows = getWritableDatabase().insert(TABLE_ALERTSTATE, null, insertValues);
-        Logger.log("Inserted Alert State " + (alertState.getUniqueId()) + " | Affected: rows" + Long.toString(rows));
+        Logger.log("Inserted Alert State " + (messageState.getUniqueId()) + " | Affected: rows" + Long.toString(rows));
 
     }
 

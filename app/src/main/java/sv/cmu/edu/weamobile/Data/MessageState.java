@@ -9,7 +9,7 @@ import sv.cmu.edu.weamobile.utility.WEAUtil;
 /**
  * Created by sumeet on 11/7/14.
  */
-public class AlertState {
+public class MessageState {
 
     private int id;
     //these properties are set by phone
@@ -27,7 +27,7 @@ public class AlertState {
 
     private String scheduledFor;
 
-    public AlertState(int id, String scheduledForTime){
+    public MessageState(int id, String scheduledForTime){
         this.id = id;
         this.scheduledFor = scheduledForTime;
     }
@@ -99,8 +99,8 @@ public class AlertState {
         return gson.toJson(this);
     }
 
-    public static AlertState fromJson(String s) {
-        return new Gson().fromJson(s, AlertState.class);
+    public static MessageState fromJson(String s) {
+        return new Gson().fromJson(s, MessageState.class);
     }
 
     public boolean isFeedbackGiven() {

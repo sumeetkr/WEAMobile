@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sv.cmu.edu.weamobile.data.Alert;
-import sv.cmu.edu.weamobile.data.AlertState;
+import sv.cmu.edu.weamobile.data.MessageState;
 import sv.cmu.edu.weamobile.data.GeoLocation;
 import sv.cmu.edu.weamobile.data.Message;
 import sv.cmu.edu.weamobile.views.MainActivity;
@@ -48,7 +48,7 @@ public class AlertHelper {
         WEAUtil.showMessageIfInDebugMode(context, "Checking if alert is active");
 
         if(alert.isActive()){
-            AlertState state = WEASharedPreferences.getAlertState(context, alert);
+            MessageState state = WEASharedPreferences.getAlertState(context, alert);
             if(location != null){
                 location.setBatteryLevel(WEAUtil.getBatteryLevel(context));
                 state.setLocationWhenShown(location);
@@ -137,27 +137,27 @@ public class AlertHelper {
         return null;
     }
 
-    public static AlertState getAlertState(Context context, Alert alert) {
+    public static MessageState getAlertState(Context context, Alert alert) {
         return  null;
 //        return WEASharedPreferences.getAlertState(context, alert);
     }
 
-    public static AlertState getAlertState(Context context, Message alert) {
+    public static MessageState getAlertState(Context context, Message alert) {
         return  null;
 //        return WEASharedPreferences.getAlertState(context, alert);
     }
 
-    public static List<AlertState> getAlertStates(Context context, List<Alert> alerts){
-        List<AlertState> alertStates = new ArrayList<AlertState>();
+    public static List<MessageState> getAlertStates(Context context, List<Alert> alerts){
+        List<MessageState> messageStates = new ArrayList<MessageState>();
 
         for(int i=0; i<alerts.size();i++){
-            AlertState state = WEASharedPreferences.getAlertState(context, alerts.get(i));
+            MessageState state = WEASharedPreferences.getAlertState(context, alerts.get(i));
             if(state != null){
-                alertStates.add(state);
+                messageStates.add(state);
             }
         }
 
-        return  alertStates;
+        return messageStates;
     }
 
     public static String getFeedbackURL(Context context, Alert alert){

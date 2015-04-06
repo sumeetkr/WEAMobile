@@ -14,7 +14,7 @@ import java.util.Map;
 
 import sv.cmu.edu.weamobile.R;
 import sv.cmu.edu.weamobile.data.Alert;
-import sv.cmu.edu.weamobile.data.AlertState;
+import sv.cmu.edu.weamobile.data.MessageState;
 import sv.cmu.edu.weamobile.data.Configuration;
 import sv.cmu.edu.weamobile.utility.AlertListAdapter;
 import sv.cmu.edu.weamobile.utility.Constants;
@@ -27,8 +27,8 @@ public class AlertListFragment extends ListFragment {
     private int mActivatedPosition = ListView.INVALID_POSITION;
     private List<Alert> alertItems;
     private Map<Integer, Alert> alertsMap;
-    private List<AlertState> alertStates;
-    private Map<Integer, AlertState> alertStateMap;
+    private List<MessageState> messageStates;
+    private Map<Integer, MessageState> alertStateMap;
 
 
     public interface Callbacks {
@@ -41,15 +41,15 @@ public class AlertListFragment extends ListFragment {
         }
     };
 
-    public List<Alert> updateListAndReturnAnyActiveAlertNotShown(List<Alert> alerts, List<AlertState> alertsStates) {
+    public List<Alert> updateListAndReturnAnyActiveAlertNotShown(List<Alert> alerts, List<MessageState> alertsStates) {
 
         List<Alert> activeButNotShown = new ArrayList<Alert>();
 
-        if(this.alertStates == null){
-            this.alertStates = new ArrayList<AlertState>();
-            alertStateMap = new HashMap<Integer, AlertState>();
+        if(this.messageStates == null){
+            this.messageStates = new ArrayList<MessageState>();
+            alertStateMap = new HashMap<Integer, MessageState>();
         }
-        this.alertStates.clear();
+        this.messageStates.clear();
         alertStateMap.clear();
 
         if(alertItems == null)
@@ -60,13 +60,13 @@ public class AlertListFragment extends ListFragment {
         alertItems.clear();
         alertsMap.clear();
 
-        for(AlertState state : alertsStates){
-            alertStates.add(state);
+        for(MessageState state : alertsStates){
+            messageStates.add(state);
             alertStateMap.put(state.getId(), state);
         }
 
         for(Alert alert:alerts){
-            AlertState state = alertStateMap.get(alert.getId());
+            MessageState state = alertStateMap.get(alert.getId());
 
             if(alert.isNotOfFuture() && state!= null && state.isInPolygonOrAlertNotGeoTargeted()){
                 addItem(alert);

@@ -13,7 +13,7 @@ import android.widget.Toast;
 
 import sv.cmu.edu.weamobile.R;
 import sv.cmu.edu.weamobile.data.Alert;
-import sv.cmu.edu.weamobile.data.AlertState;
+import sv.cmu.edu.weamobile.data.MessageState;
 import sv.cmu.edu.weamobile.utility.AlertHelper;
 import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.Logger;
@@ -96,19 +96,19 @@ public class FeedbackWebViewActivity extends Activity {
             try{
                 Toast.makeText(mContext, Constants.THANKS_FOR_FEEDBACK, Toast.LENGTH_SHORT).show();
 
-                AlertState alertState = WEASharedPreferences.getAlertState(getApplicationContext(),
+                MessageState messageState = WEASharedPreferences.getAlertState(getApplicationContext(),
                         alert);
-                alertState.setFeedbackGiven(true);
-                alertState.setTimeWhenFeedbackGivenInEpoch(System.currentTimeMillis());
-                alertState.setState(AlertState.State.clicked);
-                WEASharedPreferences.saveAlertState(getApplicationContext(),alertState);
+                messageState.setFeedbackGiven(true);
+                messageState.setTimeWhenFeedbackGivenInEpoch(System.currentTimeMillis());
+                messageState.setState(MessageState.State.clicked);
+                WEASharedPreferences.saveAlertState(getApplicationContext(), messageState);
 
                 Intent intent = new Intent(mContext, MainActivity.class);
                 intent.setAction(Constants.SHOW_MAIN_VIEW_ACTION);
                 startActivity(intent);
 
                 WEAHttpClient.sendAlertState(getApplicationContext(),
-                        alertState.getJson(),
+                        messageState.getJson(),
                         String.valueOf(alert.getId()));
 
 

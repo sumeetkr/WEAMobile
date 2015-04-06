@@ -31,7 +31,7 @@ import java.util.List;
 
 import sv.cmu.edu.weamobile.R;
 import sv.cmu.edu.weamobile.data.Alert;
-import sv.cmu.edu.weamobile.data.AlertState;
+import sv.cmu.edu.weamobile.data.MessageState;
 import sv.cmu.edu.weamobile.data.GeoLocation;
 import sv.cmu.edu.weamobile.data.UserActivity;
 import sv.cmu.edu.weamobile.utility.AlertHelper;
@@ -56,7 +56,7 @@ import sv.cmu.edu.weamobile.utility.db.LocationDataSource;
 public class AlertDetailFragment extends Fragment {
     private GoogleMap mMap;
     private Alert alert;
-    private AlertState alertState;
+    private MessageState messageState;
     private String startTime;
     private String endTime;
     private View rootView;
@@ -113,7 +113,7 @@ public class AlertDetailFragment extends Fragment {
         }
 
 
-        if(!alertState.isFeedbackGiven()){
+        if(!messageState.isFeedbackGiven()){
             LinearLayout buttonLayout = (LinearLayout) rootView.findViewById(R.id.alertDialogButtons);
             buttonLayout.setVisibility(View.VISIBLE);
 
@@ -126,8 +126,8 @@ public class AlertDetailFragment extends Fragment {
 
     private void updateMyLocation() {
 
-        if(alertState.getLocationWhenShown()!= null) {
-            myLocation = alertState.getLocationWhenShown();
+        if(messageState.getLocationWhenShown()!= null) {
+            myLocation = messageState.getLocationWhenShown();
 
         }else{
             GPSTracker tracker = new GPSTracker(this.getActivity().getApplicationContext());
@@ -135,8 +135,8 @@ public class AlertDetailFragment extends Fragment {
                 myLocation = tracker.getNetworkGeoLocation();
             }
 
-            alertState.setLocationWhenShown(myLocation);
-            WEASharedPreferences.saveAlertState(getActivity().getApplicationContext(), alertState);
+            messageState.setLocationWhenShown(myLocation);
+            WEASharedPreferences.saveAlertState(getActivity().getApplicationContext(), messageState);
         }
 
         if(myLocation != null) Logger.log("my location: " + myLocation.toString());
@@ -151,7 +151,7 @@ public class AlertDetailFragment extends Fragment {
                     getActivity().getApplicationContext(),
                     getArguments().getString(Constants.ARG_ITEM_ID));
 
-            alertState = WEASharedPreferences.getAlertState(getActivity().getApplicationContext(),
+            messageState = WEASharedPreferences.getAlertState(getActivity().getApplicationContext(),
                     alert);
         }
 
@@ -198,19 +198,19 @@ public class AlertDetailFragment extends Fragment {
 
     private void alertUserWithVibrationAndSpeech() {
 
-        if(alertState!= null && !alertState.isAlreadyShown()){
+        if(messageState != null && !messageState.isAlreadyShown()){
 
             WEAUtil.showMessageIfInDebugMode(getActivity().getApplicationContext(),
                     "Alert is shown for first time, may vibrate and speak");
 
-            alertState.setAlreadyShown(true);
-            alertState.setTimeWhenShownToUserInEpoch(System.currentTimeMillis());
-            alertState.setState(AlertState.State.shown);
-            WEASharedPreferences.saveAlertState(getActivity().getApplicationContext(), alertState);
+            messageState.setAlreadyShown(true);
+            messageState.setTimeWhenShownToUserInEpoch(System.currentTimeMillis());
+            messageState.setState(MessageState.State.shown);
+            WEASharedPreferences.saveAlertState(getActivity().getApplicationContext(), messageState);
 
             WEAHttpClient.sendAlertState(getActivity().getApplicationContext(),
-                    alertState.getJson(),
-                    String.valueOf(alertState.getId()));
+                    messageState.getJson(),
+                    String.valueOf(messageState.getId()));
 
 
             if (alert != null && alert.isPhoneExpectedToVibrate()) {
@@ -254,9 +254,9 @@ public class AlertDetailFragment extends Fragment {
                                     builder.include(new LatLng(location.getLatitude(), location.getLongitude()));
                                 }
 
-                                if(alertState != null && alertState.getLocationWhenShown() != null){
-                                    builder.include(new LatLng(alertState.getLocationWhenShown().getLatitude(),
-                                            alertState.getLocationWhenShown().getLongitude()));
+                                if(messageState != null && messageState.getLocationWhenShown() != null){
+                                    builder.include(new LatLng(messageState.getLocationWhenShown().getLatitude(),
+                                            messageState.getLocationWhenShown().getLongitude()));
                                 }
 
                                 LatLngBounds bounds = builder.build();
@@ -379,10 +379,10 @@ public class AlertDetailFragment extends Fragment {
     private void addUserLocationWhenAlertWasFirstShown() {
         if(myLocation != null){
 
-            if(alertState != null && alertState.getLocationWhenShown() != null){
+            if(messageState != null && messageState.getLocationWhenShown() != null){
                 mMap.addMarker(new MarkerOptions().position(
-                        new LatLng(alertState.getLocationWhenShown().getLatitude(),
-                                alertState.getLocationWhenShown().getLongitude()))
+                        new LatLng(messageState.getLocationWhenShown().getLatitude(),
+                                messageState.getLocationWhenShown().getLongitude()))
                         .title("Your location"));
             }else{
                 mMap.addMarker(new MarkerOptions().position(

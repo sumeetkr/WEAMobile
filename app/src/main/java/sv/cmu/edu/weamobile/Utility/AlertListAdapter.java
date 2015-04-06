@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 import sv.cmu.edu.weamobile.data.Alert;
 import sv.cmu.edu.weamobile.R;
-import sv.cmu.edu.weamobile.data.AlertState;
+import sv.cmu.edu.weamobile.data.MessageState;
 
 /**
  * Created by sumeet on 10/31/14.
@@ -34,7 +34,7 @@ public class AlertListAdapter extends ArrayAdapter<Alert> {
         }
 
         Alert alert = alerts.get(position);
-        AlertState state = AlertHelper.getAlertState(getContext(), alert);
+        MessageState state = AlertHelper.getAlertState(getContext(), alert);
 
         if(alert!=null && alert.getScheduledEpochInSeconds() < System.currentTimeMillis()/1000 ) {
 

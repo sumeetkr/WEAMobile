@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sv.cmu.edu.weamobile.data.Alert;
-import sv.cmu.edu.weamobile.data.AlertState;
+import sv.cmu.edu.weamobile.data.MessageState;
 import sv.cmu.edu.weamobile.data.GeoLocation;
 import sv.cmu.edu.weamobile.utility.Logger;
 
@@ -119,9 +119,9 @@ public class AlertDataSource {
             dbHelper.addAlertStateToDatabase(alert);
     }
 
-    public AlertState getAlertState(Context context, Alert alert) throws NoSuchFieldException {
+    public MessageState getAlertState(Context context, Alert alert) throws NoSuchFieldException {
         SQLiteDatabase sqldb = database;
-        AlertState newState = null;
+        MessageState newState = null;
         long id = alert.getId()+alert.getScheduledEpochInSeconds();
         String Query = "Select * from " + WEASQLiteHelper.TABLE_ALERTSTATE + " where " + WEASQLiteHelper.COLUMN_ALERTSTATE_ID + " = " + Long.toString(id);
         Cursor cursor = sqldb.rawQuery(Query, null);
@@ -137,7 +137,7 @@ public class AlertDataSource {
                     String sFor = cursor.getString(cursor.getColumnIndex(WEASQLiteHelper.COLUMN_ALERTSTATE_SCHEDULEDFOR));
 
                     String text = cursor.getString(cursor.getColumnIndex(WEASQLiteHelper.COLUMN_ALERTSTATE_TEXT));
-                    newState = AlertState.fromJson(text);
+                    newState = MessageState.fromJson(text);
 
             }
         }

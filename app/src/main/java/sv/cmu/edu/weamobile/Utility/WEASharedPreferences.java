@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import sv.cmu.edu.weamobile.data.Alert;
-import sv.cmu.edu.weamobile.data.AlertState;
+import sv.cmu.edu.weamobile.data.MessageState;
 import sv.cmu.edu.weamobile.data.Message;
 
 /**
@@ -62,29 +62,29 @@ public class WEASharedPreferences {
 
     }
 
-    public static AlertState getAlertState(Context context, Alert alert) {
+    public static MessageState getAlertState(Context context, Alert alert) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
-        AlertState alertState = null;
+        MessageState messageState = null;
         if (sharedPreferences != null) {
             String res = sharedPreferences.getString(Constants.ALERT_STATE+alert.getId()+alert.getScheduledEpochInSeconds(), null);
             if(res!=null){
-                alertState = AlertState.fromJson(res);
+                messageState = MessageState.fromJson(res);
             }else{
                 Logger.log("Alert state not found");
             }
         }
 
         Logger.log("got state from shared preferences "+ Constants.ALERT_STATE+alert.getId()+alert.getScheduledEpochInSeconds());
-        return alertState;
+        return messageState;
     }
 
-    public static void saveAlertState(Context context, AlertState alertState) {
+    public static void saveAlertState(Context context, MessageState messageState) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
         if (sharedPreferences != null) {
             SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString(Constants.ALERT_STATE+alertState.getId()+alertState.getScheduledEpochInSeconds(), alertState.getJson());
+            editor.putString(Constants.ALERT_STATE+ messageState.getId()+ messageState.getScheduledEpochInSeconds(), messageState.getJson());
             editor.commit();
-            Logger.log("Saved new alert to shared preferences "+ Constants.ALERT_STATE+alertState.getId()+alertState.getScheduledEpochInSeconds());
+            Logger.log("Saved new alert to shared preferences "+ Constants.ALERT_STATE+ messageState.getId()+ messageState.getScheduledEpochInSeconds());
         }
     }
 
@@ -93,7 +93,7 @@ public class WEASharedPreferences {
         if (sharedPreferences != null) {
             String res = sharedPreferences.getString(Constants.ALERT_STATE+alert.getId()+alert.getScheduledEpochInSeconds(), null);
             if(res==null){
-                saveAlertState(context, new AlertState(alert.getId(), alert.getScheduledFor()));
+                saveAlertState(context, new MessageState(alert.getId(), alert.getScheduledFor()));
                 Logger.log("Added to shared preferences, alert id " + alert.getId());
             }
         }
