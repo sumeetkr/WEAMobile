@@ -25,10 +25,6 @@ public class AlertState {
         return scheduledFor;
     }
 
-    public void setScheduledFor(String scheduledFor) {
-        this.scheduledFor = scheduledFor;
-    }
-
     private String scheduledFor;
 
     public AlertState(int id, String scheduledForTime){

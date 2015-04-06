@@ -12,10 +12,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import sv.cmu.edu.weamobile.R;
 import sv.cmu.edu.weamobile.data.Alert;
 import sv.cmu.edu.weamobile.data.AlertState;
-import sv.cmu.edu.weamobile.data.AppConfiguration;
-import sv.cmu.edu.weamobile.R;
+import sv.cmu.edu.weamobile.data.Configuration;
 import sv.cmu.edu.weamobile.utility.AlertListAdapter;
 import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.Logger;
@@ -99,11 +99,11 @@ public class AlertListFragment extends ListFragment {
 
 
         if(getArguments() != null && getArguments().containsKey(Constants.CONFIG_JSON)) {
-            AppConfiguration configuration = AppConfiguration.fromJson(getArguments().getString(Constants.CONFIG_JSON));
+            Configuration configuration = Configuration.fromJson(getArguments().getString(Constants.CONFIG_JSON));
 
-            for(Alert alert:configuration.getAlertsWhichAreNotGeoTargetedOrGeotargetedAndUserWasInTarget(getActivity().getApplicationContext())){
-                addItem(alert);
-            }
+//            for(Alert alert: configuration.getAlertsWhichAreNotGeoTargetedOrGeotargetedAndUserWasInTarget(getActivity().getApplicationContext())){
+//                addItem(alert);
+//            }
 
 //            for(Alert alert:configuration.getAlerts(getActivityType().getApplicationContext())){
 //                addItem(alert);

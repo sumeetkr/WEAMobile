@@ -14,9 +14,9 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
-import sv.cmu.edu.weamobile.data.Alert;
 import sv.cmu.edu.weamobile.data.AlertState;
-import sv.cmu.edu.weamobile.data.AppConfiguration;
+import sv.cmu.edu.weamobile.data.Configuration;
+import sv.cmu.edu.weamobile.data.Message;
 import sv.cmu.edu.weamobile.data.UserActivity;
 import sv.cmu.edu.weamobile.utility.AlertHelper;
 import sv.cmu.edu.weamobile.utility.Constants;
@@ -24,7 +24,7 @@ import sv.cmu.edu.weamobile.utility.Logger;
 import sv.cmu.edu.weamobile.utility.WEAHttpClient;
 import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
 import sv.cmu.edu.weamobile.utility.WEAUtil;
-import sv.cmu.edu.weamobile.utility.db.AlertDataSource;
+import sv.cmu.edu.weamobile.utility.db.MessageDataSource;
 
 public class WEABackgroundService extends Service {
     public static final String FETCH_CONFIGURATION = "sv.cmu.edu.weamobile.service.action.FETCH_CONFIGURATION";
@@ -168,11 +168,11 @@ public class WEABackgroundService extends Service {
 
     }
 
-    private void addOrUpdatedAlertsStateToSharedPreferences(AppConfiguration configuration) {
+    private void addOrUpdatedAlertsStateToSharedPreferences(Configuration configuration) {
         if(configuration!= null){
-            Alert [] alerts = configuration.getAlertsFromJSON();
-            if(alerts.length >0){
-                for(Alert alert: alerts) {
+            List<Message> alerts = configuration.getMessages();
+            if(alerts.size() >0){
+                for(Message alert: alerts) {
                     if(alert.isActive() || alert.isOfFuture()){
                         WEASharedPreferences.addAlertStateToPreferences(getApplicationContext(), alert);
                     }
@@ -185,36 +185,20 @@ public class WEABackgroundService extends Service {
         This function adds alerts to the database and if they already exist, updates them.
         Author: Harsh Alkutkar, Feb 25, 2015
      */
-    private void addOrUpdatedAlertsStateToDatabase(AppConfiguration configuration) {
+    private void addOrUpdatedMessagesToDatabase(Configuration configuration) {
 
-        // [--- database start -- * has to be here *]
-        //create / open the db (important - has to be before anything)
-        Logger.log("Opening a connection to the database");
-        AlertDataSource alertDataSource = new AlertDataSource(this);
-        alertDataSource.open();
-
-        if(configuration!= null){
-            Alert [] alerts = configuration.getAlertsFromJSON();
-            if(alerts.length >0){
-                for(Alert alert: alerts) {
-                    if(alert.isActive() || alert.isOfFuture()){
-                        //Level of indirection (ADS->MYSQLITEHELPER->addAlertStateToDatabase())
-                        alertDataSource.addAlertStateToDatabase(alert);
-                    }
-                }
-            }
-        }
-
-        alertDataSource.close();
+        MessageDataSource messageDataSource = new MessageDataSource(this);
+        messageDataSource.insertDataItemsIfNotPresent(configuration.getMessages());
     }
 
 
 
-    private void setupAlarmToShowAlertAtRightTime(AppConfiguration configuration){
+
+    private void setupAlarmToShowAlertAtRightTime(Configuration configuration){
 
         //two things to be done, shown now or schedule for later if in half an hour
-        List<Alert> alerts = getAlertRelevantBetweenNowAndNextScheduledCheck(configuration);
-        for(Alert alert : alerts){
+        List<Message> alerts = getAlertRelevantBetweenNowAndNextScheduledCheck(configuration);
+        for(Message alert : alerts){
             long currentTime = System.currentTimeMillis()/1000;
             String message = "Alert expected after: "+ (alert.getScheduledEpochInSeconds() - currentTime) + " secs";
             Logger.log(message);
@@ -225,7 +209,7 @@ public class WEABackgroundService extends Service {
         }
     }
 
-    private void sendAlertScheduledInfoToServer(Alert alert) {
+    private void sendAlertScheduledInfoToServer(Message alert) {
         try{
             AlertState alertState = AlertHelper.getAlertState(getApplicationContext(), alert);
             alertState.setState(AlertState.State.scheduled);
@@ -240,13 +224,13 @@ public class WEABackgroundService extends Service {
         }
     }
 
-    private List<Alert> getAlertRelevantBetweenNowAndNextScheduledCheck(AppConfiguration config){
-        List<Alert> relevantAlerts= new ArrayList<Alert>();
+    private List<Message> getAlertRelevantBetweenNowAndNextScheduledCheck(Configuration config){
+        List<Message> relevantAlerts= new ArrayList<Message>();
 
         if(config != null){
-            Alert [] alerts = config.getAlertsFromJSON();
-            if(alerts.length >0){
-                for(Alert alert: alerts){
+            List<Message> alerts = config.getMessages();
+            if(alerts.size() >0){
+                for(Message alert: alerts){
                     try{
                         if(alert.isInRangeToSchedule()){
                             relevantAlerts.add(alert);
@@ -285,12 +269,11 @@ public class WEABackgroundService extends Service {
 
             }
 
-            AppConfiguration configuration = AppConfiguration.fromJson(json);
+            Configuration configuration = Configuration.fromJson(json);
 
-            addOrUpdatedAlertsStateToSharedPreferences(configuration); //Save the individual alerts
+//            addOrUpdatedAlertsStateToSharedPreferences(configuration); //Save the individual alerts
 
-            //---- Database Insertion Trial [db]
-            addOrUpdatedAlertsStateToDatabase(configuration);
+            addOrUpdatedMessagesToDatabase(configuration);
 
             setupAlarmToShowAlertAtRightTime(configuration);
 

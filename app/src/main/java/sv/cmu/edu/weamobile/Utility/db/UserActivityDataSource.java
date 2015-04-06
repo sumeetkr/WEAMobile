@@ -21,6 +21,16 @@ public class UserActivityDataSource extends WEADataSource<UserActivity>{
     }
 
     @Override
+    public void insertDataIfNotPresent(UserActivity data) {
+
+    }
+
+    @Override
+    public void insertDataItemsIfNotPresent(List<UserActivity> data) {
+
+    }
+
+    @Override
     public UserActivity getData(int id) {
         return null;
     }

@@ -49,6 +49,10 @@ public abstract class WEADataSource<T> {
 
     public abstract void insertData(T data);
 
+    public abstract void insertDataIfNotPresent(T data);
+
+    public abstract void insertDataItemsIfNotPresent(List<T> data);
+
     public abstract T getData(int id);
 
     public abstract void updateData(T data);

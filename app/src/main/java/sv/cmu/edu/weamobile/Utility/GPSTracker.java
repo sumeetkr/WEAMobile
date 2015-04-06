@@ -10,7 +10,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 
 import sv.cmu.edu.weamobile.data.Alert;
-import sv.cmu.edu.weamobile.data.AppConfiguration;
+import sv.cmu.edu.weamobile.data.Configuration;
 import sv.cmu.edu.weamobile.data.GeoLocation;
 
 /**
@@ -33,7 +33,7 @@ public class GPSTracker extends Service implements LocationListener {
 
     Alert alert;
 
-    AppConfiguration configuration;
+    Configuration configuration;
 
     int countOfUpdates =0;
     int noOfTimesToCheck = 5;
@@ -203,7 +203,7 @@ public class GPSTracker extends Service implements LocationListener {
                 String message= "Got GPS update";
                 if(geoLocation == null || WEALocationHelper.isInPolygon(geoLocation, alert.getPolygon())){
                     message = "Present in polygon or location not known, will show alert";
-                    AlertHelper.showAlert(mContext, alert, geoLocation, configuration, message);
+                    AlertHelper.showAlert(mContext, alert, geoLocation, message);
                     stopUsingGPS();
                 }else if(WEALocationHelper.getDistance(alert.getPolygon(), geoLocation) < 0.1){
                     noOfTimesToCheck = 60;
@@ -304,7 +304,7 @@ public class GPSTracker extends Service implements LocationListener {
 
     public void keepLookingForPresenceInPolygonAndShowAlertIfNecessary(Context context,
                                                                        Alert alert,
-                                                                       AppConfiguration configuration) {
+                                                                       Configuration configuration) {
         this.alert = alert;
         this.configuration = configuration;
         countOfUpdates = 0;

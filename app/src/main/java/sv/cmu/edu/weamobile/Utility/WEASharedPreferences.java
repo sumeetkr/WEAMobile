@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 
 import sv.cmu.edu.weamobile.data.Alert;
 import sv.cmu.edu.weamobile.data.AlertState;
+import sv.cmu.edu.weamobile.data.Message;
 
 /**
  * Created by sumeet on 10/7/14.
@@ -87,7 +88,7 @@ public class WEASharedPreferences {
         }
     }
 
-    public static void addAlertStateToPreferences(Context context, Alert alert) {
+    public static void addAlertStateToPreferences(Context context, Message alert) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
         if (sharedPreferences != null) {
             String res = sharedPreferences.getString(Constants.ALERT_STATE+alert.getId()+alert.getScheduledEpochInSeconds(), null);

@@ -15,9 +15,8 @@ import java.util.List;
 
 import sv.cmu.edu.weamobile.data.Alert;
 import sv.cmu.edu.weamobile.data.AlertState;
-import sv.cmu.edu.weamobile.data.AppConfiguration;
 import sv.cmu.edu.weamobile.data.GeoLocation;
-import sv.cmu.edu.weamobile.utility.db.LocationDataSource;
+import sv.cmu.edu.weamobile.data.Message;
 import sv.cmu.edu.weamobile.views.MainActivity;
 
 
@@ -44,7 +43,6 @@ public class AlertHelper {
     public static void showAlert( Context context,
                                    Alert alert,
                                    GeoLocation location,
-                                   AppConfiguration configuration,
                                     String messageWhyShowingAlert) {
         Logger.log("Its the alert time");
         WEAUtil.showMessageIfInDebugMode(context, "Checking if alert is active");
@@ -62,7 +60,7 @@ public class AlertHelper {
 
             Intent dialogIntent = new Intent(context, MainActivity.class);
             dialogIntent.putExtra(Constants.ALERT_ID, String.valueOf(alert.getId()));
-            dialogIntent.putExtra(Constants.CONFIG_JSON, configuration.getJson());
+//            dialogIntent.putExtra(Constants.CONFIG_JSON, configuration.getJson());
             dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
             WEAUtil.showMessageIfInDebugMode(context, "Alert is active, asking main view to show alert");
@@ -74,72 +72,79 @@ public class AlertHelper {
 
     public static void showAlertIfInTargetOrIsNotGeotargeted(Context context, int alertId) {
         Logger.log("Show alert if in target for ", String.valueOf(alertId));
-        String json = WEASharedPreferences.readApplicationConfiguration(context);
-        AppConfiguration configuration = AppConfiguration.fromJson(json);
-        Alert [] alerts = configuration.getAlerts(context);
-
-        for(Alert alert: alerts){
-            if(alert.getId() == alertId && alert.isActive() ){
-
-                GPSTracker tracker = new GPSTracker(context);
-                if(tracker.canGetLocation()){
-                    if(alert.isGeoFiltering() ){
-                        Logger.log("The phone can get location, will check if in target");
-                        //first check location history
-                        //The code here needs to be refactored for future extension
-                        LocationDataSource dataSource = new LocationDataSource(context);
-                        List<GeoLocation> locations = dataSource.getAllData();
-                        //check history of user locations
-                        //Also predict his future locations
-                        if(WEALocationHelper.areAnyPointsInPolygon(locations, alert.getPolygon())){
-                            String message = "User's location history was found in the alert region, showing alert";
-                            Logger.log(message);
-                            WEAUtil.showMessageIfInDebugMode(context, message);
-                            showAlert(context, alert, tracker.getNetworkGeoLocation(), configuration, message);
-
-                        }else if(WEALocationHelper.areAnyPointsInPolygon2(
-                                WEALocationHelper.getFuturePredictionsOfLatLngs(locations)
-                                , alert.getPolygon())){
-                            String message = "User's predicted location was found in the alert region, showing alert";
-                            Logger.log(message);
-                            WEAUtil.showMessageIfInDebugMode(context, message);
-                            showAlert(context, alert, tracker.getNetworkGeoLocation(), configuration, message);
-                        }else{
-                            tracker.keepLookingForPresenceInPolygonAndShowAlertIfNecessary(context, alert, configuration);
-                        }
-                    }else{
-                        String message = "Geo-filtering is off, showing alert";
-                        Logger.log(message);
-                        WEAUtil.showMessageIfInDebugMode(context, message);
-                        showAlert(context, alert, tracker.getNetworkGeoLocation(), configuration, message);
-                    }
-                }else{
-                    Logger.log("Location not known");
-                    String message ="GPS location not know, please enable GPS for Geo-filtering, showing alert";
-                    Logger.log(message);
-                    WEAUtil.showMessageIfInDebugMode(context, message);
-                    showAlert(context, alert, null, configuration, message);
-                }
-            }
-        }
+//        String json = WEASharedPreferences.readApplicationConfiguration(context);
+//        AppConfiguration configuration = AppConfiguration.fromJson(json);
+//        Alert [] alerts = configuration.getAlerts(context);
+//
+//        for(Alert alert: alerts){
+//            if(alert.getId() == alertId && alert.isActive() ){
+//
+//                GPSTracker tracker = new GPSTracker(context);
+//                if(tracker.canGetLocation()){
+//                    if(alert.isGeoFiltering() ){
+//                        Logger.log("The phone can get location, will check if in target");
+//                        //first check location history
+//                        //The code here needs to be refactored for future extension
+//                        LocationDataSource dataSource = new LocationDataSource(context);
+//                        List<GeoLocation> locations = dataSource.getAllData();
+//                        //check history of user locations
+//                        //Also predict his future locations
+//                        if(WEALocationHelper.areAnyPointsInPolygon(locations, alert.getPolygon())){
+//                            String message = "User's location history was found in the alert region, showing alert";
+//                            Logger.log(message);
+//                            WEAUtil.showMessageIfInDebugMode(context, message);
+//                            showAlert(context, alert, tracker.getNetworkGeoLocation(), configuration, message);
+//
+//                        }else if(WEALocationHelper.areAnyPointsInPolygon2(
+//                                WEALocationHelper.getFuturePredictionsOfLatLngs(locations)
+//                                , alert.getPolygon())){
+//                            String message = "User's predicted location was found in the alert region, showing alert";
+//                            Logger.log(message);
+//                            WEAUtil.showMessageIfInDebugMode(context, message);
+//                            showAlert(context, alert, tracker.getNetworkGeoLocation(), configuration, message);
+//                        }else{
+//                            tracker.keepLookingForPresenceInPolygonAndShowAlertIfNecessary(context, alert, configuration);
+//                        }
+//                    }else{
+//                        String message = "Geo-filtering is off, showing alert";
+//                        Logger.log(message);
+//                        WEAUtil.showMessageIfInDebugMode(context, message);
+//                        showAlert(context, alert, tracker.getNetworkGeoLocation(), configuration, message);
+//                    }
+//                }else{
+//                    Logger.log("Location not known");
+//                    String message ="GPS location not know, please enable GPS for Geo-filtering, showing alert";
+//                    Logger.log(message);
+//                    WEAUtil.showMessageIfInDebugMode(context, message);
+//                    showAlert(context, alert, null, configuration, message);
+//                }
+//            }
+//        }
     }
 
     public static Alert getAlertFromId(Context context, String id) {
 
-        AppConfiguration configuration = AppConfiguration.fromJson(WEASharedPreferences.readApplicationConfiguration(context));
-        Logger.log("AlertDetailFragment key: " + id);
-
-        Alert selectedAlert = null;
-        for(Alert alert:configuration.getAlerts(context)){
-            if(alert.getId() == Integer.parseInt(id)){
-                selectedAlert = alert;
-            }
-        }
-        return selectedAlert;
+//        AppConfiguration configuration = AppConfiguration.fromJson(WEASharedPreferences.readApplicationConfiguration(context));
+//        Logger.log("AlertDetailFragment key: " + id);
+//
+//        Alert selectedAlert = null;
+//        for(Alert alert:configuration.getAlerts(context)){
+//            if(alert.getId() == Integer.parseInt(id)){
+//                selectedAlert = alert;
+//            }
+//        }
+//        return selectedAlert;
+        return null;
     }
 
     public static AlertState getAlertState(Context context, Alert alert) {
-        return WEASharedPreferences.getAlertState(context, alert);
+        return  null;
+//        return WEASharedPreferences.getAlertState(context, alert);
+    }
+
+    public static AlertState getAlertState(Context context, Message alert) {
+        return  null;
+//        return WEASharedPreferences.getAlertState(context, alert);
     }
 
     public static List<AlertState> getAlertStates(Context context, List<Alert> alerts){

@@ -69,6 +69,16 @@ public class LocationDataSource extends WEADataSource<GeoLocation> {
     }
 
     @Override
+    public void insertDataIfNotPresent(GeoLocation data) {
+
+    }
+
+    @Override
+    public void insertDataItemsIfNotPresent(List<GeoLocation> data) {
+
+    }
+
+    @Override
     public GeoLocation getData(int id) {
         //not yet implemented
         return null;

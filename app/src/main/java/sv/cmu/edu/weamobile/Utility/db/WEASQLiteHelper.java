@@ -45,7 +45,7 @@ public class WEASQLiteHelper extends SQLiteOpenHelper {
     public static final String COLUMN_ALERTSTATE_SCHEDULEDFOR = "scheduledFor";
     public static final String COLUMN_ALERTSTATE_TEXT = "text";
 
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
 
     /*
             The following create statement creates a table for storing individual properties of the alerts
@@ -91,6 +91,9 @@ public class WEASQLiteHelper extends SQLiteOpenHelper {
 
         database.execSQL(LocationDataSource.CREATE_LOCATION_TABLE_SQL);
         Logger.log("MySQLiteHelper","[ CREATED TABLE LOCATION ]");
+
+        database.execSQL(MessageDataSource.CREATE_MESSAGE_TABLE_SQL);
+        Logger.log("MySQLiteHelper","[ CREATED TABLE MESSAGE ]");
     }
 
     @Override
@@ -101,6 +104,7 @@ public class WEASQLiteHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ALERTS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ALERTSTATE);
         db.execSQL("DROP TABLE IF EXISTS " + LocationDataSource.LOCATION_TABLE);
+        db.execSQL("DROP TABLE IF EXISTS " + MessageDataSource.MESSAGE_TABLE);
         onCreate(db);
     }
 

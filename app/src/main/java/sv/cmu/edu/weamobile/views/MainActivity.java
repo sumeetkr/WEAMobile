@@ -22,12 +22,10 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.List;
-
 import sv.cmu.edu.weamobile.R;
 import sv.cmu.edu.weamobile.data.Alert;
 import sv.cmu.edu.weamobile.data.AlertState;
-import sv.cmu.edu.weamobile.data.AppConfiguration;
+import sv.cmu.edu.weamobile.data.Configuration;
 import sv.cmu.edu.weamobile.service.WEAAlarmManager;
 import sv.cmu.edu.weamobile.service.WEABackgroundService;
 import sv.cmu.edu.weamobile.service.WEANewConfigurationIntent;
@@ -52,7 +50,7 @@ public class MainActivity extends FragmentActivity
     private Handler handler;
     private NewConfigurationReceivedBroadcastReceiver newAlertReciver;
     private Switch mySwitch;
-    private AppConfiguration configuration;
+    private Configuration configuration;
     private AlertListFragment listFragment;
     private boolean programTryingToChangeSwitch = false;
     private AlertDialog dialog;
@@ -184,7 +182,7 @@ public class MainActivity extends FragmentActivity
         registerNewConfigurationReceiver();
 
         String json = WEASharedPreferences.readApplicationConfiguration(getApplicationContext());
-        configuration = AppConfiguration.fromJson(json);
+        configuration = Configuration.fromJson(json);
 
         if(getIntent().hasExtra(Constants.ALERT_ID)){
             refreshListAndSelectItem();
@@ -215,12 +213,12 @@ public class MainActivity extends FragmentActivity
         WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
                 "Reached main view OnResume, but no alert to show, will refresh the list");
         if(configuration!= null){
-            List<Alert> alerts = configuration.getAlertsWhichAreNotGeoTargetedOrGeotargetedAndUserWasInTarget(getApplicationContext());
-            List<AlertState> alertStates = AlertHelper.getAlertStates(getApplicationContext(), alerts);
-            List<Alert> alertNotShown = listFragment.updateListAndReturnAnyActiveAlertNotShown(alerts, alertStates);
-            if(alertNotShown != null && alertNotShown.size()>0){
-                AlertHelper.showAlertIfInTargetOrIsNotGeotargeted(getApplicationContext(), alertNotShown.get(0).getId());
-            }
+//            List<Alert> alerts = configuration.getAlertsWhichAreNotGeoTargetedOrGeotargetedAndUserWasInTarget(getApplicationContext());
+//            List<AlertState> alertStates = AlertHelper.getAlertStates(getApplicationContext(), alerts);
+//            List<Alert> alertNotShown = listFragment.updateListAndReturnAnyActiveAlertNotShown(alerts, alertStates);
+//            if(alertNotShown != null && alertNotShown.size()>0){
+//                AlertHelper.showAlertIfInTargetOrIsNotGeotargeted(getApplicationContext(), alertNotShown.get(0).getId());
+//            }
         }
     }
 
@@ -229,11 +227,11 @@ public class MainActivity extends FragmentActivity
                 "Reached main view OnResume with an alert to show, updating the list of alerts first");
         if(configuration!= null){
             String alertId = getIntent().getStringExtra(Constants.ALERT_ID);
-            List<Alert> alerts = configuration.getAlertsWhichAreNotGeoTargetedOrGeotargetedAndUserWasInTarget(getApplicationContext());
-            List<AlertState> alertStates = AlertHelper.getAlertStates(getApplicationContext(), alerts);
-            listFragment.updateListAndReturnAnyActiveAlertNotShown(alerts, alertStates);
-
-            onItemSelected(alertId);
+//            List<Alert> alerts = configuration.getAlertsWhichAreNotGeoTargetedOrGeotargetedAndUserWasInTarget(getApplicationContext());
+//            List<AlertState> alertStates = AlertHelper.getAlertStates(getApplicationContext(), alerts);
+//            listFragment.updateListAndReturnAnyActiveAlertNotShown(alerts, alertStates);
+//
+//            onItemSelected(alertId);
         }
     }
 
@@ -587,16 +585,16 @@ public class MainActivity extends FragmentActivity
 
                 if(!isOld){
                     String json = WEASharedPreferences.readApplicationConfiguration(context);
-                    configuration = AppConfiguration.fromJson(json);
+                    configuration = Configuration.fromJson(json);
                     if(listFragment != null) {
-                        List<Alert> activeButNotShown = listFragment.updateListAndReturnAnyActiveAlertNotShown(
-                                configuration.getAlertsList(context),
-                                AlertHelper.getAlertStates(context, configuration.getAlertsList(context)));
-
-                        if(activeButNotShown!=null && activeButNotShown.size()>0){
-                            WEAUtil.showMessageIfInDebugMode(context, "Found an alert which is active but not sown.");
-                            AlertHelper.showAlertIfInTargetOrIsNotGeotargeted(context, activeButNotShown.get(0).getId());
-                        }
+//                        List<Alert> activeButNotShown = listFragment.updateListAndReturnAnyActiveAlertNotShown(
+//                                configuration.getAlertsList(context),
+//                                AlertHelper.getAlertStates(context, configuration.getAlertsList(context)));
+//
+//                        if(activeButNotShown!=null && activeButNotShown.size()>0){
+//                            WEAUtil.showMessageIfInDebugMode(context, "Found an alert which is active but not sown.");
+//                            AlertHelper.showAlertIfInTargetOrIsNotGeotargeted(context, activeButNotShown.get(0).getId());
+//                        }
                     }
                 }
 

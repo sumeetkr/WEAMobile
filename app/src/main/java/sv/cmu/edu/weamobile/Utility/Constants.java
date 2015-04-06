@@ -8,7 +8,7 @@ public class Constants {
 //    public static final String URL_TO_GET_CONFIGURATION = "http://code.sumeetkumar.in/config.json";
     public static final String URL_TO_GET_CONFIGURATION = BASE_URL +"/wea/api/heartbeat/";
     public static final String URL_TO_SEND_HEARTBEAT = BASE_URL +"/wea/api/phone/";
-    public static final String URL_TO_FETCH_ALERTS = BASE_URL + "/wea/api/alert";
+    public static final String URL_TO_FETCH_ALERTS = BASE_URL + "/wea/api/message";
 
 //public static final String URL_TO_GET_CONFIGURATION = "http://10.0.17.19:5000/wea/api/heartbeat/";
 //    public static final String FEEDBACK_URL_ROOT = "http://code.sumeetkumar.in/user_study/WEA/feedback_form.html";
