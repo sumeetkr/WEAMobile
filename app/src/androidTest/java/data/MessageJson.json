@@ -1,0 +1,33 @@
+[
+  {
+    "id": 1,
+    "scheduledFor": "2015-04-05T09:10:57.000Z",
+    "endingAt": "2015-04-05T09:40:57.000Z",
+    "isMapToBeShown": false,
+    "isAlertActive": true,
+    "isPhoneExpectedToVibrate": true,
+    "isTextToSpeechExpected": false,
+    "geoFiltering": false,
+    "historyBasedFiltering": false,
+    "motionPredictionBasedFiltering": false,
+    "areaId": 1,
+    "polygon": [
+      {
+        "lat": "37.412059573882146",
+        "lng": "-122.06159800174404"
+      },
+      {
+        "lat": "37.40979274810897",
+        "lng": "-122.06144779803921"
+      },
+      {
+        "lat": "37.409451866119724",
+        "lng": "-122.05812185886074"
+      },
+      {
+        "lat": "37.41139487268086",
+        "lng": "-122.05812185886074"
+      }
+    ]
+  }
+]

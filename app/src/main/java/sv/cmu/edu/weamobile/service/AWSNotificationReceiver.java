@@ -1,11 +1,14 @@
-package sv.cmu.edu.weamobile.utility;
+package sv.cmu.edu.weamobile.service;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import sv.cmu.edu.weamobile.service.WEABackgroundService;
+import sv.cmu.edu.weamobile.utility.Logger;
+import sv.cmu.edu.weamobile.utility.WEAHttpClient;
+import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
+import sv.cmu.edu.weamobile.utility.WEAUtil;
 import sv.cmu.edu.weamobile.views.MainActivity;
 
 public class AWSNotificationReceiver extends BroadcastReceiver {

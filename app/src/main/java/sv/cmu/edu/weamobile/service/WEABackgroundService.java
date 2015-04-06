@@ -33,7 +33,6 @@ public class WEABackgroundService extends Service {
     private final IBinder mBinder = new LocalBinder();
     private BroadcastReceiver newConfigurationHandler;
     private NewActivityReceiver activityBroadcastReceiver;
-    private AlertDataSource alertDataSource = new AlertDataSource(this);
     private UserActivity lastActivity;
     private Handler handler;
 
@@ -141,17 +140,32 @@ public class WEABackgroundService extends Service {
         //read configuration and setup up new alarm
         //if problem in getting/receiving configuration, set default alarm
 
-        // Get info on motion i.e. speed and direction
-        //Get info on UserActivity
-        WEAUtil.getUserActivityInfo(getApplicationContext());
-        //wait some time to get user activity, which is added to to the heartbeat
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                WEAUtil.sendHeartBeatAndGetConfigurationAsync(getApplicationContext(),
-                        lastActivity);
-            }
-        }, 1000);
+        if(WEAUtil.checkIfPhoneIsRegisteredIfNotRegister(getApplicationContext())){
+
+            //don't let all phones to ask at the same moment
+            handler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        WEAHttpClient.fetchAlerts(getApplicationContext());
+                                    }
+
+              }, WEAUtil.randInt(5, 1000));
+
+
+            // Get info on motion i.e. speed and direction
+            //Get info on UserActivity
+            WEAUtil.getUserActivityInfo(getApplicationContext());
+            //wait some time to get user activity, which is added to to the heartbeat
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    WEAUtil.sendHeartBeat(getApplicationContext(),
+                            lastActivity);
+                }
+            }, WEAUtil.randInt(1000, 2000));
+        }
+
+
     }
 
     private void addOrUpdatedAlertsStateToSharedPreferences(AppConfiguration configuration) {
@@ -172,6 +186,13 @@ public class WEABackgroundService extends Service {
         Author: Harsh Alkutkar, Feb 25, 2015
      */
     private void addOrUpdatedAlertsStateToDatabase(AppConfiguration configuration) {
+
+        // [--- database start -- * has to be here *]
+        //create / open the db (important - has to be before anything)
+        Logger.log("Opening a connection to the database");
+        AlertDataSource alertDataSource = new AlertDataSource(this);
+        alertDataSource.open();
+
         if(configuration!= null){
             Alert [] alerts = configuration.getAlertsFromJSON();
             if(alerts.length >0){
@@ -183,6 +204,8 @@ public class WEABackgroundService extends Service {
                 }
             }
         }
+
+        alertDataSource.close();
     }
 
 
@@ -246,11 +269,6 @@ public class WEABackgroundService extends Service {
 
         @Override
         public void onReceive(final Context context, Intent intent) {
-//            ToDo: Move "open, add data and close" to a single function, with exception handling
-            // [--- database start -- * has to be here *]
-            //create / open the db (important - has to be before anything)
-            Logger.log("Opening a connection to the database");
-            alertDataSource.open();
 
             Logger.log("NewConfigurationReceiver");
             String json = intent.getStringExtra("message");
@@ -279,8 +297,6 @@ public class WEABackgroundService extends Service {
             //update if new alerts
             Logger.log("Broadcast intent: About to broadcast new configuration");
             getApplicationContext().sendBroadcast(newConfigurationIntent);
-
-            alertDataSource.close();
         }
 
     }

@@ -19,6 +19,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Random;
 import java.util.TimeZone;
 
 import sv.cmu.edu.weamobile.R;
@@ -132,8 +133,8 @@ public class WEAUtil {
         return version;
     }
 
-    public static void sendHeartBeatAndGetConfigurationAsync(Context context,
-                                                             UserActivity activity) {
+    public static void sendHeartBeat(Context context,
+                                     UserActivity activity) {
         GeoLocation location = new GeoLocation("0.00", "0.00", 0.00f);
         GPSTracker tracker =null;
         try{
@@ -166,21 +167,14 @@ public class WEAUtil {
             try{
                 //ToDo: Move this code to its right place
                 if(tracker != null) tracker.stopUsingGPS();
+                if(checkIfPhoneIsRegisteredIfNotRegister(context)){
 
-                String phoneId = WEASharedPreferences.getStringProperty(context,Constants.PHONE_ID);
-                String token = WEASharedPreferences.getStringProperty(context, Constants.PHONE_TOKEN);
-
-                if(phoneId!= null && !phoneId.isEmpty() && token!= null && !token.isEmpty()){
-
-                    WEAHttpClient.sendHeartbeat(location.getJson(), context, Constants.URL_TO_GET_CONFIGURATION +phoneId );
+                    WEAHttpClient.sendHeartbeat(location.getJson(), context);
 
                     //TODO: Need to move it at right location
                     LocationDataSource dataSource = new LocationDataSource(context);
                     dataSource.insertData(location);
 
-                }else{
-                    //probably phone is not registered, do it now
-                    WEAHttpClient.registerPhoneAync(context);
                 }
             }catch (Exception ex){
                 Logger.log(ex.getMessage());
@@ -188,8 +182,22 @@ public class WEAUtil {
         }
     }
 
+    public static boolean checkIfPhoneIsRegisteredIfNotRegister(Context context){
+        boolean isRegistered = false;
+        String phoneId = WEASharedPreferences.getStringProperty(context,Constants.PHONE_ID);
+        String token = WEASharedPreferences.getStringProperty(context, Constants.PHONE_TOKEN);
+
+        if(phoneId!= null && !phoneId.isEmpty() && token!= null && !token.isEmpty()){
+            isRegistered = true;
+        }else{
+            WEAHttpClient.registerPhoneAync(context);
+        }
+
+        return  isRegistered;
+    }
+
     public static void sendHeartBeatAndGetConfigurationAsync(Context context){
-        sendHeartBeatAndGetConfigurationAsync(context, null);
+        sendHeartBeat(context, null);
     }
 
     public  static  void  getUserActivityInfo(Context context) {
@@ -226,5 +234,17 @@ public class WEAUtil {
         mNotificationManager.notify(R.string.notification_number, notification);
     }
 
+    public static int randInt(int min, int max) {
+
+        // NOTE: Usually this should be a field rather than a method
+        // variable so that it is not re-seeded every call.
+        Random rand = new Random();
+
+        // nextInt is normally exclusive of the top value,
+        // so add 1 to make it inclusive
+        int randomNum = rand.nextInt((max - min) + 1) + min;
+
+        return randomNum;
+    }
 
 }

@@ -56,16 +56,56 @@ public class WEAHttpClient {
         return result;
     }
 
-    public static void sendHeartbeat(String data, Context context ,String server_url) {
+    public static void sendHeartbeat(String data, Context context ) {
+
+        String phoneId = WEASharedPreferences.getStringProperty(context,Constants.PHONE_ID);
+        String serverUrl = Constants.URL_TO_SEND_HEARTBEAT +phoneId+"/heartbeat";
+
         final Context ctxt = context;
         String response = "";
         try {
 
-            Logger.log("sendHeartbeat ", server_url+ " " + data);
+            Logger.log("sendHeartbeat ", serverUrl+ " " + data);
             AsyncHttpClient client = new AsyncHttpClient();
             StringEntity entity = new StringEntity(data);
 
-            client.put(ctxt, server_url, entity, "application/json", new AsyncHttpResponseHandler() {
+            client.put(ctxt, serverUrl, entity, "application/json", new AsyncHttpResponseHandler() {
+                @Override
+                public void onSuccess(String response) {
+
+                    WEASharedPreferences.setStringProperty(ctxt,
+                            "lastTimeChecked",
+                            String.valueOf(System.currentTimeMillis()));
+
+                    Logger.log("JsonSender", "Success - ");
+                    Logger.debug(response);
+                }
+
+                @Override
+                public void onFailure(int statusCode, org.apache.http.Header[] headers, byte[] errorResponse, Throwable e) {
+                    // called when response HTTP status is "4XX" (eg. 401, 403, 404)
+                    Log.w("WEA JsonSender", "Failure in sending - " + "Status code -" + statusCode + " Error response -" + errorResponse);
+                }
+            });
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            response = "failed : + " + e.getMessage();
+            Log.d("WEA JsonSender",e.getMessage());
+        }
+    }
+
+    public static void fetchAlerts( Context context ){
+        String serverUrl = Constants.URL_TO_FETCH_ALERTS;
+        final Context ctxt = context;
+        String response = "";
+        try {
+
+            Logger.log("Fetching alerts ", serverUrl);
+            AsyncHttpClient client = new AsyncHttpClient();
+            StringEntity entity = new StringEntity("");
+
+            client.get(ctxt, serverUrl, new AsyncHttpResponseHandler() {
                 @Override
                 public void onSuccess(String response) {
 
@@ -96,7 +136,6 @@ public class WEAHttpClient {
             Log.d("WEA JsonSender",e.getMessage());
         }
     }
-
     public static String getDataFromServer(final Context context ,String server_url) {
         String response = "";
         try {
@@ -241,11 +280,11 @@ public class WEAHttpClient {
                             return null;
                         }
                     }
-                    Logger.log(token);
+                    Logger.log("Current token : " + token);
 
                     String phoneId = WEASharedPreferences.getStringProperty(context, Constants.PHONE_ID);
 
-                    if(phoneId != null && !phoneId.isEmpty()){
+                    if(phoneId == null || (phoneId!= null && phoneId.isEmpty())){
                         HashMap hm = new HashMap();
                         hm.put("token",token);
                         JSONObject json = new JSONObject(hm);
@@ -257,7 +296,7 @@ public class WEAHttpClient {
                         client.post(context, server_url, entity, "application/json", new AsyncHttpResponseHandler() {
                             @Override
                             public void onSuccess(String response) {
-                                Logger.log("WEA sending alert state", "Success - ");
+                                Logger.log("WEA trying to register phone", "Success - ");
                                 JSONObject json_response = null;
                                 try {
                                     json_response = new JSONObject(response);
@@ -276,6 +315,7 @@ public class WEAHttpClient {
                                     Logger.log("PHONE_ID","======= PHONE ID ======== >>> "+id);
                                 } catch (JSONException e) {
                                     Logger.log(e.getMessage());
+                                    Logger.log("Phone registration failed");
                                 }
                             }
 
