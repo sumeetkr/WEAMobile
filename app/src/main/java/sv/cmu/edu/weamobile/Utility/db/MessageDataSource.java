@@ -134,7 +134,7 @@ public class MessageDataSource extends WEADataSource<Message> {
             close();
         }
 
-        Logger.log("No of message in database " + messages.size());
+        Logger.log("No of messages in database " + messages.size());
         return  messages;
     }
 

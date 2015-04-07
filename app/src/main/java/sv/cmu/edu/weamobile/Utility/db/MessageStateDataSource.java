@@ -91,7 +91,6 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
         for(MessageState state : messageStates){
             if(state.getUniqueId().compareTo(data.getUniqueId()) == 0){
                 found = true;
-                break;
             }
         }
 
@@ -179,6 +178,9 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
                     state.setTimeWhenFeedbackGivenInEpoch(Long.parseLong(cursor.getString(5)));
                     state.setTimeWhenFeedbackGivenInEpoch(Long.parseLong(cursor.getString(6)));
 
+//                    double lat = Double.valueOf(cursor.getDouble(7));
+//                    double lng = Double.valueOf(cursor.getDouble(8));
+//                    float accuracy = Float.valueOf(cursor.getFloat(9));
                     state.setLocationWhenShown(new GeoLocation(cursor.getString(7), cursor.getString(7),cursor.getFloat(9) ));
 
                     state.setInPolygonOrAlertNotGeoTargeted(cursor.getInt(10)>0?true:false);
@@ -193,7 +195,7 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
             close();
         }
 
-        Logger.log("No of message sates in database " + messageStates.size());
+        Logger.log("No of messages states in database " + messageStates.size());
         return  messageStates;
     }
 

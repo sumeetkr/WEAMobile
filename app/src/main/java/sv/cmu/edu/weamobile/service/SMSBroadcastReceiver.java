@@ -66,7 +66,7 @@ public class SMSBroadcastReceiver extends BroadcastReceiver {
                 Integer start_index = messageReceived.indexOf(Constants.SMS_CODE_FOR_WEA_MESSAGES);
                 Log.w("smsreceiver", "Raw message: " + messageReceived.replace("\n", "").replace("  ", ""));
                 if (start_index != -1) {
-                    WEAUtil.sendHeartBeatAndGetConfigurationAsync(context);
+                    WEAUtil.sendHeartBeat(context);
 //                    String meaningful_part = messageReceived.substring(start_index);
 //                    process_meaningful_part(context, meaningful_part);
                 }

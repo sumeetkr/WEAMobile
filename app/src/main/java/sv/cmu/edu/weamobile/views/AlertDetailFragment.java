@@ -81,10 +81,10 @@ public class AlertDetailFragment extends Fragment {
     private void setupView(){
 
         if (message != null) {
-            Logger.log("Item is there" + message.getText());
+            Logger.log("Message to display : " + message.getText());
             TextView view = ((TextView) rootView.findViewById(R.id.alertText));
 
-            String text = message.toString();
+            String text = message.getText();
 //            if(!alertState.isAlreadyShown() && message.isActive() && alertState.isInPolygonOrAlertNotGeoTargeted()){
 //                text = message.getAlertType() + " Alert : "+ text;
 //            }

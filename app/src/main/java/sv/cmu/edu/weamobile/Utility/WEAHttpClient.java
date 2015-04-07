@@ -78,7 +78,7 @@ public class WEAHttpClient {
                             String.valueOf(System.currentTimeMillis()));
 
                     Logger.log("JsonSender", "Success - ");
-                    Logger.debug(response);
+//                    Logger.debug(response);
                 }
 
                 @Override

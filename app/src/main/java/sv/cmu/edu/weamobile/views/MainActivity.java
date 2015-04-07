@@ -25,7 +25,6 @@ import android.widget.Toast;
 import java.util.List;
 
 import sv.cmu.edu.weamobile.R;
-import sv.cmu.edu.weamobile.data.Configuration;
 import sv.cmu.edu.weamobile.data.Message;
 import sv.cmu.edu.weamobile.data.MessageState;
 import sv.cmu.edu.weamobile.service.WEAAlarmManager;
@@ -51,7 +50,6 @@ public class MainActivity extends FragmentActivity
     private Handler handler;
     private NewConfigurationReceivedBroadcastReceiver newAlertReciver;
     private Switch mySwitch;
-    private Configuration configuration;
     private AlertListFragment listFragment;
     private boolean programTryingToChangeSwitch = false;
     private AlertDialog dialog;
@@ -190,15 +188,15 @@ public class MainActivity extends FragmentActivity
     private void refreshListAndShowUnSeenAlert() {
         WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
                 "Reached main view OnResume, but no alert to show, will refresh the list");
-        if(configuration!= null){
-            List<Message> messages = AlertHelper.getAllMessage(getApplicationContext());
-            List<MessageState> messageStates = AlertHelper.getAllAlertStates(getApplicationContext());
 
-            List<Message> alertNotShown = listFragment.updateListAndReturnAnyActiveAlertNotShown(messages, messageStates);
-            if(alertNotShown != null && alertNotShown.size()>0){
-                AlertHelper.showAlertIfInTargetOrIsNotGeotargeted(getApplicationContext(), alertNotShown.get(0).getId());
-            }
+        List<Message> messages = AlertHelper.getAllMessage(getApplicationContext());
+        List<MessageState> messageStates = AlertHelper.getAllAlertStates(getApplicationContext());
+
+        List<Message> alertNotShown = listFragment.updateListAndReturnAnyActiveAlertNotShown(messages, messageStates);
+        if(alertNotShown != null && alertNotShown.size()>0){
+            AlertHelper.showAlertIfInTargetOrIsNotGeotargeted(getApplicationContext(), alertNotShown.get(0).getId());
         }
+
     }
 
     private void refreshListAndSelectItem() {
@@ -339,7 +337,6 @@ public class MainActivity extends FragmentActivity
             if(messageFromId.isMapToBeShown()){
                 Intent detailIntent = new Intent(this, AlertDetailActivity.class);
                 detailIntent.putExtra(Constants.ARG_ITEM_ID, id);
-                detailIntent.putExtra(Constants.CONFIG_JSON, configuration.getJson());
 
                 WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
                         "Asking to show alert with a map");
@@ -563,8 +560,6 @@ public class MainActivity extends FragmentActivity
                 final boolean isOld = intent.getBooleanExtra(WEANewConfigurationIntent.STATUS, false);
 
                 if(!isOld){
-                    String json = WEASharedPreferences.readApplicationConfiguration(context);
-                    configuration = Configuration.fromJson(json);
                     if(listFragment != null) {
 
                         List<Message> messages = AlertHelper.getAllMessage(context);

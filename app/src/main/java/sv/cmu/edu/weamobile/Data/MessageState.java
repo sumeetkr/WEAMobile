@@ -87,7 +87,11 @@ public class MessageState {
     }
 
     public GeoLocation getLocationWhenShown() {
-        return locationWhenShown;
+        GeoLocation location = null;
+        if(locationWhenShown!= null && locationWhenShown.getLat()!= null && locationWhenShown.getLng() != null){
+            location = locationWhenShown;
+        }
+        return location;
     }
 
     public void setLocationWhenShown(GeoLocation locationWhenShown) {

@@ -17,7 +17,6 @@ public class AlarmBroadcastReceiver extends WakefulBroadcastReceiver {
         Log.d("WEA AlarmReceiver", "Triggered onReceive");
         Intent service = new Intent(context, WEABackgroundService.class);
         service.setAction(WEABackgroundService.FETCH_CONFIGURATION);
-//        startWakefulService(context, service);
         context.startService(service);
     }
 }

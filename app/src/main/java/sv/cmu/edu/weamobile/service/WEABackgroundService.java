@@ -30,6 +30,7 @@ import sv.cmu.edu.weamobile.utility.db.MessageStateDataSource;
 public class WEABackgroundService extends Service {
     public static final String FETCH_CONFIGURATION = "sv.cmu.edu.weamobile.service.action.FETCH_CONFIGURATION";
     public static final String SHOW_ALERT = "sv.cmu.edu.weamobile.service.action.SHOW_ALERT";
+    public static final String SEND_HEARTBEAT = "sv.cmu.edu.weamobile.service.action.SEND_HEARTBEAT";
 
     private final IBinder mBinder = new LocalBinder();
     private BroadcastReceiver newConfigurationHandler;
@@ -95,6 +96,8 @@ public class WEABackgroundService extends Service {
             }else if(SHOW_ALERT.equals(action)){
                 int alertId= intent.getIntExtra(("alertId"),-1);
                 showAlertAfterCheckingOtherConditions(alertId);
+            }else if(SEND_HEARTBEAT.equals(action)){
+                sendHeartbeat();
             }
         }
         AlarmBroadcastReceiver.completeWakefulIntent(intent);
@@ -136,8 +139,26 @@ public class WEABackgroundService extends Service {
         AlertHelper.showAlertIfInTargetOrIsNotGeotargeted(getApplicationContext(), alertId);
     }
 
+    private void sendHeartbeat(){
+        Logger.log("Got request to send heartbeat");
+
+        if(WEAUtil.checkIfPhoneIsRegisteredIfNotRegister(getApplicationContext())){
+            // Get info on motion i.e. speed and direction
+            //Get info on UserActivity
+            WEAUtil.getUserActivityInfo(getApplicationContext());
+            //wait some time to get user activity, which is added to to the heartbeat
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    WEAUtil.sendHeartBeat(getApplicationContext(),
+                            lastActivity);
+                }
+            }, WEAUtil.randInt(1000, 2000));
+        }
+
+    }
     private void fetchConfiguration() {
-        Log.d("WEA", "Got request to fetch new configuration");
+        Logger.log("Got request to fetch new configuration");
         //read configuration and setup up new alarm
         //if problem in getting/receiving configuration, set default alarm
 
@@ -155,18 +176,16 @@ public class WEABackgroundService extends Service {
 
             // Get info on motion i.e. speed and direction
             //Get info on UserActivity
-            WEAUtil.getUserActivityInfo(getApplicationContext());
-            //wait some time to get user activity, which is added to to the heartbeat
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    WEAUtil.sendHeartBeat(getApplicationContext(),
-                            lastActivity);
-                }
-            }, WEAUtil.randInt(1000, 2000));
+//            WEAUtil.getUserActivityInfo(getApplicationContext());
+//            //wait some time to get user activity, which is added to to the heartbeat
+//            handler.postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+//                    WEAUtil.sendHeartBeat(getApplicationContext(),
+//                            lastActivity);
+//                }
+//            }, WEAUtil.randInt(1000, 2000));
         }
-
-
     }
 
     private void addOrUpdatedMessageStatesToDatabase(Configuration configuration) {

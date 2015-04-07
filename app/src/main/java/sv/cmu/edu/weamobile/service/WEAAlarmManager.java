@@ -45,7 +45,7 @@ public class WEAAlarmManager {
                 + String.valueOf(timeBetweenRepeatsInMilliSeconds));
 
         Intent intent = new Intent(context, WEABackgroundService.class);
-        intent.setAction(WEABackgroundService.FETCH_CONFIGURATION);
+        intent.setAction(WEABackgroundService.SEND_HEARTBEAT);
 
         PendingIntent alarmIntent = PendingIntent.getService(
                 context,

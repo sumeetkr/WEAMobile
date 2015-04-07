@@ -195,7 +195,7 @@ public class WEAUtil {
         return  isRegistered;
     }
 
-    public static void sendHeartBeatAndGetConfigurationAsync(Context context){
+    public static void sendHeartBeat(Context context){
         sendHeartBeat(context, null);
     }
 

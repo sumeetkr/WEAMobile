@@ -53,4 +53,35 @@ public class MessageStateDataSourceTest extends AndroidTestCase {
 
         assertTrue(messageStateDataSource.getAllData().size() < 2);
     }
+
+    public void testUpdateMessages(){
+        MessageState data = new MessageState(1, "2015-04-05T09:40:57.000Z");
+        data.setAlreadyShown(true);
+        messageStateDataSource.insertData(data);
+
+        MessageState stateReturned = messageStateDataSource.getData(1);
+
+        assertTrue(stateReturned.isAlreadyShown() == true);
+
+        stateReturned.setAlreadyShown(false);
+        messageStateDataSource.updateData(stateReturned);
+        assertTrue(stateReturned.isAlreadyShown() == false);
+    }
+
+    public void testUpdateShouldNotCreateANewMessageState(){
+        MessageState data = new MessageState(1, "2015-04-05T09:40:57.000Z");
+        data.setAlreadyShown(true);
+        messageStateDataSource.insertData(data);
+
+        MessageState stateReturned = messageStateDataSource.getData(1);
+
+        assertTrue(messageStateDataSource.getAllData().size()==1);
+
+        stateReturned.setAlreadyShown(false);
+        messageStateDataSource.updateData(stateReturned);
+        assertTrue(messageStateDataSource.getAllData().size()==1);
+    }
+
+
+
 }
