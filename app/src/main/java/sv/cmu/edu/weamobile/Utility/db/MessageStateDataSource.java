@@ -63,6 +63,16 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
 
     @Override
     public void insertData(MessageState messageState) {
+
+        ContentValues insertValues = fillValues(messageState);
+
+        Long rows = insert(insertValues);
+
+        Logger.log("Inserted Alert State " + (messageState.getUniqueId()) );
+        Logger.log("No fo rows updated " + rows);
+    }
+
+    private ContentValues fillValues(MessageState messageState) {
         ContentValues insertValues = new ContentValues();
         insertValues.put(COLUMN_MESSAGE_ID, messageState.getId());
         insertValues.put(COLUMN_SCHEDULED_FOR, messageState.getScheduledFor());
@@ -71,17 +81,16 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
         insertValues.put(COLUMN_TIME_WHEN_SHOWN_TO_USER_IN_EPOCH, messageState.getTimeWhenShownToUserInEpoch());
         insertValues.put(COLUMN_TIME_WHEN_FEEDBACK_GIVEN_IN_EPOCH, messageState.getTimeWhenFeedbackGivenInEpoch());
 
-        if(messageState.getLocationWhenShown()!= null){
-            insertValues.put(COLUMN_LAT_WHEN_SHOWN, messageState.getLocationWhenShown().getLatitude());
-            insertValues.put(COLUMN_LNG_WHEN_SHOWN, messageState.getLocationWhenShown().getLongitude());
+        if(messageState.getLocationWhenShown()!= null &&
+                messageState.getLocationWhenShown().getLat()!= null &&
+                messageState.getLocationWhenShown().getLng()!= null){
+            insertValues.put(COLUMN_LAT_WHEN_SHOWN, messageState.getLocationWhenShown().getLat());
+            insertValues.put(COLUMN_LNG_WHEN_SHOWN, messageState.getLocationWhenShown().getLng());
             insertValues.put(COLUMN_ACCURACY_WHEN_SHOWN, messageState.getLocationWhenShown().getAccuracy());
         }
 
         insertValues.put(COLUMN_IS_IN_POLYGON_OR_MESSAGE_NOT_GEO_TARGETED, messageState.isInPolygonOrAlertNotGeoTargeted());
-        Long rows = insert(insertValues);
-
-        Logger.log("Inserted Alert State " + (messageState.getUniqueId()) );
-        Logger.log("No fo rows updated " + rows);
+        return insertValues;
     }
 
     @Override
@@ -122,7 +131,9 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
                     state.setTimeWhenFeedbackGivenInEpoch(Long.parseLong(cursor.getString(5)));
                     state.setTimeWhenFeedbackGivenInEpoch(Long.parseLong(cursor.getString(6)));
 
-                    state.setLocationWhenShown(new GeoLocation(cursor.getString(7), cursor.getString(7),cursor.getFloat(9) ));
+                    state.setLocationWhenShown(new GeoLocation(cursor.getString(7),
+                            cursor.getString(8),
+                            cursor.getFloat(9) ));
 
                     state.setInPolygonOrAlertNotGeoTargeted(cursor.getInt(10)>0?true:false);
 
@@ -141,11 +152,13 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
     }
 
     @Override
-    public void updateData(MessageState data) {
+    public void updateData(MessageState messageState) {
         try{
            open();
-           database.rawQuery("delete from "+ MESSAGE_STATE_TABLE +" where " + COLUMN_MESSAGE_ID + "=" + data.getId(), null);
-           insertDataIfNotPresent(data);
+
+            ContentValues values = fillValues(messageState);
+            String strFilter = COLUMN_MESSAGE_ID +"=" + messageState.getId();
+            database.update(MESSAGE_STATE_TABLE, values, strFilter, null);
 
         }catch (Exception ex){
             Logger.log(ex.getLocalizedMessage());
@@ -153,7 +166,7 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
             close();
         }
 
-        Logger.log("Updated message sates with id " + data.getUniqueId());
+        Logger.log("Updated message sates with id " + messageState.getUniqueId());
     }
 
     @Override
@@ -204,3 +217,4 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
         return MESSAGE_STATE_TABLE;
     }
 }
+

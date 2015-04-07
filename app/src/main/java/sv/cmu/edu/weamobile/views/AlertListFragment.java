@@ -19,6 +19,7 @@ import sv.cmu.edu.weamobile.data.MessageState;
 import sv.cmu.edu.weamobile.utility.AlertListAdapter;
 import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.Logger;
+import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
 
 public class AlertListFragment extends ListFragment {
 
@@ -66,10 +67,12 @@ public class AlertListFragment extends ListFragment {
             alertStateMap.put(state.getId(), state);
         }
 
-        for(Message alert:messages){
+        for(int i = messages.size()-1; i>-1; i--){
+
+            Message alert = messages.get(i);
             MessageState state = alertStateMap.get(alert.getId());
 
-            if(alert.isNotOfFuture() && state!= null && state.isInPolygonOrAlertNotGeoTargeted()){
+            if(WEASharedPreferences.isShowAllAlertsEnabled(getActivity()) ||( alert.isNotOfFuture() && state!= null && state.isInPolygonOrAlertNotGeoTargeted())){
                 addItem(alert);
             }
 

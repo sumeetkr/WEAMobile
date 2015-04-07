@@ -44,6 +44,15 @@ public class WEAUtil {
         return  formatted;
     }
 
+    public static String getTimeStringFromDate(Date date){
+        DateFormat format = new SimpleDateFormat("yy-MM-dd HH:mm");
+        Calendar cal = Calendar.getInstance();
+        TimeZone tz = cal.getTimeZone();
+        format.setTimeZone(tz);
+        String formatted = format.format(date);
+        return  formatted;
+    }
+
     public static Date getTimeStringFromJsonTime(String jsonTime, String jsonTimeZone ){
         //2014-10-30T00:15:00.000Z
         SimpleDateFormat sdfDateWithTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");

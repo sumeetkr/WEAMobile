@@ -13,11 +13,12 @@
     <CheckBox
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Allow debug messages"
+        android:text="Allow Debug Messages"
         android:id="@+id/checkBoxDebugMessages"
         android:layout_below="@+id/textView"
         android:layout_marginTop="10dp"
-        android:layout_alignParentLeft="true" />
+        android:layout_alignParentLeft="true"
+        android:checked="false" />
 
     <CheckBox
         android:layout_width="wrap_content"
@@ -25,14 +26,13 @@
         android:text="Show Current Activity"
         android:id="@+id/checkBoxActivityRecognition"
         android:checked="false"
-        android:layout_centerVertical="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_below="@+id/chkShowNotifications"
+        android:layout_marginTop="55dp" />
 
     <CheckBox
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Location history"
+        android:text="Show Location History"
         android:id="@+id/chkLocationHistory"
         android:checked="false"
         android:layout_below="@+id/checkBoxDebugMessages"
@@ -45,12 +45,15 @@
         android:text="___________________"
         android:id="@+id/txtDebugMessages"
         android:layout_below="@+id/checkBoxActivityRecognition"
-        android:layout_alignParentLeft="true" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="36dp"
+        android:layout_marginStart="36dp" />
 
     <CheckBox
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Motion Prediction"
+        android:text="Use Motion Prediction"
         android:id="@+id/chkMotion"
         android:checked="false"
         android:layout_below="@+id/chkLocationHistory"
@@ -60,7 +63,7 @@
     <CheckBox
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Activity History"
+        android:text="Show Activity History"
         android:id="@+id/chkActivityHistory"
         android:checked="false"
         android:layout_below="@+id/chkMotion"
@@ -70,11 +73,31 @@
     <CheckBox
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Show Notifications"
+        android:text="Show AWS Notifications"
         android:id="@+id/chkShowNotifications"
         android:layout_below="@+id/chkActivityHistory"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:checked="false" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show All Alerts - Without Geo-Filtering"
+        android:id="@+id/chkShowAllAlerts"
+        android:checked="false"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Keep Quiet"
+        android:id="@+id/checkBox"
+        android:checked="false"
+        android:layout_above="@+id/chkShowAllAlerts"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

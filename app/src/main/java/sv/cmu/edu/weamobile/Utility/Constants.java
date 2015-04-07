@@ -36,6 +36,7 @@ public class Constants {
     public static final String IS_ACTIVITY_HISTORY_ENABLED = "is_activity_history_enabled";
     public static final String IS_MOTION_ENABLED = "is_motion_enabled";
     public static final String IS_SHOW_NOTIFICATIONS_ENABLED = "is_show_notifications_enabled";
+    public static final String IS_SHOW_ALL_ALERTS_ENABLED = "is_show_all_alerts_enabled";
     public static final String IS_ACTIVITY_RECOGNITION_ENABLED = "is_activity_recognition_enabled";
     public static final String USER_NAME = "user_name";
 

@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import java.util.Date;
 
 import sv.cmu.edu.weamobile.utility.Constants;
+import sv.cmu.edu.weamobile.utility.Logger;
 import sv.cmu.edu.weamobile.utility.WEAUtil;
 
 /**
@@ -329,7 +330,16 @@ public class Message {
     }
 
     public String getText(){
-        return  getInfo()[0].getEventDescription();
+        String text = "";
+        try{
+            String headline = getInfo()[0].getHeadline();
+            if(headline != null && !headline.isEmpty()){
+                text = headline;
+            }
+        }catch (Exception ex){
+            Logger.log(ex.getMessage());
+        }
+        return text;
     }
 
     public boolean isInRangeToSchedule() {
@@ -361,6 +371,16 @@ public class Message {
         String start = getInfo()[0].getOnset();
 //        Date date = WEAUtil.getTimeStringFromJsonTime(start, "UTC");
         return start;
+    }
+
+    public String getScheduledForInLocalTime(){
+        String start = getInfo()[0].getOnset();
+        return WEAUtil.getTimeStringFromDate(WEAUtil.getTimeStringFromJsonTime(start, "UTC"));
+    }
+
+    public String getEndingAtInLocalTime(){
+        String start = getInfo()[0].getExpires();
+        return WEAUtil.getTimeStringFromDate(WEAUtil.getTimeStringFromJsonTime(start, "UTC"));
     }
 
     public Long getScheduledEpochInSeconds(){

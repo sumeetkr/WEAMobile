@@ -47,18 +47,18 @@ public class AlertListAdapter extends ArrayAdapter<Message> {
                 imView.setImageResource(R.drawable.email_alert_icon);
                 alertMessage.setText(AlertHelper.getTextWithStyle((message.getAlertType() + " Alert "), 1.6f, true));
                 alertType.setText(AlertHelper.getTextWithStyle(message.getText(), 1f, true));
-                alertTime.setText(AlertHelper.getTextWithStyle(message.getScheduledFor() + " to " + message.getEndingAt(), 0.7f, true));
+                alertTime.setText(AlertHelper.getTextWithStyle(message.getScheduledForInLocalTime() + " to " + message.getEndingAtInLocalTime(), 0.7f, true));
             } else {
                 if(message.isActive()){
                     imView.setImageResource(R.drawable.alert_green);
                     alertMessage.setText(AlertHelper.getTextWithStyle((message.getAlertType() + " Alert "), 1.6f, false));
                     alertType.setText(AlertHelper.getTextWithStyle(message.getText(), 1f, false));
-                    alertTime.setText(AlertHelper.getTextWithStyle(message.getScheduledFor() + " to " + message.getEndingAt(), 0.7f, false));
+                    alertTime.setText(AlertHelper.getTextWithStyle(message.getScheduledForInLocalTime() + " to " +  message.getEndingAtInLocalTime(), 0.7f, false));
                 }else{
                     imView.setImageResource(R.drawable.alert_red);
                     alertMessage.setText(AlertHelper.getTextWithStyle((message.getAlertType() + " Alert "), 1.6f, false));
                     alertType.setText(AlertHelper.getTextWithStyle(message.getText(), 1f, false));
-                    alertTime.setText(AlertHelper.getTextWithStyle(message.getScheduledFor() + " to " + message.getEndingAt(), 0.7f, false));
+                    alertTime.setText(AlertHelper.getTextWithStyle(message.getScheduledForInLocalTime() + " to " +  message.getEndingAtInLocalTime(), 0.7f, false));
                 }
             }
         }

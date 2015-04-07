@@ -94,15 +94,16 @@ public class AlertDetailFragment extends Fragment {
 
             view.setMovementMethod(LinkMovementMethod.getInstance());
 
-            startTime = message.getScheduledFor();
-            endTime = message.getEndingAt();
+            startTime = message.getEndingAtInLocalTime();
+            endTime = message.getEndingAtInLocalTime();
 
             ((TextView) rootView.findViewById(R.id.txtLabel)).setText(
                     AlertHelper.getTextWithStyle(startTime +  " to " +endTime,
                                     //+ "\n" + textToShow,
                             1f, false));
 
-            getActivity().setTitle(AlertHelper.getTextWithStyle(message.getAlertType() + " Alert", 1.3f, false));
+            getActivity().setTitle(AlertHelper.getTextWithStyle(
+                    message.getAlertType() + " Alert", 1.3f, false));
             getActivity().getActionBar().setIcon(R.drawable.ic_launcher);
 
         }else{
@@ -198,7 +199,7 @@ public class AlertDetailFragment extends Fragment {
 
     private void alertUserWithVibrationAndSpeech() {
 
-        if(messageState != null && !messageState.isAlreadyShown()){
+        if(message.isActive() && messageState != null && !messageState.isAlreadyShown()){
 
             WEAUtil.showMessageIfInDebugMode(getActivity().getApplicationContext(),
                     "Alert is shown for first time, may vibrate and speak");
@@ -403,7 +404,9 @@ public class AlertDetailFragment extends Fragment {
 
                 if(locations != null & locations.length>2){
                     for(GeoLocation location:locations){
-                        polyOptions.add(new LatLng(Double.parseDouble(location.getLat()), Double.parseDouble(location.getLng())));
+                        polyOptions.add(new LatLng(
+                                Double.parseDouble(location.getLat()),
+                                Double.parseDouble(location.getLng())));
                     }
 
                     mMap.addPolygon(polyOptions);

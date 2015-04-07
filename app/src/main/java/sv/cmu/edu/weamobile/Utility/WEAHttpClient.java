@@ -114,7 +114,7 @@ public class WEAHttpClient {
                             String.valueOf(System.currentTimeMillis()));
 
                     Logger.log("JsonSender", "Success - ");
-                    Logger.debug(response);
+//                    Logger.debug(response);
                     Intent intent = new Intent("new-config-event");
                     intent.putExtra("message", response);
                     LocalBroadcastManager.getInstance(ctxt).sendBroadcast(intent);

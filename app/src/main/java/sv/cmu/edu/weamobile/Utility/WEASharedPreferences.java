@@ -143,6 +143,25 @@ public class WEASharedPreferences {
         }
     }
 
+    public static boolean isShowAllAlertsEnabled(Context context){
+        boolean result = false;
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
+        if (sharedPreferences != null) {
+            result = sharedPreferences.getBoolean(Constants.IS_SHOW_ALL_ALERTS_ENABLED, false);
+        }
+        return result;
+    }
+
+    public static void setShowAllAlertsEnabled(Context context, boolean enable) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
+        if (sharedPreferences != null) {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean(Constants.IS_SHOW_ALL_ALERTS_ENABLED,enable);
+            editor.commit();
+            Logger.log("Saved show all alerts enabled to shared preferences "+ enable);
+        }
+    }
+
     public static boolean isActivityRecognitionEnabled(Context context){
         boolean result = false;
         SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);

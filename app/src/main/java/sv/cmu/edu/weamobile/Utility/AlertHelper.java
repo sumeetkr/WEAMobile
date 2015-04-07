@@ -91,13 +91,13 @@ public class AlertHelper {
                 List<GeoLocation> locations = dataSource.getAllData();
                 //check history of user locations
                 //Also predict his future locations
-                if(WEALocationHelper.areAnyPointsInPolygon(locations, message.getPolygon())){
+                if(message.getParameter().isHistoryBasedFiltering() && WEALocationHelper.areAnyPointsInPolygon(locations, message.getPolygon())){
                     String messageToShow = "User's location history was found in the message region, showing message";
                     Logger.log(messageToShow);
                     WEAUtil.showMessageIfInDebugMode(context, messageToShow);
                     showAlert(context, message, tracker.getNetworkGeoLocation(), messageToShow);
 
-                }else if(WEALocationHelper.areAnyPointsInPolygon2(
+                }else if(message.getParameter().isMotionPredictionBasedFiltering() && WEALocationHelper.areAnyPointsInPolygon2(
                         WEALocationHelper.getFuturePredictionsOfLatLngs(locations)
                         , message.getPolygon())){
                     String messageToShow = "User's predicted location was found in the message region, showing message";

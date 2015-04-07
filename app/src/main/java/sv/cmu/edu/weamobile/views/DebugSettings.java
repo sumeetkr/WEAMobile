@@ -29,6 +29,7 @@ public class DebugSettings extends ActionBarActivity {
     private CheckBox chkShowActivityHistory;
     private CheckBox chkMotion;
     private CheckBox chkShowAWSMessagesAsNotifications;
+    private CheckBox chkShowAllAlerts;
     private TextView txtMessages;
     private UserActivityRecognizer activityRecognizer;
     private NewActivityReceiver activityBroadcastReceiver;
@@ -46,6 +47,7 @@ public class DebugSettings extends ActionBarActivity {
         chkMotion = (CheckBox) findViewById(R.id.chkMotion);
         chkShowActivityHistory = (CheckBox) findViewById(R.id.chkActivityHistory);
         chkShowAWSMessagesAsNotifications = (CheckBox) findViewById(R.id.chkShowNotifications);
+        chkShowAllAlerts = (CheckBox) findViewById(R.id.chkShowAllAlerts);
 
         chkViewDebugMessages.setChecked(WEASharedPreferences.isInDebugMode(getApplicationContext()));
         chkViewDebugMessages.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -132,6 +134,18 @@ public class DebugSettings extends ActionBarActivity {
                     WEASharedPreferences.setShowNotificationsEnabled(getApplicationContext(), true);
                 }else{
                     WEASharedPreferences.setShowNotificationsEnabled(getApplicationContext(), false);
+                }
+            }
+        });
+
+        chkShowAllAlerts.setChecked(WEASharedPreferences.isShowAllAlertsEnabled(getApplicationContext()));
+        chkShowAllAlerts.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    WEASharedPreferences.setShowAllAlertsEnabled(getApplicationContext(), true);
+                }else{
+                    WEASharedPreferences.setShowAllAlertsEnabled(getApplicationContext(), false);
                 }
             }
         });
