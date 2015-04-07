@@ -78,9 +78,10 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
         }
 
         insertValues.put(COLUMN_IS_IN_POLYGON_OR_MESSAGE_NOT_GEO_TARGETED, messageState.isInPolygonOrAlertNotGeoTargeted());
-        insert(insertValues);
+        Long rows = insert(insertValues);
 
         Logger.log("Inserted Alert State " + (messageState.getUniqueId()) );
+        Logger.log("No fo rows updated " + rows);
     }
 
     @Override
@@ -106,11 +107,58 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
 
     @Override
     public MessageState getData(int id) {
-        return null;
+        MessageState messageState = null;
+        try{
+            open();
+            Cursor cursor = database.rawQuery("select * from "+ MESSAGE_STATE_TABLE +" where " + COLUMN_MESSAGE_ID + "=" +id, null);
+            if (cursor .moveToFirst()) {
+
+                while (cursor.isAfterLast() == false) {
+                    int messageId = Integer.valueOf(cursor.getString(1));
+                    String scheduledFor = cursor.getString(2);
+
+                    MessageState state = new MessageState(messageId, scheduledFor);
+                    state.setAlreadyShown(cursor.getInt(3)>0?true:false);
+                    state.setFeedbackGiven(cursor.getInt(4) > 0 ? true : false);
+                    state.setTimeWhenFeedbackGivenInEpoch(Long.parseLong(cursor.getString(5)));
+                    state.setTimeWhenFeedbackGivenInEpoch(Long.parseLong(cursor.getString(6)));
+
+                    state.setLocationWhenShown(new GeoLocation(cursor.getString(7), cursor.getString(7),cursor.getFloat(9) ));
+
+                    state.setInPolygonOrAlertNotGeoTargeted(cursor.getInt(10)>0?true:false);
+
+                    messageState = state;
+                    cursor.moveToNext();
+                }
+            }
+        }catch (Exception ex){
+            Logger.log(ex.getLocalizedMessage());
+        }finally {
+            close();
+        }
+
+        Logger.log("Retrieved message sates with id " + messageState.getUniqueId());
+        return  messageState;
     }
 
     @Override
     public void updateData(MessageState data) {
+        try{
+           open();
+           database.rawQuery("delete from "+ MESSAGE_STATE_TABLE +" where " + COLUMN_MESSAGE_ID + "=" + data.getId(), null);
+           insertDataIfNotPresent(data);
+
+        }catch (Exception ex){
+            Logger.log(ex.getLocalizedMessage());
+        }finally {
+            close();
+        }
+
+        Logger.log("Updated message sates with id " + data.getUniqueId());
+    }
+
+    @Override
+    public void deleteData(MessageState data) {
 
     }
 
@@ -121,17 +169,6 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
             open();
             Cursor cursor = database.rawQuery("select * from "+ MESSAGE_STATE_TABLE, null);
             if (cursor .moveToFirst()) {
-//                COLUMN_MESSAGE_ID + " integer ," +
-//                        COLUMN_SCHEDULED_FOR + " text ," +
-//                        COLUMN_IS_ALREADY_SHOWN + " integer ," +
-//                        COLUMN_IS_FEEDBACK_GIVEN + " integer ," +
-//                        COLUMN_TIME_WHEN_SHOWN_TO_USER_IN_EPOCH + " text ," +
-//                        COLUMN_TIME_WHEN_FEEDBACK_GIVEN_IN_EPOCH + " text ," +
-//                        COLUMN_LAT_WHEN_SHOWN + " real ," +
-//                        COLUMN_LNG_WHEN_SHOWN + " real ," +
-//                        COLUMN_ACCURACY_WHEN_SHOWN + " text ," +
-//                        COLUMN_IS_IN_POLYGON_OR_MESSAGE_NOT_GEO_TARGETED + " integer ," +
-
                 while (cursor.isAfterLast() == false) {
                     int id = Integer.valueOf(cursor.getString(1));
                     String scheduledFor = cursor.getString(2);
@@ -142,9 +179,6 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
                     state.setTimeWhenFeedbackGivenInEpoch(Long.parseLong(cursor.getString(5)));
                     state.setTimeWhenFeedbackGivenInEpoch(Long.parseLong(cursor.getString(6)));
 
-//                    double lat = Double.valueOf(cursor.getDouble(7));
-//                    double lng = Double.valueOf(cursor.getDouble(8));
-//                    float accuracy = Float.valueOf(cursor.getFloat(9));
                     state.setLocationWhenShown(new GeoLocation(cursor.getString(7), cursor.getString(7),cursor.getFloat(9) ));
 
                     state.setInPolygonOrAlertNotGeoTargeted(cursor.getInt(10)>0?true:false);
@@ -158,6 +192,8 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
         }finally {
             close();
         }
+
+        Logger.log("No of message sates in database " + messageStates.size());
         return  messageStates;
     }
 

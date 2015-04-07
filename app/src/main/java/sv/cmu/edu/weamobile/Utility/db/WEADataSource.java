@@ -57,6 +57,8 @@ public abstract class WEADataSource<T> {
 
     public abstract void updateData(T data);
 
+    public abstract void deleteData(T data);
+
     public abstract List<T> getAllData();
 
     public abstract String getTableName();

@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.Map;
 
 import sv.cmu.edu.weamobile.R;
-import sv.cmu.edu.weamobile.data.Alert;
-import sv.cmu.edu.weamobile.data.MessageState;
 import sv.cmu.edu.weamobile.data.Configuration;
+import sv.cmu.edu.weamobile.data.Message;
+import sv.cmu.edu.weamobile.data.MessageState;
 import sv.cmu.edu.weamobile.utility.AlertListAdapter;
 import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.Logger;
@@ -25,8 +25,8 @@ public class AlertListFragment extends ListFragment {
     private static final String STATE_ACTIVATED_POSITION = "activated_position";
     private Callbacks mCallbacks;
     private int mActivatedPosition = ListView.INVALID_POSITION;
-    private List<Alert> alertItems;
-    private Map<Integer, Alert> alertsMap;
+    private List<Message> messageList;
+    private Map<Integer, Message> messageMap;
     private List<MessageState> messageStates;
     private Map<Integer, MessageState> alertStateMap;
 
@@ -41,9 +41,10 @@ public class AlertListFragment extends ListFragment {
         }
     };
 
-    public List<Alert> updateListAndReturnAnyActiveAlertNotShown(List<Alert> alerts, List<MessageState> alertsStates) {
+    public List<Message> updateListAndReturnAnyActiveAlertNotShown(List<Message> messages,
+                                                                   List<MessageState> states) {
 
-        List<Alert> activeButNotShown = new ArrayList<Alert>();
+        List<Message> activeButNotShown = new ArrayList<Message>();
 
         if(this.messageStates == null){
             this.messageStates = new ArrayList<MessageState>();
@@ -52,20 +53,20 @@ public class AlertListFragment extends ListFragment {
         this.messageStates.clear();
         alertStateMap.clear();
 
-        if(alertItems == null)
+        if(messageList == null)
         {
-            alertItems = new ArrayList<Alert>();
-            alertsMap = new HashMap<Integer, Alert>();
+            messageList = new ArrayList<Message>();
+            messageMap = new HashMap<Integer, Message>();
         }
-        alertItems.clear();
-        alertsMap.clear();
+        messageList.clear();
+        messageMap.clear();
 
-        for(MessageState state : alertsStates){
+        for(MessageState state : states){
             messageStates.add(state);
             alertStateMap.put(state.getId(), state);
         }
 
-        for(Alert alert:alerts){
+        for(Message alert:messages){
             MessageState state = alertStateMap.get(alert.getId());
 
             if(alert.isNotOfFuture() && state!= null && state.isInPolygonOrAlertNotGeoTargeted()){
@@ -89,13 +90,13 @@ public class AlertListFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        alertItems = new ArrayList<Alert>();
-        alertsMap = new HashMap<Integer, Alert>();
+        messageList = new ArrayList<Message>();
+        messageMap = new HashMap<Integer, Message>();
 
         setListAdapter(new AlertListAdapter(
                 getActivity(),
                 R.id.username,
-                (ArrayList<Alert>) alertItems));
+                (ArrayList<Message>) messageList));
 
 
         if(getArguments() != null && getArguments().containsKey(Constants.CONFIG_JSON)) {
@@ -150,7 +151,7 @@ public class AlertListFragment extends ListFragment {
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
-        Alert alert = alertItems.get(position);
+        Message alert = messageList.get(position);
         Logger.log(alert.toString());
         String idStr = String.valueOf(alert.getId());
         mCallbacks.onItemSelected(idStr);
@@ -187,8 +188,8 @@ public class AlertListFragment extends ListFragment {
         mActivatedPosition = position;
     }
 
-    private void addItem(Alert item) {
-        alertItems.add(item);
-        alertsMap.put(item.getId(), item);
+    private void addItem(Message item) {
+        messageList.add(item);
+        messageMap.put(item.getId(), item);
     }
 }

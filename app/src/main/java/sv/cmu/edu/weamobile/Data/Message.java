@@ -91,6 +91,7 @@ public class Message {
         private String responseType;
         private String urgency;
         private String severity;
+        private  Area [] areas;
         private String [] audiences;
         private String [] resources;
 
@@ -192,6 +193,14 @@ public class Message {
 
         public Info fromJson(String s) {
             return new Gson().fromJson(s, Info.class);
+        }
+
+        public Area[] getAreas() {
+            return areas;
+        }
+
+        public void setAreas(Area[] areas) {
+            this.areas = areas;
         }
 
         public class Area{
@@ -315,6 +324,14 @@ public class Message {
         return new Gson().fromJson(s, Message.class);
     }
 
+    public String getAlertType(){
+       return getInfo()[0].getEventCategory();
+    }
+
+    public String getText(){
+        return  getInfo()[0].getEventDescription();
+    }
+
     public boolean isInRangeToSchedule() {
         long currentTime = System.currentTimeMillis();
         //only show if not shown before in +60 -1 seconds
@@ -328,6 +345,7 @@ public class Message {
         if(getEndingAtEpochInSeconds() > time && time >= getScheduledEpochInSeconds()){
             isActive = true;
         }
+
         return  isActive;
     }
 
@@ -341,8 +359,8 @@ public class Message {
 
     public String getScheduledFor(){
         String start = getInfo()[0].getOnset();
-        Date date = WEAUtil.getTimeStringFromJsonTime(start, "UTC");
-        return date.toLocaleString();
+//        Date date = WEAUtil.getTimeStringFromJsonTime(start, "UTC");
+        return start;
     }
 
     public Long getScheduledEpochInSeconds(){
@@ -353,6 +371,18 @@ public class Message {
             epoch = date.getTime();
         }
         return epoch/1000;
+    }
+
+    public String getEndingAt() {
+        return getInfo()[0].expires;
+    }
+
+    public  void setScheduledFor(String time){
+        getInfo()[0].setOnset(time);
+    }
+
+    public void setEndingTime(String time){
+        getInfo()[0].setExpires(time);
     }
 
     public long getScheduleEpochInMillis(){
@@ -376,5 +406,20 @@ public class Message {
         return epoch/1000;
     }
 
+    public GeoLocation [] getPolygon(){
+        return getInfo()[0].getAreas()[0].getPolygon();
+    }
+
+    public boolean isPhoneExpectedToVibrate(){
+        return getParameter().isPhoneExpectedToVibrate();
+    }
+
+    public boolean isMapToBeShown(){
+        return  getParameter().isMapToBeShown();
+    }
+
+    public boolean isTextToSpeechExpected(){
+        return  getParameter().isTextToSpeechExpected();
+    }
 }
 

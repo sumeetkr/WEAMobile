@@ -4,10 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import sv.cmu.edu.weamobile.data.Alert;
-import sv.cmu.edu.weamobile.data.MessageState;
-import sv.cmu.edu.weamobile.data.Message;
-
 /**
  * Created by sumeet on 10/7/14.
  */
@@ -62,55 +58,42 @@ public class WEASharedPreferences {
 
     }
 
-    public static MessageState getAlertState(Context context, Alert alert) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
-        MessageState messageState = null;
-        if (sharedPreferences != null) {
-            String res = sharedPreferences.getString(Constants.ALERT_STATE+alert.getId()+alert.getScheduledEpochInSeconds(), null);
-            if(res!=null){
-                messageState = MessageState.fromJson(res);
-            }else{
-                Logger.log("Alert state not found");
-            }
-        }
+//    public static MessageState getAlertState(Context context, Message alert) {
+//        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
+//        MessageState messageState = null;
+//        if (sharedPreferences != null) {
+//            String res = sharedPreferences.getString(Constants.ALERT_STATE+alert.getId()+alert.getScheduledEpochInSeconds(), null);
+//            if(res!=null){
+//                messageState = MessageState.fromJson(res);
+//            }else{
+//                Logger.log("Alert state not found");
+//            }
+//        }
+//
+//        Logger.log("got state from shared preferences "+ Constants.ALERT_STATE+alert.getId()+alert.getScheduledEpochInSeconds());
+//        return messageState;
+//    }
 
-        Logger.log("got state from shared preferences "+ Constants.ALERT_STATE+alert.getId()+alert.getScheduledEpochInSeconds());
-        return messageState;
-    }
-
-    public static void saveAlertState(Context context, MessageState messageState) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
-        if (sharedPreferences != null) {
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString(Constants.ALERT_STATE+ messageState.getId()+ messageState.getScheduledEpochInSeconds(), messageState.getJson());
-            editor.commit();
-            Logger.log("Saved new alert to shared preferences "+ Constants.ALERT_STATE+ messageState.getId()+ messageState.getScheduledEpochInSeconds());
-        }
-    }
-
-    public static void addAlertStateToPreferences(Context context, Message alert) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
-        if (sharedPreferences != null) {
-            String res = sharedPreferences.getString(Constants.ALERT_STATE+alert.getId()+alert.getScheduledEpochInSeconds(), null);
-            if(res==null){
-                saveAlertState(context, new MessageState(alert.getId(), alert.getScheduledFor()));
-                Logger.log("Added to shared preferences, alert id " + alert.getId());
-            }
-        }
-    }
-
-    public static void deleteAlertState(Context context, Alert alert) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
-        if (sharedPreferences != null) {
-            String res = sharedPreferences.getString(Constants.ALERT_STATE+alert.getId()+alert.getScheduledEpochInSeconds(), null);
-            if(res!=null){
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.remove(Constants.ALERT_STATE+alert.getId()+alert.getScheduledEpochInSeconds());
-                editor.commit();
-                Logger.log("Removed from shared preferences, alert id " + alert.getId());
-            }
-        }
-    }
+//    public static void saveAlertState(Context context, MessageState messageState) {
+//        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
+//        if (sharedPreferences != null) {
+//            SharedPreferences.Editor editor = sharedPreferences.edit();
+//            editor.putString(Constants.ALERT_STATE+ messageState.getId()+ messageState.getScheduledEpochInSeconds(), messageState.getJson());
+//            editor.commit();
+//            Logger.log("Saved new message to shared preferences "+ Constants.ALERT_STATE+ messageState.getId()+ messageState.getScheduledEpochInSeconds());
+//        }
+//    }
+//
+//    public static void addAlertStateToPreferences(Context context, Message alert) {
+//        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
+//        if (sharedPreferences != null) {
+//            String res = sharedPreferences.getString(Constants.ALERT_STATE+alert.getId()+alert.getScheduledEpochInSeconds(), null);
+//            if(res==null){
+//                saveAlertState(context, new MessageState(alert.getId(), alert.getScheduledFor()));
+//                Logger.log("Added to shared preferences, message id " + alert.getId());
+//            }
+//        }
+//    }
 
     public static boolean isInDebugMode(Context context){
         boolean result = false;

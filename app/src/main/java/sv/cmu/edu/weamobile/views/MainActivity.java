@@ -22,10 +22,12 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.List;
+
 import sv.cmu.edu.weamobile.R;
-import sv.cmu.edu.weamobile.data.Alert;
-import sv.cmu.edu.weamobile.data.MessageState;
 import sv.cmu.edu.weamobile.data.Configuration;
+import sv.cmu.edu.weamobile.data.Message;
+import sv.cmu.edu.weamobile.data.MessageState;
 import sv.cmu.edu.weamobile.service.WEAAlarmManager;
 import sv.cmu.edu.weamobile.service.WEABackgroundService;
 import sv.cmu.edu.weamobile.service.WEANewConfigurationIntent;
@@ -37,7 +39,6 @@ import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
 import sv.cmu.edu.weamobile.utility.WEATextToSpeech;
 import sv.cmu.edu.weamobile.utility.WEAUtil;
 import sv.cmu.edu.weamobile.utility.WEAVibrator;
-import sv.cmu.edu.weamobile.utility.db.AlertDataSource;
 
 public class MainActivity extends FragmentActivity
         implements AlertListFragment.Callbacks {
@@ -57,10 +58,6 @@ public class MainActivity extends FragmentActivity
     private final int defaultId = -2;
     private int idOfShownAlert = defaultId;
 
-
-    private AlertDataSource alertDataSource;
-
-
     //Amazon AWS
     // Since this activity is SingleTop, there can only ever be one instance. This variable corresponds to this instance.
     //
@@ -73,10 +70,6 @@ public class MainActivity extends FragmentActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alert_list);
-        //opening datasource
-        alertDataSource = new AlertDataSource(this);
-        alertDataSource.open();
-
 
         Logger.log("Main on create called");
         listFragment = ((AlertListFragment) getSupportFragmentManager()
@@ -96,8 +89,6 @@ public class MainActivity extends FragmentActivity
         }
 
 
-
-
         setSwitchEvents();
 
         handler = new Handler();
@@ -109,14 +100,6 @@ public class MainActivity extends FragmentActivity
             WEAAlarmManager.setupRepeatingAlarmToWakeUpApplicationToFetchConfiguration(
                     this.getApplicationContext(),
                     Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES * 60 * 1000);
-
-            // Register phone if not registered
-//            Logger.log("Registering device");
-//            String phoneId = WEASharedPreferences.getStringProperty(getApplicationContext(),Constants.PHONE_ID);
-//            String token = WEASharedPreferences.getStringProperty(getApplicationContext(), Constants.PHONE_TOKEN);
-//            if(phoneId== null || token == null || (phoneId!= null && phoneId.isEmpty()) || (token!= null && token.isEmpty())){
-//                WEAHttpClient.registerPhoneAync(getApplicationContext());
-//            }
 
         }
 
@@ -181,9 +164,6 @@ public class MainActivity extends FragmentActivity
 
         registerNewConfigurationReceiver();
 
-        String json = WEASharedPreferences.readApplicationConfiguration(getApplicationContext());
-        configuration = Configuration.fromJson(json);
-
         if(getIntent().hasExtra(Constants.ALERT_ID)){
             refreshListAndSelectItem();
         }else if(getIntent().hasExtra(Constants.FETCH_CONFIG)){
@@ -193,46 +173,45 @@ public class MainActivity extends FragmentActivity
             refreshListAndShowUnSeenAlert();
         }
 
-//        if(!getIntent().hasExtra(Constants.ALERT_ID)){
-//            Alert[] alerts = configuration.getAlertsWhichAreNotGeoTargetedOrGeotargetedAndUserWasInTarget(getApplicationContext());
-//            AlertState [] alertStates = AlertHelper.getAlertStates(getApplicationContext(), alerts);
-//            List<Alert> alertNotShown = listFragment.updateListAndReturnAnyActiveAlertNotShown(alerts, alertStates);
-//            if(alertNotShown != null && alertNotShown.size()>0){
-//                AlertHelper.showAlertIfInTargetOrIsNotGeotargeted(getApplicationContext(), alertNotShown.get(0).getId());
-//            }
-//        }
+        if(!getIntent().hasExtra(Constants.ALERT_ID)){
+            List<Message> messages = AlertHelper.getAllMessage(getApplicationContext());
+            List<MessageState> messageStates = AlertHelper.getAllAlertStates(getApplicationContext());
+
+            List<Message> alertNotShown = listFragment.updateListAndReturnAnyActiveAlertNotShown(messages, messageStates);
+            if(alertNotShown != null && alertNotShown.size()>0){
+                AlertHelper.showAlertIfInTargetOrIsNotGeotargeted(getApplicationContext(), alertNotShown.get(0).getId());
+            }
+        }
+
         updateLastCheckTimeStatus();
 
-
-//        We do not need to show notification,
-//        We fetch new alert and show an alert
-//        showNotification();
     }
 
     private void refreshListAndShowUnSeenAlert() {
         WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
                 "Reached main view OnResume, but no alert to show, will refresh the list");
         if(configuration!= null){
-//            List<Alert> alerts = configuration.getAlertsWhichAreNotGeoTargetedOrGeotargetedAndUserWasInTarget(getApplicationContext());
-//            List<AlertState> alertStates = AlertHelper.getAlertStates(getApplicationContext(), alerts);
-//            List<Alert> alertNotShown = listFragment.updateListAndReturnAnyActiveAlertNotShown(alerts, alertStates);
-//            if(alertNotShown != null && alertNotShown.size()>0){
-//                AlertHelper.showAlertIfInTargetOrIsNotGeotargeted(getApplicationContext(), alertNotShown.get(0).getId());
-//            }
+            List<Message> messages = AlertHelper.getAllMessage(getApplicationContext());
+            List<MessageState> messageStates = AlertHelper.getAllAlertStates(getApplicationContext());
+
+            List<Message> alertNotShown = listFragment.updateListAndReturnAnyActiveAlertNotShown(messages, messageStates);
+            if(alertNotShown != null && alertNotShown.size()>0){
+                AlertHelper.showAlertIfInTargetOrIsNotGeotargeted(getApplicationContext(), alertNotShown.get(0).getId());
+            }
         }
     }
 
     private void refreshListAndSelectItem() {
         WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
                 "Reached main view OnResume with an alert to show, updating the list of alerts first");
-        if(configuration!= null){
-            String alertId = getIntent().getStringExtra(Constants.ALERT_ID);
-//            List<Alert> alerts = configuration.getAlertsWhichAreNotGeoTargetedOrGeotargetedAndUserWasInTarget(getApplicationContext());
-//            List<AlertState> alertStates = AlertHelper.getAlertStates(getApplicationContext(), alerts);
-//            listFragment.updateListAndReturnAnyActiveAlertNotShown(alerts, alertStates);
-//
-//            onItemSelected(alertId);
-        }
+
+        String alertId = getIntent().getStringExtra(Constants.ALERT_ID);
+
+        List<Message> messages = AlertHelper.getAllMessage(getApplicationContext());
+        List<MessageState> messageStates = AlertHelper.getAllAlertStates(getApplicationContext());
+        listFragment.updateListAndReturnAnyActiveAlertNotShown(messages, messageStates);
+
+        onItemSelected(alertId);
     }
 
     private void registerNewConfigurationReceiver() {
@@ -353,11 +332,11 @@ public class MainActivity extends FragmentActivity
             // In single-pane mode, simply start the detail activity
             // for the selected item ID.
             //if without map, show dialog
-            Alert alert = AlertHelper.getAlertFromId(
+            Message messageFromId = AlertHelper.getMessageFromId(
                     getApplicationContext(),
                     id);
 
-            if(alert.isMapToBeShown()){
+            if(messageFromId.isMapToBeShown()){
                 Intent detailIntent = new Intent(this, AlertDetailActivity.class);
                 detailIntent.putExtra(Constants.ARG_ITEM_ID, id);
                 detailIntent.putExtra(Constants.CONFIG_JSON, configuration.getJson());
@@ -367,7 +346,7 @@ public class MainActivity extends FragmentActivity
                 startActivity(detailIntent);
             }else{
                 //if(!isDialogShown){
-                showDialog(alert);
+                showDialog(messageFromId);
                 //}
             }
         }
@@ -386,9 +365,9 @@ public class MainActivity extends FragmentActivity
         }
     }
 
-    private void showDialog(Alert alert) {
+    private void showDialog(Message message) {
 
-        if(dialog != null && alert.getId() == idOfShownAlert){
+        if(dialog != null && message.getId() == idOfShownAlert){
             //do not do anything, the alert has already been shown
             WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
                     "The alert is already shown, so not showing again.");
@@ -402,7 +381,7 @@ public class MainActivity extends FragmentActivity
             try {
                 WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
                         "Creating alert as a dialog");
-                dialog = createDialog(getApplicationContext(), alert);
+                dialog = createDialog(getApplicationContext(), message);
                 dialog.show();
             }catch (Exception ex){
                 Logger.log(ex.getMessage());
@@ -464,11 +443,11 @@ public class MainActivity extends FragmentActivity
 //        return message;
 //    }
 
-    private AlertDialog createDialog(final Context context, final Alert alert1){
+    private AlertDialog createDialog(final Context context, final Message alert1){
 
-        final Alert alert = alert1;
+        final Message message1 = alert1;
         final Activity activity = this;
-        final MessageState messageState = WEASharedPreferences.getAlertState(context, alert);
+        final MessageState messageState = AlertHelper.getAlertState(context, message1);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this,  AlertDialog.THEME_TRADITIONAL);
         final WEATextToSpeech textToSpeech = new WEATextToSpeech(activity);
@@ -493,18 +472,18 @@ public class MainActivity extends FragmentActivity
                             Toast.makeText(getApplicationContext(), Constants.SHOWING_FEEDBACK_FORM, Toast.LENGTH_SHORT).show();
 
                             Intent intent = new Intent(activity, FeedbackWebViewActivity.class);
-                            intent.putExtra(Constants.ALERT_ID, alert.getId());
+                            intent.putExtra(Constants.ALERT_ID, message1.getId());
                             startActivity(intent);
                         }
             });
         }
 
         //set the title and message of the alert
-        builder.setTitle(AlertHelper.getTextWithStyle(alert.getAlertType() + " Alert", 1.3f, false));
+        builder.setTitle(AlertHelper.getTextWithStyle(message1.getAlertType() + " Alert", 1.3f, false));
         builder.setIcon(R.drawable.ic_launcher);
 
         final TextView message = new TextView(this);
-        SpannableString string = AlertHelper.getTextWithStyle(alert.getText(), 1.7f, false);
+        SpannableString string = AlertHelper.getTextWithStyle(message1.getText(), 1.7f, false);
         message.setText(string);
         message.setMovementMethod(LinkMovementMethod.getInstance());
         builder.setView(message);
@@ -528,18 +507,18 @@ public class MainActivity extends FragmentActivity
                     messageState.setTimeWhenShownToUserInEpoch(System.currentTimeMillis());
                     messageState.setState(MessageState.State.shown);
 
-                    WEASharedPreferences.saveAlertState(getApplicationContext(), messageState);
+                    AlertHelper.updateMessageState(messageState, getApplicationContext());
                     WEAHttpClient.sendAlertState(getApplicationContext(),
                             messageState.getJson(),
                             String.valueOf(messageState.getId()));
 
-                    if(alert != null && alert.isPhoneExpectedToVibrate()){
+                    if(message1 != null && message1.isPhoneExpectedToVibrate()){
                         WEAVibrator.vibrate(getApplicationContext());
                         WEAUtil.lightUpScreen(getApplicationContext());
                     }
 
-                    if(alert != null && alert.isTextToSpeechExpected()){
-                        textToSpeech.say(AlertHelper.getTextWithStyle(alert.getText(), 1f, false).toString(), 2);
+                    if(message1 != null && message1.isTextToSpeechExpected()){
+                        textToSpeech.say(AlertHelper.getTextWithStyle(message1.getText(), 1f, false).toString(), 2);
                     }
                 }
             }
@@ -587,14 +566,18 @@ public class MainActivity extends FragmentActivity
                     String json = WEASharedPreferences.readApplicationConfiguration(context);
                     configuration = Configuration.fromJson(json);
                     if(listFragment != null) {
-//                        List<Alert> activeButNotShown = listFragment.updateListAndReturnAnyActiveAlertNotShown(
-//                                configuration.getAlertsList(context),
-//                                AlertHelper.getAlertStates(context, configuration.getAlertsList(context)));
-//
-//                        if(activeButNotShown!=null && activeButNotShown.size()>0){
-//                            WEAUtil.showMessageIfInDebugMode(context, "Found an alert which is active but not sown.");
-//                            AlertHelper.showAlertIfInTargetOrIsNotGeotargeted(context, activeButNotShown.get(0).getId());
-//                        }
+
+                        List<Message> messages = AlertHelper.getAllMessage(context);
+
+                        List<Message> activeButNotShown = listFragment.updateListAndReturnAnyActiveAlertNotShown(
+                                messages,
+                                AlertHelper.getAlertStates(context,
+                                        messages));
+
+                        if(activeButNotShown!=null && activeButNotShown.size()>0){
+                            WEAUtil.showMessageIfInDebugMode(context, "Found an alert which is active but not sown.");
+                            AlertHelper.showAlertIfInTargetOrIsNotGeotargeted(context, activeButNotShown.get(0).getId());
+                        }
                     }
                 }
 

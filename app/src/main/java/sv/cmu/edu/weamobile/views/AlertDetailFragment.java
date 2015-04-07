@@ -30,9 +30,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sv.cmu.edu.weamobile.R;
-import sv.cmu.edu.weamobile.data.Alert;
-import sv.cmu.edu.weamobile.data.MessageState;
 import sv.cmu.edu.weamobile.data.GeoLocation;
+import sv.cmu.edu.weamobile.data.Message;
+import sv.cmu.edu.weamobile.data.MessageState;
 import sv.cmu.edu.weamobile.data.UserActivity;
 import sv.cmu.edu.weamobile.utility.AlertHelper;
 import sv.cmu.edu.weamobile.utility.Constants;
@@ -55,7 +55,7 @@ import sv.cmu.edu.weamobile.utility.db.LocationDataSource;
  */
 public class AlertDetailFragment extends Fragment {
     private GoogleMap mMap;
-    private Alert alert;
+    private Message message;
     private MessageState messageState;
     private String startTime;
     private String endTime;
@@ -68,7 +68,7 @@ public class AlertDetailFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         WEAUtil.showMessageIfInDebugMode(getActivity().getApplicationContext(),
-                "Creating alert with a map");
+                "Creating message with a map");
     }
 
     @Override
@@ -80,13 +80,13 @@ public class AlertDetailFragment extends Fragment {
 
     private void setupView(){
 
-        if (alert != null) {
-            Logger.log("Item is there"+ alert.getText());
+        if (message != null) {
+            Logger.log("Item is there" + message.getText());
             TextView view = ((TextView) rootView.findViewById(R.id.alertText));
 
-            String text = alert.toString();
-//            if(!alertState.isAlreadyShown() && alert.isActive() && alertState.isInPolygonOrAlertNotGeoTargeted()){
-//                text = alert.getAlertType() + " Alert : "+ text;
+            String text = message.toString();
+//            if(!alertState.isAlreadyShown() && message.isActive() && alertState.isInPolygonOrAlertNotGeoTargeted()){
+//                text = message.getAlertType() + " Alert : "+ text;
 //            }
             view.setText(
                     AlertHelper.getTextWithStyle(text
@@ -94,15 +94,15 @@ public class AlertDetailFragment extends Fragment {
 
             view.setMovementMethod(LinkMovementMethod.getInstance());
 
-            startTime = alert.getScheduledForString();
-            endTime = alert.getEndingAtString();
+            startTime = message.getScheduledFor();
+            endTime = message.getEndingAt();
 
             ((TextView) rootView.findViewById(R.id.txtLabel)).setText(
                     AlertHelper.getTextWithStyle(startTime +  " to " +endTime,
                                     //+ "\n" + textToShow,
                             1f, false));
 
-            getActivity().setTitle(AlertHelper.getTextWithStyle(alert.getAlertType() + " Alert", 1.3f, false));
+            getActivity().setTitle(AlertHelper.getTextWithStyle(message.getAlertType() + " Alert", 1.3f, false));
             getActivity().getActionBar().setIcon(R.drawable.ic_launcher);
 
         }else{
@@ -136,7 +136,7 @@ public class AlertDetailFragment extends Fragment {
             }
 
             messageState.setLocationWhenShown(myLocation);
-            WEASharedPreferences.saveAlertState(getActivity().getApplicationContext(), messageState);
+            AlertHelper.updateMessageState(messageState, this.getActivity());
         }
 
         if(myLocation != null) Logger.log("my location: " + myLocation.toString());
@@ -147,12 +147,12 @@ public class AlertDetailFragment extends Fragment {
         super.onResume();
 
         if (getArguments().containsKey(Constants.ARG_ITEM_ID)) {
-            alert = AlertHelper.getAlertFromId(
+            message = AlertHelper.getMessageFromId(
                     getActivity().getApplicationContext(),
                     getArguments().getString(Constants.ARG_ITEM_ID));
 
-            messageState = WEASharedPreferences.getAlertState(getActivity().getApplicationContext(),
-                    alert);
+            messageState = AlertHelper.getAlertState(getActivity().getApplicationContext(),
+                    message);
         }
 
         updateMyLocation();
@@ -189,7 +189,7 @@ public class AlertDetailFragment extends Fragment {
                     Toast.makeText(getActivity(), Constants.SHOWING_FEEDBACK_FORM, Toast.LENGTH_SHORT).show();
 
                     Intent intent = new Intent(activity, FeedbackWebViewActivity.class);
-                    intent.putExtra(Constants.ALERT_ID, alert.getId());
+                    intent.putExtra(Constants.ALERT_ID, message.getId());
                     startActivity(intent);
                 }
             });
@@ -206,21 +206,22 @@ public class AlertDetailFragment extends Fragment {
             messageState.setAlreadyShown(true);
             messageState.setTimeWhenShownToUserInEpoch(System.currentTimeMillis());
             messageState.setState(MessageState.State.shown);
-            WEASharedPreferences.saveAlertState(getActivity().getApplicationContext(), messageState);
+
+            AlertHelper.updateMessageState(messageState, getActivity().getApplicationContext());
 
             WEAHttpClient.sendAlertState(getActivity().getApplicationContext(),
                     messageState.getJson(),
                     String.valueOf(messageState.getId()));
 
 
-            if (alert != null && alert.isPhoneExpectedToVibrate()) {
+            if (message != null && message.isPhoneExpectedToVibrate()) {
                 WEAVibrator.vibrate(getActivity().getApplicationContext());
                 WEAUtil.lightUpScreen(getActivity().getApplicationContext());
             }
 
-            if(alert != null && alert.isTextToSpeechExpected()){
-                String messageToSay = AlertHelper.getTextWithStyle(alert.getText(), 1f, false).toString();
-//                        + AlertHelper.getContextTextToShow(alert, myLocation);
+            if(message != null && message.isTextToSpeechExpected()){
+                String messageToSay = AlertHelper.getTextWithStyle(message.getText(), 1f, false).toString();
+//                        + AlertHelper.getContextTextToShow(message, myLocation);
                 textToSpeech = new WEATextToSpeech(getActivity());
                 textToSpeech.say(messageToSay, 2);
             }
@@ -235,7 +236,7 @@ public class AlertDetailFragment extends Fragment {
 
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
-        if (alert != null && alert.isMapToBeShown()) {
+        if (message != null && message.isMapToBeShown()) {
             if (mMap == null) {
                 // Try to obtain the map from the SupportMapFragment.
                 try{
@@ -250,7 +251,7 @@ public class AlertDetailFragment extends Fragment {
                             @Override
                             public void onCameraChange(CameraPosition arg0) {
                                 final LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                                for (GeoLocation location : alert.getPolygon()) {
+                                for (GeoLocation location : message.getPolygon()) {
                                     builder.include(new LatLng(location.getLatitude(), location.getLongitude()));
                                 }
 
@@ -367,7 +368,7 @@ public class AlertDetailFragment extends Fragment {
     private void setUpMap() {
 
         WEAUtil.showMessageIfInDebugMode(getActivity().getApplicationContext(),
-                "Setting up map for this alert.");
+                "Setting up map for this message.");
 
         mMap.clear();
 //        mMap.setMyLocationEnabled(true);
@@ -398,7 +399,7 @@ public class AlertDetailFragment extends Fragment {
                 PolygonOptions polyOptions = new PolygonOptions()
                         .strokeColor(Color.RED);
 
-                GeoLocation[] locations = alert.getPolygon();
+                GeoLocation[] locations = message.getPolygon();
 
                 if(locations != null & locations.length>2){
                     for(GeoLocation location:locations){
@@ -417,9 +418,9 @@ public class AlertDetailFragment extends Fragment {
     private void setCenter(){
 
         try{
-            if(alert.getPolygon() != null){
+            if(message.getPolygon() != null){
 
-                double [] centerLocation = WEALocationHelper.calculatePolyCenter(alert.getPolygon());
+                double [] centerLocation = WEALocationHelper.calculatePolyCenter(message.getPolygon());
 
                 CameraUpdate center=
                         CameraUpdateFactory.newLatLng(new LatLng(centerLocation[0], centerLocation[1]));

@@ -227,23 +227,24 @@ public class WEAHttpClient {
     public static void sendAlertState(Context context, String alertStateInJson, String alertId) {
         final Context ctxt = context;
         String response = "";
-        String server_url = Constants.STATE_URL_ROOT+ alertId+ "/"+ WEAUtil.getIMEI(context) ;
+        String phoneId = WEASharedPreferences.getStringProperty(context,Constants.PHONE_ID);
+        String server_url = Constants.STATE_URL_ROOT+ alertId+ "/"+ phoneId ;
         try {
 
             StringEntity entity = new StringEntity(alertStateInJson);
-            Logger.log("send alert state ", server_url);
+            Logger.log("send message state ", server_url);
             Logger.debug(alertStateInJson);
             AsyncHttpClient client = new AsyncHttpClient();
 
             client.post(ctxt, server_url, entity, "application/json", new AsyncHttpResponseHandler() {
                 @Override
                 public void onSuccess(String response) {
-                    Logger.log("WEA sending alert state", "Success - ");
+                    Logger.log("WEA sending message state", "Success - ");
                 }
 
                 @Override
                 public void onFailure(int statusCode, org.apache.http.Header[] headers, byte[] errorResponse, Throwable e) {
-                    Log.w("WEA sending alert state", "Failure in sending - " + "Status code -" + statusCode + " Error response -" + errorResponse);
+                    Log.w("WEA sending message state", "Failure in sending - " + "Status code -" + statusCode + " Error response -" + errorResponse);
                 }
             });
         } catch (Exception e) {
@@ -322,7 +323,7 @@ public class WEAHttpClient {
                             @Override
                             public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
 
-                                Log.w("WEA sending alert state", "Failure in sending - " + "Status code -" + statusCode + " Error response -" + errorResponse);
+                                Log.w("WEA sending message state", "Failure in sending - " + "Status code -" + statusCode + " Error response -" + errorResponse);
                             }
                         });
                     }

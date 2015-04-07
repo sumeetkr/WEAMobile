@@ -17,12 +17,12 @@ public class MessageDataSource extends WEADataSource<Message> {
     public static final String MESSAGE_TABLE = "Message";
 
     public static final String FIELD_ROW_ID = "_id";
-    public static final String FIELD_MESSAGE_ID = "messageId";
+    public static final String COLUMN_MESSAGE_ID = "messageId";
     public static final String COLUMN_MESSAGE_JSON = "messageJson";
 
     public final static String CREATE_MESSAGE_TABLE_SQL =    "create table " + MESSAGE_TABLE + " ( " +
             FIELD_ROW_ID + " integer primary key autoincrement , " +
-            FIELD_MESSAGE_ID + " integer ," +
+            COLUMN_MESSAGE_ID + " integer ," +
             COLUMN_MESSAGE_JSON + " text, " +
             "Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP "+
             " ) ";
@@ -39,9 +39,11 @@ public class MessageDataSource extends WEADataSource<Message> {
     public void insertData(Message data) {
 
         ContentValues insertValues = new ContentValues();
-        insertValues.put(FIELD_MESSAGE_ID, data.getId());
+        insertValues.put(COLUMN_MESSAGE_ID, data.getId());
         insertValues.put(COLUMN_MESSAGE_JSON, data.getJson());
-        insert(insertValues);
+        long row = insert(insertValues);
+
+        Logger.log("No of rows updated " + row);
     }
 
     @Override
@@ -81,11 +83,34 @@ public class MessageDataSource extends WEADataSource<Message> {
 
     @Override
     public Message getData(int id) {
-        return null;
+        Message message = null;
+        try{
+            open();
+            Cursor cursor = database.rawQuery("select * from "+ MESSAGE_TABLE +" where " + COLUMN_MESSAGE_ID + "=" +id, null);
+            if (cursor .moveToFirst()) {
+
+                while (cursor.isAfterLast() == false) {
+                    String json = String.valueOf(cursor.getString(2));
+                    message = Message.fromJson(json);
+                    cursor.moveToNext();
+                }
+            }
+        }catch (Exception ex){
+            Logger.log(ex.getLocalizedMessage());
+        }finally {
+            close();
+        }
+
+        return message;
     }
 
     @Override
     public void updateData(Message data) {
+
+    }
+
+    @Override
+    public void deleteData(Message data) {
 
     }
 
@@ -108,6 +133,8 @@ public class MessageDataSource extends WEADataSource<Message> {
         }finally {
             close();
         }
+
+        Logger.log("No of message in database " + messages.size());
         return  messages;
     }
 

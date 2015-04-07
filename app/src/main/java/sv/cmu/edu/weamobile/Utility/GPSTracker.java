@@ -9,9 +9,8 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 
-import sv.cmu.edu.weamobile.data.Alert;
-import sv.cmu.edu.weamobile.data.Configuration;
 import sv.cmu.edu.weamobile.data.GeoLocation;
+import sv.cmu.edu.weamobile.data.Message;
 
 /**
  * Created by sumeet on 9/24/14.
@@ -31,9 +30,7 @@ public class GPSTracker extends Service implements LocationListener {
 
     Location location; // Location
 
-    Alert alert;
-
-    Configuration configuration;
+    Message message;
 
     int countOfUpdates =0;
     int noOfTimesToCheck = 5;
@@ -199,18 +196,18 @@ public class GPSTracker extends Service implements LocationListener {
         if(isBetterLocation(location, this.location)){
             this.location = location;
             GeoLocation geoLocation = new GeoLocation(Double.toString(location.getLatitude()),Double.toString(location.getLongitude()), location.getAccuracy());
-            if(alert != null && configuration != null){
+            if(message != null){
                 String message= "Got GPS update";
-                if(geoLocation == null || WEALocationHelper.isInPolygon(geoLocation, alert.getPolygon())){
-                    message = "Present in polygon or location not known, will show alert";
-                    AlertHelper.showAlert(mContext, alert, geoLocation, message);
+                if(geoLocation == null || WEALocationHelper.isInPolygon(geoLocation, this.message.getPolygon())){
+                    message = "Present in polygon or location not known, will show message";
+                    AlertHelper.showAlert(mContext, this.message, geoLocation, message);
                     stopUsingGPS();
-                }else if(WEALocationHelper.getDistance(alert.getPolygon(), geoLocation) < 0.1){
+                }else if(WEALocationHelper.getDistance(this.message.getPolygon(), geoLocation) < 0.1){
                     noOfTimesToCheck = 60;
                     message ="Alert Time!! You are close, but not inside the polygon, remaining times to check "
                             + (noOfTimesToCheck -countOfUpdates + 1);
 
-                }else if(WEALocationHelper.getDistance(alert.getPolygon(), geoLocation) < 0.2){
+                }else if(WEALocationHelper.getDistance(this.message.getPolygon(), geoLocation) < 0.2){
                     noOfTimesToCheck = 20;
                     message ="Alert Time!! You are close, but not inside the polygon, remaining times to check "
                             + (noOfTimesToCheck -countOfUpdates +1);
@@ -303,10 +300,8 @@ public class GPSTracker extends Service implements LocationListener {
     }
 
     public void keepLookingForPresenceInPolygonAndShowAlertIfNecessary(Context context,
-                                                                       Alert alert,
-                                                                       Configuration configuration) {
-        this.alert = alert;
-        this.configuration = configuration;
+                                                                       Message alert) {
+        this.message = alert;
         countOfUpdates = 0;
 
         ReceiveBothNetworkAndGPSLocationUpdates();

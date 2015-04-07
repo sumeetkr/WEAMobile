@@ -90,6 +90,11 @@ public class LocationDataSource extends WEADataSource<GeoLocation> {
     }
 
     @Override
+    public void deleteData(GeoLocation data) {
+
+    }
+
+    @Override
     public List<GeoLocation> getAllData() {
 
         List<GeoLocation> locations = new ArrayList<GeoLocation>();

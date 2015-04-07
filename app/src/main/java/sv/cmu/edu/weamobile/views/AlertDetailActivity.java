@@ -7,11 +7,10 @@ import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
 
 import sv.cmu.edu.weamobile.R;
-import sv.cmu.edu.weamobile.data.Alert;
+import sv.cmu.edu.weamobile.data.Message;
 import sv.cmu.edu.weamobile.data.MessageState;
 import sv.cmu.edu.weamobile.utility.AlertHelper;
 import sv.cmu.edu.weamobile.utility.Constants;
-import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
 import sv.cmu.edu.weamobile.utility.WEAUtil;
 
 
@@ -33,8 +32,8 @@ public class AlertDetailActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
 
         String alertId = getIntent().getStringExtra(Constants.ARG_ITEM_ID);
-        Alert alert = AlertHelper.getAlertFromId(getApplicationContext(), alertId);
-        MessageState state = WEASharedPreferences.getAlertState(getApplicationContext(), alert);
+        Message messageFromId = AlertHelper.getMessageFromId(getApplicationContext(), alertId);
+        MessageState state = AlertHelper.getAlertState(getApplicationContext(), messageFromId);
 
 //        if(state != null && !state.isAlreadyShown() && alert.isActive() && state.isInPolygonOrAlertNotGeoTargeted()){
 //            setTheme(android.R.style.Theme_DeviceDefault_Dialog_NoActionBar);

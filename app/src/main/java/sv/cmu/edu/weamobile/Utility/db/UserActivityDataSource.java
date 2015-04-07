@@ -41,6 +41,11 @@ public class UserActivityDataSource extends WEADataSource<UserActivity>{
     }
 
     @Override
+    public void deleteData(UserActivity data) {
+
+    }
+
+    @Override
     public List<UserActivity> getAllData() {
         return null;
     }

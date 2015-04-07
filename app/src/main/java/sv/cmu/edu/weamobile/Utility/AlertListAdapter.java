@@ -10,17 +10,17 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import sv.cmu.edu.weamobile.data.Alert;
 import sv.cmu.edu.weamobile.R;
+import sv.cmu.edu.weamobile.data.Message;
 import sv.cmu.edu.weamobile.data.MessageState;
 
 /**
  * Created by sumeet on 10/31/14.
  */
-public class AlertListAdapter extends ArrayAdapter<Alert> {
-    private ArrayList<Alert> alerts;
+public class AlertListAdapter extends ArrayAdapter<Message> {
+    private ArrayList<Message> alerts;
 
-    public AlertListAdapter(Context context, int textViewResourceId, ArrayList<Alert> alerts) {
+    public AlertListAdapter(Context context, int textViewResourceId, ArrayList<Message> alerts) {
         super(context, textViewResourceId, alerts);
         this.alerts = alerts;
     }
@@ -33,10 +33,10 @@ public class AlertListAdapter extends ArrayAdapter<Alert> {
             v = vi.inflate(R.layout.list_item, null);
         }
 
-        Alert alert = alerts.get(position);
-        MessageState state = AlertHelper.getAlertState(getContext(), alert);
+        Message message = alerts.get(position);
+        MessageState state = AlertHelper.getAlertState(getContext(), message);
 
-        if(alert!=null && alert.getScheduledEpochInSeconds() < System.currentTimeMillis()/1000 ) {
+        if(message!=null && message.getScheduledEpochInSeconds() < System.currentTimeMillis()/1000 ) {
 
             ImageView imView = (ImageView) v.findViewById(R.id.avatar);
             TextView alertMessage = (TextView) v.findViewById(R.id.username);
@@ -45,20 +45,20 @@ public class AlertListAdapter extends ArrayAdapter<Alert> {
 
             if (state != null && state.isFeedbackGiven()) {
                 imView.setImageResource(R.drawable.email_alert_icon);
-                alertMessage.setText(AlertHelper.getTextWithStyle((alert.getAlertType() + " Alert "), 1.6f, true));
-                alertType.setText(AlertHelper.getTextWithStyle(alert.getText(), 1f, true));
-                alertTime.setText(AlertHelper.getTextWithStyle(alert.getScheduledForString() + " to " + alert.getEndingAtString(), 0.7f, true));
+                alertMessage.setText(AlertHelper.getTextWithStyle((message.getAlertType() + " Alert "), 1.6f, true));
+                alertType.setText(AlertHelper.getTextWithStyle(message.getText(), 1f, true));
+                alertTime.setText(AlertHelper.getTextWithStyle(message.getScheduledFor() + " to " + message.getEndingAt(), 0.7f, true));
             } else {
-                if(alert.isActive()){
+                if(message.isActive()){
                     imView.setImageResource(R.drawable.alert_green);
-                    alertMessage.setText(AlertHelper.getTextWithStyle((alert.getAlertType() + " Alert "), 1.6f, false));
-                    alertType.setText(AlertHelper.getTextWithStyle(alert.getText(), 1f, false));
-                    alertTime.setText(AlertHelper.getTextWithStyle(alert.getScheduledForString() + " to " + alert.getEndingAtString(), 0.7f, false));
+                    alertMessage.setText(AlertHelper.getTextWithStyle((message.getAlertType() + " Alert "), 1.6f, false));
+                    alertType.setText(AlertHelper.getTextWithStyle(message.getText(), 1f, false));
+                    alertTime.setText(AlertHelper.getTextWithStyle(message.getScheduledFor() + " to " + message.getEndingAt(), 0.7f, false));
                 }else{
                     imView.setImageResource(R.drawable.alert_red);
-                    alertMessage.setText(AlertHelper.getTextWithStyle((alert.getAlertType() + " Alert "), 1.6f, false));
-                    alertType.setText(AlertHelper.getTextWithStyle(alert.getText(), 1f, false));
-                    alertTime.setText(AlertHelper.getTextWithStyle(alert.getScheduledForString() + " to " + alert.getEndingAtString(), 0.7f, false));
+                    alertMessage.setText(AlertHelper.getTextWithStyle((message.getAlertType() + " Alert "), 1.6f, false));
+                    alertType.setText(AlertHelper.getTextWithStyle(message.getText(), 1f, false));
+                    alertTime.setText(AlertHelper.getTextWithStyle(message.getScheduledFor() + " to " + message.getEndingAt(), 0.7f, false));
                 }
             }
         }

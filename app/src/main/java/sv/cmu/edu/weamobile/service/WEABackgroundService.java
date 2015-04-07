@@ -14,9 +14,9 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
-import sv.cmu.edu.weamobile.data.MessageState;
 import sv.cmu.edu.weamobile.data.Configuration;
 import sv.cmu.edu.weamobile.data.Message;
+import sv.cmu.edu.weamobile.data.MessageState;
 import sv.cmu.edu.weamobile.data.UserActivity;
 import sv.cmu.edu.weamobile.utility.AlertHelper;
 import sv.cmu.edu.weamobile.utility.Constants;
@@ -220,7 +220,9 @@ public class WEABackgroundService extends Service {
         try{
             MessageState messageState = AlertHelper.getAlertState(getApplicationContext(), alert);
             messageState.setState(MessageState.State.scheduled);
-            WEASharedPreferences.saveAlertState(getApplicationContext(), messageState);
+
+            AlertHelper.updateMessageState(messageState, getApplicationContext());
+
             WEAHttpClient.sendAlertState(getApplicationContext(),
                     messageState.getJson(),
                     String.valueOf(messageState.getId()));
@@ -277,6 +279,19 @@ public class WEABackgroundService extends Service {
             }
 
             Configuration configuration = Configuration.fromJson(json);
+
+            //ToDo: for debugging
+//            Date date = new Date();
+//            date.setTime(System.currentTimeMillis() + 10000);
+//            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+//            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+//            String time = dateFormat.format(date);
+//            configuration.getMessages().get(0).setScheduledFor(time);
+//
+//            date.setTime(System.currentTimeMillis() + 500000);
+//            String timeTo = dateFormat.format(date);
+//            configuration.getMessages().get(0).setEndingTime(timeTo);
+
 
             addOrUpdatedMessagesToDatabase(configuration);
 

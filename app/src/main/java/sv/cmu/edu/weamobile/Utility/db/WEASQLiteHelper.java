@@ -12,7 +12,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import sv.cmu.edu.weamobile.data.Alert;
 import sv.cmu.edu.weamobile.data.MessageState;
 import sv.cmu.edu.weamobile.utility.Logger;
 
@@ -45,7 +44,7 @@ public class WEASQLiteHelper extends SQLiteOpenHelper {
     public static final String COLUMN_ALERTSTATE_SCHEDULEDFOR = "scheduledFor";
     public static final String COLUMN_ALERTSTATE_TEXT = "text";
 
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 8;
 
     /*
             The following create statement creates a table for storing individual properties of the alerts
@@ -130,29 +129,29 @@ public class WEASQLiteHelper extends SQLiteOpenHelper {
 
     }
 
-    //Adding a new alert State from an ALERT object
-    public void addAlertStateToDatabase(Alert alert) {
-                Logger.log("MySQLiteHelper","=== ADDING ALERT STATE TO DB ==");
-                MessageState as = new MessageState(alert.getId(), alert.getScheduledFor());
-
-                //Check if alert exists in the database
-                if (CheckIsDataAlreadyInDBorNot(TABLE_ALERTSTATE,COLUMN_ALERTSTATE_ID,Integer.toString(alert.getId())))
-                {
-                    Logger.log("MySQLiteHelper","* Exists in db, updating alert.");
-                    //yes it exists, update only the alert state
-                    updateAlertState(as);
-                }
-        else
-                {
-                    Logger.log("MySQLiteHelper","* Does not exist, inserting");
-                    //no it does not, create a new alert (blank alert state)
-                    // insertAlert(alert);
-                    insertAlertState(new MessageState(alert.getId(),alert.getScheduledFor()));
-                    //now create the alert state & update it
-                    updateAlertState(as);
-
-                }
-    }
+//    //Adding a new alert State from an ALERT object
+//    public void addAlertStateToDatabase(Alert alert) {
+//                Logger.log("MySQLiteHelper","=== ADDING ALERT STATE TO DB ==");
+//                MessageState as = new MessageState(alert.getId(), alert.getScheduledFor());
+//
+//                //Check if alert exists in the database
+//                if (CheckIsDataAlreadyInDBorNot(TABLE_ALERTSTATE,COLUMN_ALERTSTATE_ID,Integer.toString(alert.getId())))
+//                {
+//                    Logger.log("MySQLiteHelper","* Exists in db, updating alert.");
+//                    //yes it exists, update only the alert state
+//                    updateAlertState(as);
+//                }
+//        else
+//                {
+//                    Logger.log("MySQLiteHelper","* Does not exist, inserting");
+//                    //no it does not, create a new alert (blank alert state)
+//                    // insertAlert(alert);
+//                    insertAlertState(new MessageState(alert.getId(),alert.getScheduledFor()));
+//                    //now create the alert state & update it
+//                    updateAlertState(as);
+//
+//                }
+//    }
 
     private void insertAlertState(MessageState messageState) {
         ContentValues insertValues = new ContentValues();
@@ -164,21 +163,21 @@ public class WEASQLiteHelper extends SQLiteOpenHelper {
 
     }
 
-    private void insertAlert(Alert alert) {
-        ContentValues insertValues = new ContentValues();
-        insertValues.put(COLUMN_ID, alert.getId());
-        insertValues.put(COLUMN_TEXT, alert.getText());
-        insertValues.put(COLUMN_SCHEDULED_FOR, alert.getScheduledFor());
-        insertValues.put(COLUMN_ENDING_AT, alert.getEndingAt());
-        insertValues.put(COLUMN_POLYGON, alert.GeoLocationToJson());
-        insertValues.put(COLUMN_OPTIONS, alert.getOptions());
-        insertValues.put(COLUMN_IS_PHONE_VIBRATE,alert.isPhoneExpectedToVibrate());
-        insertValues.put(COLUMN_IS_TTS_EXPECTED,alert.isTextToSpeechExpected());
-        insertValues.put(COLUMN_IS_GEO_FILTERED,alert.isGeoFiltering());
-        long rows = getWritableDatabase().insert(TABLE_ALERTS, null, insertValues);
-        Logger.log("Inserted Alert " + Integer.toString(alert.getId()) + " | Affected: rows" + Long.toString(rows));
-
-    }
+//    private void insertAlert(Alert alert) {
+//        ContentValues insertValues = new ContentValues();
+//        insertValues.put(COLUMN_ID, alert.getId());
+//        insertValues.put(COLUMN_TEXT, alert.getText());
+//        insertValues.put(COLUMN_SCHEDULED_FOR, alert.getScheduledFor());
+//        insertValues.put(COLUMN_ENDING_AT, alert.getEndingAt());
+//        insertValues.put(COLUMN_POLYGON, alert.GeoLocationToJson());
+//        insertValues.put(COLUMN_OPTIONS, alert.getOptions());
+//        insertValues.put(COLUMN_IS_PHONE_VIBRATE,alert.isPhoneExpectedToVibrate());
+//        insertValues.put(COLUMN_IS_TTS_EXPECTED,alert.isTextToSpeechExpected());
+//        insertValues.put(COLUMN_IS_GEO_FILTERED,alert.isGeoFiltering());
+//        long rows = getWritableDatabase().insert(TABLE_ALERTS, null, insertValues);
+//        Logger.log("Inserted Alert " + Integer.toString(alert.getId()) + " | Affected: rows" + Long.toString(rows));
+//
+//    }
 
     //Checking function (Utility)
     //This function returns true if record already exists in db
