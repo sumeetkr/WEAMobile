@@ -244,7 +244,7 @@ public class WEAHttpClient {
 
                 @Override
                 public void onFailure(int statusCode, org.apache.http.Header[] headers, byte[] errorResponse, Throwable e) {
-                    Log.w("WEA sending message state", "Failure in sending - " + "Status code -" + statusCode + " Error response -" + errorResponse);
+                    Logger.log("Failure in sending - " + "Status code -" + statusCode + " Error response -" + errorResponse);
                 }
             });
         } catch (Exception e) {
@@ -323,7 +323,7 @@ public class WEAHttpClient {
                             @Override
                             public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
 
-                                Log.w("WEA sending message state", "Failure in sending - " + "Status code -" + statusCode + " Error response -" + errorResponse);
+                                Logger.log("Failure in sending - " + "Status code -" + statusCode + " Error response -" + errorResponse);
                             }
                         });
                     }

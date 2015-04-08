@@ -217,21 +217,32 @@ public class WEABackgroundService extends Service {
         messageDataSource.insertDataItemsIfNotPresent(configuration.getMessages());
     }
 
-
-
-
-    private void setupAlarmToShowAlertAtRightTime(Configuration configuration){
+    private void setupAlarmToShowFutureMessagesAtRightTime(Configuration configuration, long currentTime){
 
         //two things to be done, shown now or schedule for later if in half an hour
-        List<Message> alerts = getAlertRelevantBetweenNowAndNextScheduledCheck(configuration);
-        for(Message alert : alerts){
-            long currentTime = System.currentTimeMillis()/1000;
-            String message = "Alert expected after: "+ (alert.getScheduledEpochInSeconds() - currentTime) + " secs";
-            Logger.log(message);
-            WEAUtil.showMessageIfInDebugMode(getApplicationContext(), message);
-            WEAAlarmManager.setupAlarmForAlertAtScheduledTime(getApplicationContext(), alert.getId(), alert.getScheduleEpochInMillis());
+        List<Message> messages = getAlertRelevantBetweenNowAndNextScheduledCheck(configuration);
+        for(Message message : messages){
+            String messageToShow = "Alert expected after: "+ (message.getScheduledEpochInSeconds() - currentTime) + " secs";
+            Logger.log(messageToShow);
+            WEAUtil.showMessageIfInDebugMode(getApplicationContext(), messageToShow);
+            WEAAlarmManager.setupAlarmForAlertAtScheduledTime(getApplicationContext(), message.getId(), message.getScheduleEpochInMillis());
 
-            sendAlertScheduledInfoToServer(alert);
+            sendAlertScheduledInfoToServer(message);
+        }
+    }
+
+    private void showRecentMessageToUser(Configuration configuration, long currentTime){
+        List<Message> messages = getRecentMessages(configuration);
+        for(Message message : messages){
+            String messageToShow = "Alert expected after: "+ (message.getScheduledEpochInSeconds() - currentTime) + " secs";
+            Logger.log(messageToShow);
+            WEAUtil.showMessageIfInDebugMode(getApplicationContext(), messageToShow);
+            WEAAlarmManager.setupAlarmForAlertAtScheduledTime(
+                    getApplicationContext(),
+                    message.getId(),
+                    System.currentTimeMillis() + WEAUtil.randInt(3000, 6000)); //in 3 to 6 seconds
+
+            sendAlertScheduledInfoToServer(message);
         }
     }
 
@@ -256,11 +267,31 @@ public class WEABackgroundService extends Service {
         List<Message> relevantAlerts= new ArrayList<Message>();
 
         if(config != null){
-            List<Message> alerts = config.getMessages();
-            if(alerts.size() >0){
-                for(Message alert: alerts){
+            List<Message> messages = config.getMessages();
+            if(messages.size() >0){
+                for(Message alert: messages){
                     try{
                         if(alert.isInRangeToSchedule()){
+                            relevantAlerts.add(alert);
+                        }
+                    }catch(Exception ex){
+                        Logger.log(ex.getMessage());
+                    }
+                }
+            }
+        }
+        return relevantAlerts;
+    }
+
+    private List<Message> getRecentMessages(Configuration config){
+        List<Message> relevantAlerts= new ArrayList<Message>();
+
+        if(config != null){
+            List<Message> messages = config.getMessages();
+            if(messages.size() >0){
+                for(Message alert: messages){
+                    try{
+                        if(alert.isRecent()){
                             relevantAlerts.add(alert);
                         }
                     }catch(Exception ex){
@@ -316,7 +347,9 @@ public class WEABackgroundService extends Service {
 
             addOrUpdatedMessageStatesToDatabase(configuration); //Save the individual alerts
 
-            setupAlarmToShowAlertAtRightTime(configuration);
+            long currentTime = System.currentTimeMillis()/1000;
+            setupAlarmToShowFutureMessagesAtRightTime(configuration, currentTime);
+            showRecentMessageToUser(configuration, currentTime);
 
             //update if new alerts
             Logger.log("Broadcast intent: About to broadcast new configuration");

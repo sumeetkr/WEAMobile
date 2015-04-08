@@ -152,8 +152,9 @@ public class AlertHelper {
     }
 
     public static String getFeedbackURL(Context context, Message message){
-        return Constants.FEEDBACK_URL_ROOT + message.getId()+
-                "/" +WEAUtil.getIMEI(context);
+        String phoneId = WEASharedPreferences.getStringProperty(context, Constants.PHONE_ID);
+        String server_url = Constants.FEEDBACK_URL_ROOT+ message.getId()+ "/"+ phoneId ;
+        return server_url;
     }
 
     public static String getContextTextToShow(Message message, GeoLocation myLocation) {

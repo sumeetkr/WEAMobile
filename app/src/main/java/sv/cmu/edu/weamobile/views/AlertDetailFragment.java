@@ -98,7 +98,7 @@ public class AlertDetailFragment extends Fragment {
             endTime = message.getEndingAtInLocalTime();
 
             ((TextView) rootView.findViewById(R.id.txtLabel)).setText(
-                    AlertHelper.getTextWithStyle(startTime +  " to " +endTime,
+                    AlertHelper.getTextWithStyle("From : " + startTime +  " To : " +endTime,
                                     //+ "\n" + textToShow,
                             1f, false));
 

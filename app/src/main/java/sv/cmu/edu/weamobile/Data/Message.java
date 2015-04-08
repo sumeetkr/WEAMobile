@@ -326,7 +326,7 @@ public class Message {
     }
 
     public String getAlertType(){
-       return getInfo()[0].getEventCategory();
+       return getInfo()[0].getEventType();
     }
 
     public String getText(){
@@ -344,9 +344,22 @@ public class Message {
 
     public boolean isInRangeToSchedule() {
         long currentTime = System.currentTimeMillis();
-        //only show if not shown before in +60 -1 seconds
-        return ((this.getScheduleEpochInMillis()- 1.5* Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES*60*1000) <currentTime)
-                && (this.getScheduleEpochInMillis() > currentTime);
+        //only show if between now and 5 minutes from now
+        Logger.log("Time from : " +this.getScheduleEpochInMillis() + " Current time : " + currentTime);
+        Logger.log(String.valueOf(this.getScheduleEpochInMillis()- Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES*60*1000));
+//        return ((this.getScheduleEpochInMillis()- Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES*60*1000) <currentTime)
+//                && (this.getScheduleEpochInMillis() >= currentTime);
+
+        //only show if between now and future
+        return (this.getScheduleEpochInMillis() >= currentTime);
+    }
+
+    public boolean isRecent(){
+        // between now and 5 minutes before now
+        long currentTime = System.currentTimeMillis();
+        return
+            ((this.getScheduleEpochInMillis()+ Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES*60*1000) > System.currentTimeMillis())
+            && (this.getScheduleEpochInMillis() < currentTime);
     }
 
     public boolean isActive(){

@@ -363,6 +363,7 @@ public class MainActivity extends FragmentActivity
                 WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
                         "Existing alert dialog was there, dismissing it");
             }
+
             try {
                 WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
                         "Creating alert as a dialog");

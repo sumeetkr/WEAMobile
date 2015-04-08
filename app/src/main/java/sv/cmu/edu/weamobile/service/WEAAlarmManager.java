@@ -18,8 +18,8 @@ public class WEAAlarmManager {
                                                                     int alertId,
                                                                     long triggerAtEpochInMillis){
         AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        Log.d("WEA", "setting up alarm to trigger at " +
-                String.valueOf(triggerAtEpochInMillis));
+        Logger.log("setting up alarm to trigger after millis " +
+                String.valueOf(triggerAtEpochInMillis -System.currentTimeMillis()) + " for alert : " +alertId);
 
         Intent intent = new Intent(context, WEABackgroundService.class);
         intent.putExtra("alertId", alertId);
