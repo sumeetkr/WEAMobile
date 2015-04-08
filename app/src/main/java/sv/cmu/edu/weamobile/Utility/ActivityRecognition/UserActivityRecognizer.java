@@ -73,6 +73,7 @@ public class UserActivityRecognizer extends Service implements
 
                 if(callbackIntent != null){
                     ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(googleApiClient, callbackIntent);
+                    ActivityRecognition.ActivityRecognitionApi = null;
                 }
             }
         } catch (IllegalStateException e){

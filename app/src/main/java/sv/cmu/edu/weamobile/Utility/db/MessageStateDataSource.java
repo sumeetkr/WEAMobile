@@ -68,8 +68,10 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
 
         Long rows = insert(insertValues);
 
-        Logger.log("Inserted Alert State " + (messageState.getUniqueId()) );
-        Logger.log("No fo rows updated " + rows);
+        Logger.log("Inserted Message State " + (messageState.getUniqueId()));
+        Logger.log("Inserted Message id " + (messageState.getId()));
+        Logger.log(insertValues.toString());
+        Logger.log("Row updated " + rows);
     }
 
     private ContentValues fillValues(MessageState messageState) {
@@ -138,6 +140,7 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
                     state.setInPolygonOrAlertNotGeoTargeted(cursor.getInt(10)>0?true:false);
 
                     messageState = state;
+                    Logger.log("Retrieved messageState " + state.getUniqueId());
                     cursor.moveToNext();
                 }
             }
@@ -147,26 +150,34 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
             close();
         }
 
-        Logger.log("Retrieved message sates with id " + messageState.getUniqueId());
+        if(messageState != null){
+            Logger.log("Retrieved message sate with id " + messageState.getUniqueId());
+        }else{
+            Logger.log("Could not retrieve message sates with id " + id);
+        }
+
         return  messageState;
     }
 
     @Override
     public void updateData(MessageState messageState) {
-        try{
-           open();
+        if (messageState != null) {
+            try{
+                open();
 
-            ContentValues values = fillValues(messageState);
-            String strFilter = COLUMN_MESSAGE_ID +"=" + messageState.getId();
-            database.update(MESSAGE_STATE_TABLE, values, strFilter, null);
+                ContentValues values = fillValues(messageState);
+                String strFilter = COLUMN_MESSAGE_ID +"=" + messageState.getId();
+                database.update(MESSAGE_STATE_TABLE, values, strFilter, null);
 
-        }catch (Exception ex){
-            Logger.log(ex.getLocalizedMessage());
-        }finally {
-            close();
+            }catch (Exception ex){
+                Logger.log(ex.getLocalizedMessage());
+            }finally {
+                close();
+            }
+
+            Logger.log("Updated message sates with id " + messageState.getUniqueId());
+            Logger.log(messageState.getJson());
         }
-
-        Logger.log("Updated message sates with id " + messageState.getUniqueId());
     }
 
     @Override

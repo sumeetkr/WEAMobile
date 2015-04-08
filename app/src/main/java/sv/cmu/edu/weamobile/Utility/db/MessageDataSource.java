@@ -43,7 +43,7 @@ public class MessageDataSource extends WEADataSource<Message> {
         insertValues.put(COLUMN_MESSAGE_JSON, data.getJson());
         long row = insert(insertValues);
 
-        Logger.log("No of rows updated " + row);
+        Logger.log("Inserted data, message rows updated " + row);
     }
 
     @Override
@@ -64,20 +64,24 @@ public class MessageDataSource extends WEADataSource<Message> {
     @Override
     public void insertDataItemsIfNotPresent(List<Message> dataItems) {
 
-        List<Message> existingMessages = getAllData();
+        if(dataItems != null && dataItems.size()>0){
+            List<Message> existingMessages = getAllData();
 
-        for(Message dataItem : dataItems){
-            boolean found = false;
-            for(Message message : existingMessages){
-                if(message.getId() == dataItem.getId()){
-                    found = true;
-                    break;
+            for(Message dataItem : dataItems){
+                boolean found = false;
+                for(Message message : existingMessages){
+                    if(message.getId() == dataItem.getId()){
+                        found = true;
+                        break;
+                    }
+                }
+
+                if(!found){
+                    insertData(dataItem);
                 }
             }
-
-            if(!found){
-                insertData(dataItem);
-            }
+        }else{
+            Logger.log("No new messages to insert");
         }
     }
 

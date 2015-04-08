@@ -100,6 +100,7 @@ public class WEABackgroundService extends Service {
                 sendHeartbeat();
             }
         }
+
         AlarmBroadcastReceiver.completeWakefulIntent(intent);
     }
 
@@ -214,13 +215,19 @@ public class WEABackgroundService extends Service {
     private void addOrUpdatedMessagesToDatabase(Configuration configuration) {
 
         MessageDataSource messageDataSource = new MessageDataSource(this);
-        messageDataSource.insertDataItemsIfNotPresent(configuration.getMessages());
+        //insert only new alerts, leave stale alerts
+        List<Message> messages = getAlertRelevantBetweenNowAndFuture(configuration);
+        messageDataSource.insertDataItemsIfNotPresent(messages);
+
+        List<Message> messagesRecent = getRecentMessages(configuration);
+        messageDataSource.insertDataItemsIfNotPresent(messagesRecent);
+
     }
 
     private void setupAlarmToShowFutureMessagesAtRightTime(Configuration configuration, long currentTime){
 
         //two things to be done, shown now or schedule for later if in half an hour
-        List<Message> messages = getAlertRelevantBetweenNowAndNextScheduledCheck(configuration);
+        List<Message> messages = getAlertRelevantBetweenNowAndFuture(configuration);
         for(Message message : messages){
             String messageToShow = "Alert expected after: "+ (message.getScheduledEpochInSeconds() - currentTime) + " secs";
             Logger.log(messageToShow);
@@ -263,7 +270,7 @@ public class WEABackgroundService extends Service {
         }
     }
 
-    private List<Message> getAlertRelevantBetweenNowAndNextScheduledCheck(Configuration config){
+    private List<Message> getAlertRelevantBetweenNowAndFuture(Configuration config){
         List<Message> relevantAlerts= new ArrayList<Message>();
 
         if(config != null){
@@ -271,7 +278,7 @@ public class WEABackgroundService extends Service {
             if(messages.size() >0){
                 for(Message alert: messages){
                     try{
-                        if(alert.isInRangeToSchedule()){
+                        if(alert.isFutureMessage()){
                             relevantAlerts.add(alert);
                         }
                     }catch(Exception ex){
@@ -324,24 +331,14 @@ public class WEABackgroundService extends Service {
 
             }else{
                 WEASharedPreferences.saveApplicationConfiguration(context, json);
-                newConfigurationIntent = new WEANewConfigurationIntent("Received new configuration. ", json, false);
+                newConfigurationIntent = new WEANewConfigurationIntent(
+                        "Received new configuration. ",
+                        json,
+                        false);
 
             }
 
             Configuration configuration = Configuration.fromJson(json);
-
-            //ToDo: for debugging
-//            Date date = new Date();
-//            date.setTime(System.currentTimeMillis() + 10000);
-//            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-//            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-//            String time = dateFormat.format(date);
-//            configuration.getMessages().get(0).setScheduledFor(time);
-//
-//            date.setTime(System.currentTimeMillis() + 500000);
-//            String timeTo = dateFormat.format(date);
-//            configuration.getMessages().get(0).setEndingTime(timeTo);
-
 
             addOrUpdatedMessagesToDatabase(configuration);
 

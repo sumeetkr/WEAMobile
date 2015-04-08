@@ -342,11 +342,11 @@ public class Message {
         return text;
     }
 
-    public boolean isInRangeToSchedule() {
+    public boolean isFutureMessage() {
         long currentTime = System.currentTimeMillis();
         //only show if between now and 5 minutes from now
-        Logger.log("Time from : " +this.getScheduleEpochInMillis() + " Current time : " + currentTime);
-        Logger.log(String.valueOf(this.getScheduleEpochInMillis()- Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES*60*1000));
+//        Logger.log("Time from : " +this.getScheduleEpochInMillis() + " Current time : " + currentTime);
+//        Logger.log(String.valueOf(this.getScheduleEpochInMillis()- Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES*60*1000));
 //        return ((this.getScheduleEpochInMillis()- Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES*60*1000) <currentTime)
 //                && (this.getScheduleEpochInMillis() >= currentTime);
 

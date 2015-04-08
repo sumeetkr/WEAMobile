@@ -12,7 +12,9 @@ public class WEANewConfigurationIntent extends Intent{
     public static String MESSAGE = "MESSAGE";
     public static String STATUS = "STATUS";
 
-    public WEANewConfigurationIntent(String message, String configJson, boolean isOld){
+    public WEANewConfigurationIntent(String message,
+                                     String configJson,
+                                     boolean isOld){
         super(WEA_NEW_ALERT);
         setAction("android.intent.action.NEW_ALERT");
         addCategory(Intent.CATEGORY_DEFAULT);

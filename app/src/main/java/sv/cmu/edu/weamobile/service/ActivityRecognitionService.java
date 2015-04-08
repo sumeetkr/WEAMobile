@@ -53,6 +53,7 @@ public class ActivityRecognitionService extends IntentService {
     @Override
     public void onDestroy() {
         super.onDestroy();
+
         Logger.log("ActivityRecognitionService onDestroy called");
     }
 

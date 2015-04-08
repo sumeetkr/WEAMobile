@@ -157,8 +157,6 @@ public class MainActivity extends FragmentActivity
 
         if(getIntent().hasExtra(Constants.ALERT_ID)){
             selectItem();
-        }else if(getIntent().hasExtra(Constants.FETCH_CONFIG)){
-            fetchConfig();
         }else{
             showUnSeenAlert();
         }
@@ -369,6 +367,7 @@ public class MainActivity extends FragmentActivity
                         "Creating alert as a dialog");
                 dialog = createDialog(getApplicationContext(), message);
                 dialog.show();
+                idOfShownAlert = message.getId();
             }catch (Exception ex){
                 Logger.log(ex.getMessage());
             }
@@ -556,10 +555,10 @@ public class MainActivity extends FragmentActivity
                                 AlertHelper.getAlertStates(context,
                                         messages));
 
-                        if(activeButNotShown!=null && activeButNotShown.size()>0){
-                            WEAUtil.showMessageIfInDebugMode(context, "Found an alert which is active but not sown.");
-                            AlertHelper.showAlertIfInTargetOrIsNotGeotargeted(context, activeButNotShown.get(0).getId());
-                        }
+//                        if(activeButNotShown!=null && activeButNotShown.size()>0){
+//                            WEAUtil.showMessageIfInDebugMode(context, "Found an alert which is active but not sown.");
+//                            AlertHelper.showAlertIfInTargetOrIsNotGeotargeted(context, activeButNotShown.get(0).getId());
+//                        }
                     }
                 }
 

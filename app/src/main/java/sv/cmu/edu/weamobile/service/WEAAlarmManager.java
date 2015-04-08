@@ -54,12 +54,11 @@ public class WEAAlarmManager {
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
 
-        Logger.log("Alarm is already active");
-
-
         alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                 1000,
                 timeBetweenRepeatsInMilliSeconds,
                 alarmIntent);
+
+        Logger.log("Alarm is set");
     }
 }

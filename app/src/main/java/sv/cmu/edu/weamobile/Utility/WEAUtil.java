@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.BatteryManager;
+import android.os.Handler;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
@@ -183,6 +184,22 @@ public class WEAUtil {
                     LocationDataSource dataSource = new LocationDataSource(context);
                     dataSource.insertData(location);
 
+                }else{
+                    // try after 2 seconds
+                    Handler handler = new Handler();
+                    final GeoLocation finalLocation = location;
+                    final Context ctxtCopy = context;
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            WEAHttpClient.sendHeartbeat(finalLocation.getJson(), ctxtCopy);
+
+                            //TODO: Need to move it at right location
+                            LocationDataSource dataSource = new LocationDataSource(ctxtCopy);
+                            dataSource.insertData(finalLocation);
+                        }
+                    }, 2000);
                 }
             }catch (Exception ex){
                 Logger.log(ex.getMessage());
