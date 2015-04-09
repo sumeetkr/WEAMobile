@@ -143,7 +143,7 @@ public class WEABackgroundService extends Service {
     private void sendHeartbeat(){
         Logger.log("Got request to send heartbeat");
 
-        if(WEAUtil.checkIfPhoneIsRegisteredIfNotRegister(getApplicationContext())){
+//        if(WEAUtil.checkIfPhoneIsRegisteredIfNotRegister(getApplicationContext())){
             // Get info on motion i.e. speed and direction
             //Get info on UserActivity
             WEAUtil.getUserActivityInfo(getApplicationContext());
@@ -155,7 +155,7 @@ public class WEABackgroundService extends Service {
                             lastActivity);
                 }
             }, WEAUtil.randInt(1000, 2000));
-        }
+//        }
 
     }
     private void fetchConfiguration() {

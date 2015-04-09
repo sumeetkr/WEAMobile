@@ -288,10 +288,12 @@ public class WEAHttpClient {
                     if(phoneId == null || (phoneId!= null && phoneId.isEmpty())){
                         HashMap hm = new HashMap();
                         hm.put("token",token);
+                        hm.put("imei", WEAUtil.getIMEI(context));
                         JSONObject json = new JSONObject(hm);
                         StringEntity entity = new StringEntity(json.toString());
 
                         Logger.log("Registering phone ", server_url);
+                        Logger.log("Data ", json.toString());
                         AsyncHttpClient client = new AsyncHttpClient();
 
                         client.post(context, server_url, entity, "application/json", new AsyncHttpResponseHandler() {

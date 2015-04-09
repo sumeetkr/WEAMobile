@@ -193,11 +193,16 @@ public class WEAUtil {
                         @Override
                         public void run() {
 
-                            WEAHttpClient.sendHeartbeat(finalLocation.getJson(), ctxtCopy);
+                            try{
+                                WEAHttpClient.sendHeartbeat(finalLocation.getJson(), ctxtCopy);
 
-                            //TODO: Need to move it at right location
-                            LocationDataSource dataSource = new LocationDataSource(ctxtCopy);
-                            dataSource.insertData(finalLocation);
+                                //TODO: Need to move it at right location
+                                LocationDataSource dataSource = new LocationDataSource(ctxtCopy);
+                                dataSource.insertData(finalLocation);
+                            }
+                            catch(Exception ex){
+                                Logger.log(ex.getMessage());
+                            }
                         }
                     }, 2000);
                 }
@@ -227,6 +232,7 @@ public class WEAUtil {
 
     public  static  void  getUserActivityInfo(Context context) {
         try {
+            Logger.log("Starting User Activity Recognition Service");
             Intent service = new Intent(context, UserActivityRecognizer.class);
             service.setAction(UserActivityRecognizer.START_ACTIVITY_RECOGNITION);
             context.startService(service);
