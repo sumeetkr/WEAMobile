@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.Logger;
 import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
 import sv.cmu.edu.weamobile.utility.WEAUtil;
@@ -26,6 +27,10 @@ public class AWSNotificationReceiver extends BroadcastReceiver {
                 if(WEASharedPreferences.isShowNotificationsEnabled(context)){
                     WEAUtil.postNotification(new Intent(context, MainActivity.class), context, extras.getString("default"));
                 }
+
+                WEASharedPreferences.setStringProperty(context,
+                        Constants.LAST_TIME_WHEN_ALERT_RECEIVED,
+                        String.valueOf(System.currentTimeMillis()));
 
                 Intent startServiceIntent = new Intent(context, WEABackgroundService.class);
                 startServiceIntent.setAction(WEABackgroundService.FETCH_CONFIGURATION);

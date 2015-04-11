@@ -32,6 +32,7 @@ public class Constants {
     public static final String SHARED_PREFERENCES = "preferences";
     public static final String ALERT_STATE = "alert_state";
     public static final boolean IS_IN_DEBUG_MODE = false;
+
     public static final String IS_DEBUG_MODE = "is_in_debug_mode";
     public static final String IS_LOCATION_HISTORY_ENABLED = "is_location_history_enabled";
     public static final String IS_ACTIVITY_HISTORY_ENABLED = "is_activity_history_enabled";
@@ -39,8 +40,9 @@ public class Constants {
     public static final String IS_SHOW_NOTIFICATIONS_ENABLED = "is_show_notifications_enabled";
     public static final String IS_SHOW_ALL_ALERTS_ENABLED = "is_show_all_alerts_enabled";
     public static final String IS_ACTIVITY_RECOGNITION_ENABLED = "is_activity_recognition_enabled";
-    public static final String USER_NAME = "user_name";
+    public static final String IS_FETCH_ALERTS_PANEL_ENABLED = "is_fetch_alerts_enabled";
 
+    public static final String USER_NAME = "user_name";
     public static final String THANKS_FOR_FEEDBACK = "Thanks for Feedback !! CMU WEA+ team";
     public static final String SHOWING_FEEDBACK_FORM = "Loading feedback form...";
     public static final String ACTIVITY ="activity";
@@ -49,7 +51,9 @@ public class Constants {
     public static final String WEA_GPS_PROVIDER = "wea_gps_provider";
     public static final String PHONE_TOKEN = "phone_token";
     public static final String EPOCH_TIME_WHEN_LAST_UPDATED = "epoch_time_when_last_updated";
-    public static final int TIME_GAP_TO_RESTORE_TO_DEFAULT = 1000*60*1;
+    public static final int TIME_GAP_TO_RESTORE_TO_DEFAULT = 1000*60*10;
+    public static final String LAST_TIME_WHEN_ALERT_RECEIVED = "last_alert_time";
+    public static final String LAST_TIME_WHEN_HEARTBEAT_SENT = "lastTimeChecked";
 
 
 }

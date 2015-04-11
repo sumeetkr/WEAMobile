@@ -192,6 +192,27 @@ public class WEASharedPreferences {
         }
     }
 
+    public static boolean isFetchAlertsEnabled(Context context){
+        boolean result = false;
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
+        if (sharedPreferences != null) {
+            result = sharedPreferences.getBoolean(Constants.IS_FETCH_ALERTS_PANEL_ENABLED, false);
+        }
+        return result;
+    }
+
+    public static void setFetchAlertsEnabled(Context context, boolean enable) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
+        if (sharedPreferences != null) {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean(Constants.IS_FETCH_ALERTS_PANEL_ENABLED,enable);
+            editor.commit();
+            Logger.log("Saved fetch alerts mode to shared preferences "+ enable);
+
+            setLastTimeWhenSettingGotUpdated(context);
+        }
+    }
+
     public static void setLastTimeWhenSettingGotUpdated(Context context){
         try{
             setStringProperty(context, Constants.EPOCH_TIME_WHEN_LAST_UPDATED, String.valueOf(System.currentTimeMillis()));
@@ -223,6 +244,7 @@ public class WEASharedPreferences {
                         editor.putBoolean(Constants.IS_SHOW_NOTIFICATIONS_ENABLED,enable);
                         editor.putBoolean(Constants.IS_SHOW_ALL_ALERTS_ENABLED,enable);
                         editor.putBoolean(Constants.IS_ACTIVITY_RECOGNITION_ENABLED,enable);
+                        editor.putBoolean(Constants.IS_FETCH_ALERTS_PANEL_ENABLED, enable);
 
                         editor.commit();
                         Logger.log("Restored debug setting to default ");

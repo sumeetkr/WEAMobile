@@ -112,7 +112,7 @@ public class WEAHttpClient {
                 public void onSuccess(String response) {
 
                     WEASharedPreferences.setStringProperty(ctxt,
-                            "lastTimeChecked",
+                            Constants.LAST_TIME_WHEN_HEARTBEAT_SENT,
                             String.valueOf(System.currentTimeMillis()));
 
                     Logger.log("JsonSender", "Success - ");

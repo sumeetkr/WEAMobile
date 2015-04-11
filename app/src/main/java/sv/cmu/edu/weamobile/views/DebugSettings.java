@@ -30,7 +30,10 @@ public class DebugSettings extends ActionBarActivity {
     private CheckBox chkMotion;
     private CheckBox chkShowAWSMessagesAsNotifications;
     private CheckBox chkShowAllAlerts;
+    private CheckBox chkShowFetchAlerts;
     private TextView txtMessages;
+    private TextView txtLastHeartBeatAt;
+    private TextView txtLastAlertAt;
     private UserActivityRecognizer activityRecognizer;
     private NewActivityReceiver activityBroadcastReceiver;
 
@@ -51,6 +54,10 @@ public class DebugSettings extends ActionBarActivity {
         chkShowActivityHistory = (CheckBox) findViewById(R.id.chkActivityHistory);
         chkShowAWSMessagesAsNotifications = (CheckBox) findViewById(R.id.chkShowNotifications);
         chkShowAllAlerts = (CheckBox) findViewById(R.id.chkShowAllAlerts);
+        chkShowFetchAlerts = (CheckBox) findViewById(R.id.chkShowFetchAlertsPanel);
+
+        txtLastAlertAt = (TextView) findViewById(R.id.txtFetchAlerts);
+        txtLastHeartBeatAt = (TextView) findViewById(R.id.txtSendHeartbeat);
 
         chkViewDebugMessages.setChecked(WEASharedPreferences.isInDebugMode(getApplicationContext()));
         chkViewDebugMessages.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -153,8 +160,33 @@ public class DebugSettings extends ActionBarActivity {
             }
         });
 
+        chkShowFetchAlerts.setChecked(WEASharedPreferences.isFetchAlertsEnabled(getApplicationContext()));
+        chkShowFetchAlerts.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    WEASharedPreferences.setFetchAlertsEnabled(getApplicationContext(), true);
+                }else{
+                    WEASharedPreferences.setFetchAlertsEnabled(getApplicationContext(), false);
+                }
+            }
+        });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        try{
+            Long timeWhenLastAlertReceived = Long.valueOf(WEASharedPreferences.getStringProperty(this, Constants.LAST_TIME_WHEN_ALERT_RECEIVED));
+            txtLastAlertAt.setText("Last Alert at : "+ WEAUtil.getTimeStringFromEpoch(timeWhenLastAlertReceived / 1000));
+
+            Long timeWhenLastHeartbeatSent = Long.valueOf(WEASharedPreferences.getStringProperty(this, Constants.LAST_TIME_WHEN_HEARTBEAT_SENT));
+            txtLastHeartBeatAt.setText("Last Heartbeat at : " + WEAUtil.getTimeStringFromEpoch(timeWhenLastHeartbeatSent/1000));
+        }catch (Exception ex){
+            Logger.log(ex.getMessage());
+        }
+    }
     private void registerNewActivityReceiver() {
         if(activityBroadcastReceiver == null){
             activityBroadcastReceiver = new NewActivityReceiver(new Handler());

@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -148,6 +149,16 @@ public class MainActivity extends FragmentActivity
         super.onResume();
 
         WEAUtil.restoreDebugSettingToOriginalState(this);
+
+        if(!WEASharedPreferences.isFetchAlertsEnabled(this)){
+            LinearLayout layout = (LinearLayout)findViewById(R.id.linear_layout_alerts_header);
+            layout.setVisibility(LinearLayout.GONE);
+        }else{
+            LinearLayout layout = (LinearLayout)findViewById(R.id.linear_layout_alerts_header);
+            layout.setVisibility(LinearLayout.VISIBLE);
+        }
+
+
         registerNewConfigurationReceiver();
 
         refreshList();
