@@ -61,9 +61,10 @@ public class WEASharedPreferences {
         SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
         if (sharedPreferences != null) {
             SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean(Constants.IS_DEBUG_MODE,isDebugMode);
+            editor.putBoolean(Constants.IS_DEBUG_MODE, isDebugMode);
             editor.commit();
             Logger.log("Saved debug mode to shared preferences "+ isDebugMode);
+            setLastTimeWhenSettingGotUpdated(context);
         }
     }
 
@@ -80,9 +81,10 @@ public class WEASharedPreferences {
         SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
         if (sharedPreferences != null) {
             SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean(Constants.IS_LOCATION_HISTORY_ENABLED,enable);
+            editor.putBoolean(Constants.IS_LOCATION_HISTORY_ENABLED, enable);
             editor.commit();
             Logger.log("Saved location history mode to shared preferences "+ enable);
+            setLastTimeWhenSettingGotUpdated(context);
         }
     }
 
@@ -102,6 +104,7 @@ public class WEASharedPreferences {
             editor.putBoolean(Constants.IS_ACTIVITY_HISTORY_ENABLED, enable);
             editor.commit();
             Logger.log("Saved activity history mode to shared preferences "+ enable);
+            setLastTimeWhenSettingGotUpdated(context);
         }
     }
 
@@ -121,6 +124,8 @@ public class WEASharedPreferences {
             editor.putBoolean(Constants.IS_MOTION_ENABLED,enable);
             editor.commit();
             Logger.log("Saved motion mode to shared preferences "+ enable);
+
+            setLastTimeWhenSettingGotUpdated(context);
         }
     }
 
@@ -140,6 +145,8 @@ public class WEASharedPreferences {
             editor.putBoolean(Constants.IS_SHOW_NOTIFICATIONS_ENABLED,enable);
             editor.commit();
             Logger.log("Saved show notifications enabled to shared preferences "+ enable);
+
+            setLastTimeWhenSettingGotUpdated(context);
         }
     }
 
@@ -159,6 +166,8 @@ public class WEASharedPreferences {
             editor.putBoolean(Constants.IS_SHOW_ALL_ALERTS_ENABLED,enable);
             editor.commit();
             Logger.log("Saved show all alerts enabled to shared preferences "+ enable);
+
+            setLastTimeWhenSettingGotUpdated(context);
         }
     }
 
@@ -178,6 +187,52 @@ public class WEASharedPreferences {
             editor.putBoolean(Constants.IS_ACTIVITY_RECOGNITION_ENABLED,enable);
             editor.commit();
             Logger.log("Saved activity recognition mode to shared preferences "+ enable);
+
+            setLastTimeWhenSettingGotUpdated(context);
+        }
+    }
+
+    public static void setLastTimeWhenSettingGotUpdated(Context context){
+        try{
+            setStringProperty(context, Constants.EPOCH_TIME_WHEN_LAST_UPDATED, String.valueOf(System.currentTimeMillis()));
+        }catch (Exception ex){
+            Logger.log(ex.getMessage());
+        }
+    }
+
+    public static void restoreDebugSetting(Context context, int timeGap){
+        try{
+            Logger.log("restoreDebugSetting called");
+            SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
+            if (sharedPreferences != null) {
+
+                Long lastUpdatedTImeInEpoch = Long.valueOf(getStringProperty(context, Constants.EPOCH_TIME_WHEN_LAST_UPDATED));
+
+
+                if(lastUpdatedTImeInEpoch != null && lastUpdatedTImeInEpoch >0){
+                    Long currentTime = System.currentTimeMillis();
+
+                    if(currentTime - lastUpdatedTImeInEpoch > timeGap){
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        boolean enable = false;
+
+                        editor.putBoolean(Constants.IS_DEBUG_MODE, enable);
+                        editor.putBoolean(Constants.IS_LOCATION_HISTORY_ENABLED,enable);
+                        editor.putBoolean(Constants.IS_ACTIVITY_HISTORY_ENABLED, enable);
+                        editor.putBoolean(Constants.IS_MOTION_ENABLED,enable);
+                        editor.putBoolean(Constants.IS_SHOW_NOTIFICATIONS_ENABLED,enable);
+                        editor.putBoolean(Constants.IS_SHOW_ALL_ALERTS_ENABLED,enable);
+                        editor.putBoolean(Constants.IS_ACTIVITY_RECOGNITION_ENABLED,enable);
+
+                        editor.commit();
+                        Logger.log("Restored debug setting to default ");
+                    }
+                }
+            }
+
+        }catch (Exception ex){
+            Logger.log(ex.getMessage());
+
         }
     }
 }

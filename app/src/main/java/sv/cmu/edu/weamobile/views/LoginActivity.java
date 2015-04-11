@@ -5,14 +5,19 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.CursorLoader;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.ContactsContract;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -23,14 +28,19 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import sv.cmu.edu.weamobile.R;
+import sv.cmu.edu.weamobile.data.GeoLocation;
 import sv.cmu.edu.weamobile.utility.Constants;
+import sv.cmu.edu.weamobile.utility.GPSTracker;
+import sv.cmu.edu.weamobile.utility.Logger;
 import sv.cmu.edu.weamobile.utility.WEAHttpClient;
 import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
+import sv.cmu.edu.weamobile.utility.WEAUtil;
 
 /**
  * A login screen that offers login via email/password.
@@ -44,13 +54,9 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     private static final String[] DUMMY_CREDENTIALS = new String[]{
             "foo@example.com:hello", "bar@example.com:world"
     };
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
-    private UserLoginTask mAuthTask = null;
 
     // UI references.
-    private AutoCompleteTextView userIdView;
+    private AutoCompleteTextView activationCodeView;
     private EditText mOrganizationView;
     private View mProgressView;
     private View mLoginFormView;
@@ -61,7 +67,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         setContentView(R.layout.activity_login);
 
         // Set up the login form.
-        userIdView = (AutoCompleteTextView) findViewById(R.id.email);
+        activationCodeView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
 
         mOrganizationView = (EditText) findViewById(R.id.password);
@@ -86,6 +92,19 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(registrationReceiver,
+                new IntentFilter("new-register-event"));
+
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        if(registrationReceiver!= null){
+            LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(registrationReceiver);
+        }
+
     }
 
     private void populateAutoComplete() {
@@ -94,8 +113,8 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
         String user_name = WEASharedPreferences.getStringProperty(getApplicationContext(), Constants.USER_NAME);
         if(user_name != null || user_name != ""){
-         userIdView.setText(user_name);
-//         userIdView.setInputType(InputType.TYPE_NULL);
+         activationCodeView.setText(user_name);
+//         activationCodeView.setInputType(InputType.TYPE_NULL);
         }
     }
 
@@ -106,16 +125,13 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
      * errors are presented and no actual login attempt is made.
      */
     public void attemptLogin() {
-        if (mAuthTask != null) {
-            return;
-        }
 
         // Reset errors.
-        userIdView.setError(null);
+        activationCodeView.setError(null);
         mOrganizationView.setError(null);
 
         // Store values at the time of the login attempt.
-        String userId = userIdView.getText().toString();
+        String userId = activationCodeView.getText().toString();
         String password = mOrganizationView.getText().toString();
 
         boolean cancel = false;
@@ -131,12 +147,12 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
         // Check for a valid email address.
         if (TextUtils.isEmpty(userId)) {
-            userIdView.setError(getString(R.string.error_field_required));
-            focusView = userIdView;
+            activationCodeView.setError("Invalid Code");
+            focusView = activationCodeView;
             cancel = true;
-        } else if (!isEmailValid(userId)) {
-            userIdView.setError(getString(R.string.error_invalid_email));
-            focusView = userIdView;
+        } else if (!isActivationCodeValid(userId)) {
+            activationCodeView.setError(getString(R.string.error_invalid_email));
+            focusView = activationCodeView;
             cancel = true;
         }
 
@@ -148,15 +164,42 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(userId, password);
-            mAuthTask.execute((Void) null);
+
+            GPSTracker tracker = new GPSTracker(this);
+            if(tracker.canGetLocation()){
+                GeoLocation location = tracker.getNetworkGeoLocation();
+
+                String phoneId = WEASharedPreferences.getStringProperty(this,Constants.PHONE_ID);
+                String token = WEASharedPreferences.getStringProperty(this, Constants.PHONE_TOKEN);
+
+                if(phoneId!= null && !phoneId.isEmpty() && token!= null && !token.isEmpty()) {
+                    showProgress(false);
+                    Toast.makeText(this, "Phone already registered.", Toast.LENGTH_SHORT).show();
+                }else{
+                    Logger.log("Phone is registered");
+                    WEAHttpClient.registerPhoneAync(this, location);
+                }
+            }else{
+                final Context context = this;
+                new Handler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(context, "Enable Location Sharing", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            tracker.stopUsingGPS();
+
+//            mAuthTask = new ActivateUserTask(userId, this);
+//            mAuthTask.execute((Void) null);
         }
     }
 
-    private boolean isEmailValid(String email) {
+    private boolean isActivationCodeValid(String code) {
         //TODO: Replace this with your own logic
         boolean isValid = false;
-        if(email!= null && email != ""){
+        if(code!= null && code != "" && code.compareTo(Constants.ACTIVATION_CODE)==0){
             isValid = true;
         }
         return isValid;
@@ -254,66 +297,30 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
                 new ArrayAdapter<String>(LoginActivity.this,
                         android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
 
-        userIdView.setAdapter(adapter);
+        activationCodeView.setAdapter(adapter);
     }
 
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-
-        private final String mUserId;
-        private final String mOrganization;
-
-        UserLoginTask(String email, String password) {
-            mUserId = email;
-            mOrganization = password;
-        }
+    private BroadcastReceiver registrationReceiver = new BroadcastReceiver() {
 
         @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
+        public void onReceive(Context context, Intent intent) {
+            if(intent.hasExtra(Constants.PHONE_ID)){
+                Logger.log("Phone successfully registered");
+                showProgress(false);
 
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-                WEAHttpClient.saveUserLogin(getApplicationContext(), mUserId);
-            } catch (InterruptedException e) {
-                return false;
-            }
+                Intent dialogIntent = new Intent(context, MainActivity.class);
+                dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                WEAUtil.showMessageIfInDebugMode(context, "Registration successful, showing main view.");
+                context.startActivity(dialogIntent);
 
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mUserId)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mOrganization);
-                }
-            }
-
-            // TODO: register the new account here.
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            showProgress(false);
-
-            if (success) {
                 finish();
-            } else {
-                mOrganizationView.setError(getString(R.string.error_incorrect_password));
-                mOrganizationView.requestFocus();
+            }else{
+                showProgress(false);
+                activationCodeView.setError("Server error");
+                activationCodeView.requestFocus();
             }
         }
-
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
-        }
-    }
+    };
 }
 
 

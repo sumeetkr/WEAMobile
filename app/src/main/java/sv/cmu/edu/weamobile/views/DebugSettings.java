@@ -38,6 +38,9 @@ public class DebugSettings extends ActionBarActivity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_debug_settings);
+
+        WEAUtil.restoreDebugSettingToOriginalState(this);
+
         final Context ctxt = this;
 
         chkViewDebugMessages = (CheckBox)findViewById(R.id.checkBoxDebugMessages);
@@ -194,6 +197,12 @@ public class DebugSettings extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+//    @Override
+//    protected void onResume(){
+//        super.onResume();
+//
+//    }
+
     @Override
     protected void onDestroy(){
         WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
@@ -226,10 +235,10 @@ public class DebugSettings extends ActionBarActivity {
                     @Override
                     public void run() {
                         txtMessages.setText(
-                                "ActivityType : " + lastKnownActivity +
-                        "\n Confidence : " + lastKnownActivityConfidence + "%\n"+
-                        "Secondary ActivityType : " + lastKnownSecondaryActivity +
-                        "\n Secondary Activity Confidence : " + lastKnownSecondaryActivityConfidence + "%");
+                                "Primary Activity Type : " + lastKnownActivity +
+                        "\nPrimary Activity Confidence : " + lastKnownActivityConfidence + "%\n"+
+                        "Secondary Activity Type : " + lastKnownSecondaryActivity +
+                        "\nSecondary Activity Confidence : " + lastKnownSecondaryActivityConfidence + "%");
                     }
                 });
             }

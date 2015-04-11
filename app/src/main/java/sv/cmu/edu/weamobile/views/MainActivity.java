@@ -58,54 +58,50 @@ public class MainActivity extends FragmentActivity
     private List<MessageState> messageStates;
     List<Message> alertNotShown;
 
-
-    //Amazon AWS
-    // Since this activity is SingleTop, there can only ever be one instance. This variable corresponds to this instance.
-    //
-    //    public static Boolean inBackground = true;
-    //    private SharedPreferences savedValues;
-    //    private String numOfMissedMessages;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alert_list);
 
         Logger.log("Main on create called");
-        listFragment = ((AlertListFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.alert_list));
 
-        if (findViewById(R.id.alert_detail_container) != null) {
-            // The detail container view will be present only in the
-            // large-screen layouts (res/values-large and
-            // res/values-sw600dp). If this view is present, then the
-            // activity should be in two-pane mode.
-            mTwoPane = true;
+        //check if registered, else return
+        if(WEAUtil.checkIfPhoneIsRegisteredIfNotRegister(this)){
+            listFragment = ((AlertListFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.alert_list));
 
-            // In two-pane mode, list items should be given the
-            // 'activated' state when touched.
+            if (findViewById(R.id.alert_detail_container) != null) {
+                // The detail container view will be present only in the
+                // large-screen layouts (res/values-large and
+                // res/values-sw600dp). If this view is present, then the
+                // activity should be in two-pane mode.
+                mTwoPane = true;
 
-            listFragment.setActivateOnItemClick(true);
+                // In two-pane mode, list items should be given the
+                // 'activated' state when touched.
+
+                listFragment.setActivateOnItemClick(true);
+            }
+
+            setSwitchEvents();
+
+            handler = new Handler();
+
+            registerNewConfigurationReceiver();
+            if(getIntent().getAction()!= null && getIntent().getAction() == "android.intent.action.MAIN"){
+
+                Logger.log("scheduling alarm");
+                WEAAlarmManager.setupRepeatingAlarmToWakeUpApplicationToFetchConfiguration(
+                        this.getApplicationContext(),
+                        Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES * 60 * 1000);
+
+            }
+
+            WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
+                    "Reached onCreate of main view");
+        }else{
+            finish();
         }
-
-
-        setSwitchEvents();
-
-        handler = new Handler();
-
-        registerNewConfigurationReceiver();
-        if(getIntent().getAction()!= null && getIntent().getAction() == "android.intent.action.MAIN"){
-
-            Logger.log("scheduling alarm");
-            WEAAlarmManager.setupRepeatingAlarmToWakeUpApplicationToFetchConfiguration(
-                    this.getApplicationContext(),
-                    Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES * 60 * 1000);
-
-        }
-
-        WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
-                "Reached onCreate of main view");
     }
 
     public void onStop(){
@@ -151,6 +147,7 @@ public class MainActivity extends FragmentActivity
     protected void onResume(){
         super.onResume();
 
+        WEAUtil.restoreDebugSettingToOriginalState(this);
         registerNewConfigurationReceiver();
 
         refreshList();

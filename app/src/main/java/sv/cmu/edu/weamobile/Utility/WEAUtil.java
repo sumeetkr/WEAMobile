@@ -28,6 +28,7 @@ import sv.cmu.edu.weamobile.data.GeoLocation;
 import sv.cmu.edu.weamobile.data.UserActivity;
 import sv.cmu.edu.weamobile.utility.ActivityRecognition.UserActivityRecognizer;
 import sv.cmu.edu.weamobile.utility.db.LocationDataSource;
+import sv.cmu.edu.weamobile.views.LoginActivity;
 
 /**
  * Created by sumeet on 10/17/14.
@@ -219,8 +220,16 @@ public class WEAUtil {
 
         if(phoneId!= null && !phoneId.isEmpty() && token!= null && !token.isEmpty()){
             isRegistered = true;
+            Logger.log("Phone is registered");
         }else{
-            WEAHttpClient.registerPhoneAync(context);
+            Logger.log("Phone is not registered, registering");
+
+            Intent dialogIntent = new Intent(context, LoginActivity.class);
+
+            WEAUtil.showMessageIfInDebugMode(context, "Showing login view to register");
+            context.startActivity(dialogIntent);
+
+//            WEAHttpClient.registerPhoneAync(context);
         }
 
         return  isRegistered;
@@ -278,4 +287,7 @@ public class WEAUtil {
         return randomNum;
     }
 
+    public static void restoreDebugSettingToOriginalState(Context context) {
+        WEASharedPreferences.restoreDebugSetting(context, Constants.TIME_GAP_TO_RESTORE_TO_DEFAULT);
+    }
 }

@@ -22,6 +22,7 @@ public class Constants {
     public static final int TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES = 5;
     public static final int TIME_THRESHOLD_TO_SHOW_ALERT_IN_SECONDS = 2;
     public static final String SMS_CODE_FOR_WEA_MESSAGES = "myPAWS1";
+    public static final String ACTIVATION_CODE = "wea@cmu";
     public static final String ALERT_ID= "item_id";
     public static final String SHOW_MAIN_VIEW_ACTION= "show_main_View";
     public static final String ARG_ITEM_ID = "item_id";
@@ -46,6 +47,9 @@ public class Constants {
     public static final String ACTIVITY_TYPE ="activity_type";
     public static final String ACTIVITY_CONFIDENCE ="activity_confidence";
     public static final String WEA_GPS_PROVIDER = "wea_gps_provider";
-
     public static final String PHONE_TOKEN = "phone_token";
+    public static final String EPOCH_TIME_WHEN_LAST_UPDATED = "epoch_time_when_last_updated";
+    public static final int TIME_GAP_TO_RESTORE_TO_DEFAULT = 1000*60*1;
+
+
 }

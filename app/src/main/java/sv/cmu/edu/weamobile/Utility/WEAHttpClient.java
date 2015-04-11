@@ -19,6 +19,8 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 
+import sv.cmu.edu.weamobile.data.GeoLocation;
+
 /**
  * Created by sumeet on 9/24/14.
  */
@@ -255,7 +257,7 @@ public class WEAHttpClient {
         }
     }
 
-    public static void registerPhoneAync(final Context context){
+    public static void registerPhoneAync(final Context context, final GeoLocation location){
 
         final String server_url = Constants.SERVER_REGISTRATION_URL;
 
@@ -289,6 +291,9 @@ public class WEAHttpClient {
                         HashMap hm = new HashMap();
                         hm.put("token",token);
                         hm.put("imei", WEAUtil.getIMEI(context));
+                        hm.put("lat", location.getLat());
+                        hm.put("lng", location.getLng());
+
                         JSONObject json = new JSONObject(hm);
                         StringEntity entity = new StringEntity(json.toString());
 
@@ -316,6 +321,11 @@ public class WEAHttpClient {
                                     // calls should be fine. *need to test*
 
                                     Logger.log("PHONE_ID","======= PHONE ID ======== >>> "+id);
+
+                                    Intent intent = new Intent("new-register-event");
+                                    intent.putExtra(Constants.PHONE_ID, id);
+                                    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+
                                 } catch (JSONException e) {
                                     Logger.log(e.getMessage());
                                     Logger.log("Phone registration failed");
@@ -326,6 +336,9 @@ public class WEAHttpClient {
                             public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
 
                                 Logger.log("Failure in sending - " + "Status code -" + statusCode + " Error response -" + errorResponse);
+
+                                Intent intent = new Intent("new-register-event");
+                                LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
                             }
                         });
                     }
