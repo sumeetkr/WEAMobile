@@ -17,7 +17,7 @@ import sv.cmu.edu.weamobile.utility.Logger;
 public class ActivityRecognitionService extends IntentService {
 
     private static final String TAG ="ActivityRecognition";
-    private static int activitiesResultsCount = 0;
+    private  int activitiesResultsCount = 0;
 
 
     public ActivityRecognitionService() {
@@ -42,8 +42,10 @@ public class ActivityRecognitionService extends IntentService {
             activitiesResultsCount += 1;
             Logger.log("Activity result count : " + activitiesResultsCount);
 
-            if(activitiesResultsCount>10) {
-                UserActivityRecognizer.stopActivityRecognitionScan();
+            if(activitiesResultsCount> 3) {
+                UserActivityRecognizer recognizer = new UserActivityRecognizer();
+                recognizer.stopActivityRecognitionScan();
+//                UserActivityRecognizer.stopActivityRecognitionScan();
                 activitiesResultsCount =0;
 //                UserActivityRecognizer.completeWakefulIntent(intent);
             }

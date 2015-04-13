@@ -22,7 +22,7 @@ public class Constants {
     public static final int TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES = 5;
     public static final int TIME_THRESHOLD_TO_SHOW_ALERT_IN_SECONDS = 2;
     public static final String SMS_CODE_FOR_WEA_MESSAGES = "myPAWS1";
-    public static final String ACTIVATION_CODE = "wea@cmu";
+    public static final String ACTIVATION_CODE = "weacmu2015";
     public static final String ALERT_ID= "item_id";
     public static final String SHOW_MAIN_VIEW_ACTION= "show_main_View";
     public static final String ARG_ITEM_ID = "item_id";
@@ -56,4 +56,5 @@ public class Constants {
     public static final String LAST_TIME_WHEN_HEARTBEAT_SENT = "lastTimeChecked";
 
 
+    public static final long DETECTION_INTERVAL_IN_MILLISECONDS = 0;
 }

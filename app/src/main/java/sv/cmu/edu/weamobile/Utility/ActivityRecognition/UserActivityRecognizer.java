@@ -10,11 +10,12 @@ import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.ActivityRecognition;
-import com.google.android.gms.location.ActivityRecognitionResult;
 
-import sv.cmu.edu.weamobile.data.UserActivity;
 import sv.cmu.edu.weamobile.service.ActivityRecognitionService;
+import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.Logger;
 import sv.cmu.edu.weamobile.utility.WEAUtil;
 
@@ -23,14 +24,20 @@ import sv.cmu.edu.weamobile.utility.WEAUtil;
  */
 public class UserActivityRecognizer extends Service implements
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener {
+        GoogleApiClient.OnConnectionFailedListener, ResultCallback<Status> {
     public static final String START_ACTIVITY_RECOGNITION = "start_activity_recognition";
     private static final String TAG = "ActivityRecognition";
     private static PendingIntent callbackIntent;
+    private static Intent activityIntent;
     private static int activitiesResultsCount = 0;
     private static GoogleApiClient googleApiClient;
 
     private final IBinder mBinder = new LocalBinder();
+
+    @Override
+    public void onResult(Status status) {
+        Logger.log(status.getStatusMessage());
+    }
 
     public class LocalBinder extends Binder {
         UserActivityRecognizer getService() {
@@ -64,17 +71,23 @@ public class UserActivityRecognizer extends Service implements
         Logger.log("UserActivityRecognizer startActivityRecognitionScan called");
     }
 
-    public static void stopActivityRecognitionScan(){
+    public void stopActivityRecognitionScan(){
         try{
 
             if(googleApiClient != null){
 //                googleApiClient.unregisterConnectionCallbacks((GoogleApiClient.ConnectionCallbacks) this);
-                googleApiClient.disconnect();
 
-                if(callbackIntent != null){
-                    ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(googleApiClient, callbackIntent);
-                    ActivityRecognition.ActivityRecognitionApi = null;
-                }
+//                if(callbackIntent != null){
+//                    ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(googleApiClient, callbackIntent);
+//                    ActivityRecognition.ActivityRecognitionApi = null;
+//                }
+
+                ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(
+                        googleApiClient,
+                        getActivityDetectionPendingIntent()
+                ).setResultCallback(this);
+
+                googleApiClient.disconnect();
             }
         } catch (IllegalStateException e){
             Logger.log(e.getMessage());
@@ -96,14 +109,21 @@ public class UserActivityRecognizer extends Service implements
 
             //This issue wasted so much time
             //https://code.google.com/p/android/issues/detail?id=61850
-            Intent intent = new Intent(this, ActivityRecognitionService.class);
-            callbackIntent = PendingIntent.getService(this, 0, intent,
+            activityIntent = new Intent(this, ActivityRecognitionService.class);
+            callbackIntent = PendingIntent.getService(this, 0, activityIntent,
                     PendingIntent.FLAG_CANCEL_CURRENT);
+
+            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(
+                    googleApiClient,
+                    Constants.DETECTION_INTERVAL_IN_MILLISECONDS,
+                    getActivityDetectionPendingIntent()
+            ).setResultCallback(this);
+
 
             Logger.log("isConnectionCallbacksRegistered: " + String.valueOf(googleApiClient.isConnectionCallbacksRegistered(this)));
             Logger.log("isConnected: " + String.valueOf(googleApiClient.isConnected()));
 
-            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(googleApiClient, 0, callbackIntent);
+//            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(googleApiClient, 1000, callbackIntent);
 
         }catch (Exception ex){
             Logger.log(ex.getMessage());
@@ -133,30 +153,6 @@ public class UserActivityRecognizer extends Service implements
 
         return Service.START_NOT_STICKY;
     }
-    /**
-     * Google Play Services calls this once it has analysed the sensor data
-     */
-//    @Override
-    protected void onHandleIntent(Intent intent) {
-        Logger.log("UserActivityRecognizer onHandleIntent called");
-        if (ActivityRecognitionResult.hasResult(intent)) {
-            ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
-
-            UserActivity activity = new UserActivity(result);
-            Logger.log("ActivityRecognitionResult: " + activity.getActivityName() + " confidence: " + activity.getActivityConfidence());
-
-            broadcastNewActivityIntent("Activity name: "+activity.getActivityName() + "    Confidence: " + activity.getActivityConfidence());
-
-            activitiesResultsCount += 1;
-            Logger.log("Activity result count : " + activitiesResultsCount);
-
-            if(activitiesResultsCount>10) {
-                UserActivityRecognizer.stopActivityRecognitionScan();
-                activitiesResultsCount =0;
-//                UserActivityRecognizer.completeWakefulIntent(intent);
-            }
-        }
-    }
 
     @Override
     public void onDestroy() {
@@ -172,5 +168,17 @@ public class UserActivityRecognizer extends Service implements
         newActivityIntent.addCategory(Intent.CATEGORY_DEFAULT);
         newActivityIntent.putExtra("message",name );
         getApplicationContext().sendBroadcast(newActivityIntent);
+    }
+
+    private PendingIntent getActivityDetectionPendingIntent() {
+        // Reuse the PendingIntent if we already have it.
+        if (callbackIntent != null) {
+            return callbackIntent;
+        }
+        Intent intent = new Intent(this, ActivityRecognitionService.class);
+
+        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling
+        // requestActivityUpdates() and removeActivityUpdates().
+        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 }
