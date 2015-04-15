@@ -308,6 +308,9 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
                 Logger.log("Phone successfully registered");
                 showProgress(false);
 
+                //send heart beat after registration
+                WEAUtil.sendHeartBeat(context);
+
                 Intent dialogIntent = new Intent(context, MainActivity.class);
                 dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 WEAUtil.showMessageIfInDebugMode(context, "Registration successful, showing main view.");

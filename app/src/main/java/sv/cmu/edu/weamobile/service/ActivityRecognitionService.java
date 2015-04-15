@@ -17,7 +17,7 @@ import sv.cmu.edu.weamobile.utility.Logger;
 public class ActivityRecognitionService extends IntentService {
 
     private static final String TAG ="ActivityRecognition";
-    private  int activitiesResultsCount = 0;
+    private  static int activitiesResultsCount = 0;
 
 
     public ActivityRecognitionService() {

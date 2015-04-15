@@ -9,34 +9,15 @@
     tools:context="sv.cmu.edu.weamobile.views.MainActivity">
 
     <LinearLayout
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:id="@+id/linear_layout_alerts_header"
-        android:focusableInTouchMode="true">
-        <Switch
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="Application Status"
-            android:id="@+id/switch2"
-            android:layout_centerHorizontal="true"
-            android:layout_marginRight="20dp"
-            android:checked="true" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="false"
-        android:layout_alignParentLeft="true"
         android:id="@+id/linear_layout_alerts_list"
         android:focusableInTouchMode="true"
-        android:layout_below="@+id/linear_layout_alerts_header">
+        android:layout_above="@+id/linear_layout_alerts_header">
 
         <!--<TextView-->
             <!--android:layout_width="fill_parent"-->
@@ -53,7 +34,6 @@
             android:name="sv.cmu.edu.weamobile.views.AlertListFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="10dp"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             tools:context="sv.cmu.edu.weamobile.views.MainActivity"
@@ -67,6 +47,25 @@
                 <!--android:layout_marginLeft="16dp"-->
                 <!--android:id="@+id/scheduledFor" />-->
             </fragment>
+    </LinearLayout>
 
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="1dp"
+        android:layout_alignParentLeft="true"
+        android:id="@+id/linear_layout_alerts_header"
+        android:focusableInTouchMode="true">
+        <Switch
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Application Status"
+            android:id="@+id/switch2"
+            android:layout_centerHorizontal="true"
+            android:layout_marginRight="20dp"
+            android:checked="true"
+            android:layout_gravity="bottom" />
     </LinearLayout>
 </RelativeLayout>

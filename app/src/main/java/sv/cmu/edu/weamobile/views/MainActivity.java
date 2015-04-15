@@ -280,6 +280,8 @@ public class MainActivity extends FragmentActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
+        //enable setting if clicked for
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.action_settings:
@@ -297,6 +299,7 @@ public class MainActivity extends FragmentActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
         return true;
