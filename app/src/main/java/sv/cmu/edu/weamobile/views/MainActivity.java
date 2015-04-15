@@ -58,6 +58,7 @@ public class MainActivity extends FragmentActivity
     private List<Message> messages;
     private List<MessageState> messageStates;
     List<Message> alertNotShown;
+    private  int noOfTimesMenuClicked;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -285,8 +286,11 @@ public class MainActivity extends FragmentActivity
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.action_settings:
-                Intent intent = new Intent(getApplicationContext(), DebugSettings.class);
-                startActivity(intent);
+                if(noOfTimesMenuClicked> 3) {
+                    Intent intent = new Intent(getApplicationContext(), DebugSettings.class);
+                    startActivity(intent);
+                }
+                noOfTimesMenuClicked = noOfTimesMenuClicked +1;
                 return true;
             case R.id.action_login:
                 Intent intent2 = new Intent(getApplicationContext(), LoginActivity.class);
@@ -301,7 +305,9 @@ public class MainActivity extends FragmentActivity
     public boolean onCreateOptionsMenu(Menu menu) {
 
         MenuInflater inflater = getMenuInflater();
+        menu.removeItem(R.id.action_settings);
         inflater.inflate(R.menu.main, menu);
+
         return true;
     }
 

@@ -3,10 +3,6 @@ apply plugin: 'com.android.application'
 android {
     signingConfigs {
         debug {
-            keyAlias 'debug_key'
-            keyPassword 'br1qoo9o'
-            storeFile file('/Users/sumeet/Google Drive/workspace/keystores/my-debug-key.keystore')
-            storePassword 'br1qoo9o'
         }
     }
     compileSdkVersion 20
