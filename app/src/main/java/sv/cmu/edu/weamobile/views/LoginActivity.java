@@ -312,6 +312,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
                 WEAUtil.sendHeartBeat(context);
 
                 Intent dialogIntent = new Intent(context, MainActivity.class);
+                dialogIntent.setAction("android.intent.action.MAIN");
                 dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 WEAUtil.showMessageIfInDebugMode(context, "Registration successful, showing main view.");
                 context.startActivity(dialogIntent);

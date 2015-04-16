@@ -10,8 +10,12 @@ import android.text.style.RelativeSizeSpan;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import sv.cmu.edu.weamobile.data.GeoLocation;
 import sv.cmu.edu.weamobile.data.Message;
 import sv.cmu.edu.weamobile.data.MessageState;
@@ -184,12 +188,12 @@ public class AlertHelper {
     public static void sendAlertReceivedInfoToServer(Context context, Message alert) {
         try{
             MessageState messageState = AlertHelper.getAlertState(context, alert);
-            messageState.setState(MessageState.State.received);
+            messageState.setStatus(MessageState.Status.received);
 
             AlertHelper.updateMessageState(messageState, context);
 
             WEAHttpClient.sendAlertState(context,
-                    messageState.getJson(),
+                    getAlertStateTextToSend(messageState),
                     String.valueOf(messageState.getId()));
 
         }
@@ -201,12 +205,12 @@ public class AlertHelper {
     public static void sendAlertDiscardedInfoToServer(Context context, Message alert) {
         try{
             MessageState messageState = AlertHelper.getAlertState(context, alert);
-            messageState.setState(MessageState.State.discarded);
+            messageState.setStatus(MessageState.Status.discarded);
 
             AlertHelper.updateMessageState(messageState, context);
 
             WEAHttpClient.sendAlertState(context,
-                    messageState.getJson(),
+                    getAlertStateTextToSend(messageState),
                     String.valueOf(messageState.getId()));
 
         }
@@ -219,19 +223,51 @@ public class AlertHelper {
         try{
 
             MessageState messageState = AlertHelper.getAlertState(context, alert);
-            messageState.setState(MessageState.State.shown);
+            messageState.setStatus(MessageState.Status.shown);
             messageState.setTimeWhenShownToUserInEpoch(System.currentTimeMillis());
             messageState.setAlreadyShown(true);
 
             AlertHelper.updateMessageState(messageState, context);
 
             WEAHttpClient.sendAlertState(context,
-                    messageState.getJson(),
+                    getAlertStateTextToSend(messageState),
                     String.valueOf(messageState.getId()));
 
         }
         catch (Exception ex){
             Logger.log(ex.getMessage());
         }
+    }
+
+    public static void sendFeedbackGivenToServer(Context context, Message alert) {
+        try{
+            MessageState messageState = AlertHelper.getAlertState(context, alert);
+            messageState.setStatus(MessageState.Status.clicked);
+            messageState.setTimeWhenShownToUserInEpoch(System.currentTimeMillis());
+            messageState.setFeedbackGiven(true);
+
+            AlertHelper.updateMessageState(messageState, context);
+
+
+            WEAHttpClient.sendAlertState(context,
+                    getAlertStateTextToSend(messageState),
+                    String.valueOf(messageState.getId()));
+
+        }
+        catch (Exception ex){
+            Logger.log(ex.getMessage());
+        }
+    }
+
+    private static String getAlertStateTextToSend(MessageState message){
+
+        JSONObject combined = new JSONObject();
+        try {
+            combined.put("status", message.getStatus().toString());
+            combined.put("additionalInfo",  message.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return combined.toString();
     }
 }

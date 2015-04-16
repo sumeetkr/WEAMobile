@@ -13,11 +13,9 @@ import android.widget.Toast;
 
 import sv.cmu.edu.weamobile.R;
 import sv.cmu.edu.weamobile.data.Message;
-import sv.cmu.edu.weamobile.data.MessageState;
 import sv.cmu.edu.weamobile.utility.AlertHelper;
 import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.Logger;
-import sv.cmu.edu.weamobile.utility.WEAHttpClient;
 
 
 public class FeedbackWebViewActivity extends Activity {
@@ -94,22 +92,11 @@ public class FeedbackWebViewActivity extends Activity {
         public void showToast(String toast) {
             try{
                 Toast.makeText(mContext, Constants.THANKS_FOR_FEEDBACK, Toast.LENGTH_SHORT).show();
-
-                MessageState messageState = AlertHelper.getAlertState(getApplicationContext(), message);
-
-                messageState.setFeedbackGiven(true);
-                messageState.setTimeWhenFeedbackGivenInEpoch(System.currentTimeMillis());
-                messageState.setState(MessageState.State.clicked);
-                AlertHelper.updateMessageState(messageState, getApplicationContext());
+                AlertHelper.sendFeedbackGivenToServer(getApplicationContext(), message);
 
                 Intent intent = new Intent(mContext, MainActivity.class);
                 intent.setAction(Constants.SHOW_MAIN_VIEW_ACTION);
                 startActivity(intent);
-
-                WEAHttpClient.sendAlertState(getApplicationContext(),
-                        messageState.getJson(),
-                        String.valueOf(message.getId()));
-
 
                 Logger.log("Submitted the feedback form");
             }catch(Exception ex){

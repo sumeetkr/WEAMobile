@@ -19,7 +19,7 @@ public class MessageState {
     private long timeWhenFeedbackGivenInEpoch;
     private GeoLocation locationWhenShown;
     private boolean isInPolygonOrAlertNotGeoTargeted = false;
-    private State state = null;
+    private Status status = null;
 
     public String getScheduledFor() {
         return scheduledFor;
@@ -32,12 +32,12 @@ public class MessageState {
         this.scheduledFor = scheduledForTime;
     }
 
-    public State getState() {
-        return state;
+    public Status getStatus() {
+        return status;
     }
 
-    public void setState(State state) {
-        this.state = state;
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public Long getScheduledEpochInSeconds(){
@@ -49,7 +49,7 @@ public class MessageState {
         return epoch/1000;
     }
 
-    public enum State {
+    public enum Status {
         received, discarded, shown, clicked
     }
 
