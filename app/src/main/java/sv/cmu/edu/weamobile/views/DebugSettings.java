@@ -171,22 +171,34 @@ public class DebugSettings extends ActionBarActivity {
                 }
             }
         });
+
+        updateTimeInfo();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        updateTimeInfo();
+    }
 
+    private void updateTimeInfo() {
         try{
-            Long timeWhenLastAlertReceived = Long.valueOf(WEASharedPreferences.getStringProperty(this, Constants.LAST_TIME_WHEN_ALERT_RECEIVED));
-            txtLastAlertAt.setText("Last Alert at : "+ WEAUtil.getTimeStringFromEpoch(timeWhenLastAlertReceived / 1000));
+            String timeLastAlertReceived = WEASharedPreferences.getStringProperty(this, Constants.LAST_TIME_WHEN_ALERT_RECEIVED);
+            if(timeLastAlertReceived!= null && !timeLastAlertReceived.isEmpty()){
+                Long timeWhenLastAlertReceived = Long.valueOf(timeLastAlertReceived);
+                txtLastAlertAt.setText("Last Alert at : "+ WEAUtil.getTimeStringFromEpoch(timeWhenLastAlertReceived / 1000));
+            }
 
-            Long timeWhenLastHeartbeatSent = Long.valueOf(WEASharedPreferences.getStringProperty(this, Constants.LAST_TIME_WHEN_HEARTBEAT_SENT));
-            txtLastHeartBeatAt.setText("Last Heartbeat at : " + WEAUtil.getTimeStringFromEpoch(timeWhenLastHeartbeatSent/1000));
+            String timeLastHeartBeat = WEASharedPreferences.getStringProperty(this, Constants.LAST_TIME_WHEN_HEARTBEAT_SENT);
+            if(timeLastHeartBeat != null && !timeLastHeartBeat.isEmpty()){
+                Long timeWhenLastHeartbeatSent = Long.valueOf(timeLastHeartBeat);
+                txtLastHeartBeatAt.setText("Last Heartbeat at : " + WEAUtil.getTimeStringFromEpoch(timeWhenLastHeartbeatSent/1000));
+            }
         }catch (Exception ex){
             Logger.log(ex.getMessage());
         }
     }
+
     private void registerNewActivityReceiver() {
         if(activityBroadcastReceiver == null){
             activityBroadcastReceiver = new NewActivityReceiver(new Handler());

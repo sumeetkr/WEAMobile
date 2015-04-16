@@ -98,7 +98,8 @@ public class WEAHttpClient {
     }
 
     public static void fetchAlerts( Context context ){
-        String serverUrl = Constants.URL_TO_FETCH_ALERTS;
+        String phoneId = WEASharedPreferences.getStringProperty(context,Constants.PHONE_ID);
+        String serverUrl = Constants.URL_TO_FETCH_ALERTS +phoneId;
         final Context ctxt = context;
         String response = "";
         try {

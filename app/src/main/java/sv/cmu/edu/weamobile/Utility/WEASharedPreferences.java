@@ -227,33 +227,36 @@ public class WEASharedPreferences {
             SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES, Activity.MODE_PRIVATE);
             if (sharedPreferences != null) {
 
-                Long lastUpdatedTImeInEpoch = Long.valueOf(getStringProperty(context, Constants.EPOCH_TIME_WHEN_LAST_UPDATED));
+                String time = getStringProperty(context, Constants.EPOCH_TIME_WHEN_LAST_UPDATED);
+                if(time!= null && !time.isEmpty()){
+                    Long lastUpdatedTImeInEpoch = Long.valueOf(time);
 
 
-                if(lastUpdatedTImeInEpoch != null && lastUpdatedTImeInEpoch >0){
-                    Long currentTime = System.currentTimeMillis();
+                    if(lastUpdatedTImeInEpoch != null && lastUpdatedTImeInEpoch >0){
+                        Long currentTime = System.currentTimeMillis();
 
-                    if(currentTime - lastUpdatedTImeInEpoch > timeGap){
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        boolean enable = false;
+                        if(currentTime - lastUpdatedTImeInEpoch > timeGap){
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            boolean enable = false;
 
-                        editor.putBoolean(Constants.IS_DEBUG_MODE, enable);
-                        editor.putBoolean(Constants.IS_LOCATION_HISTORY_ENABLED,enable);
-                        editor.putBoolean(Constants.IS_ACTIVITY_HISTORY_ENABLED, enable);
-                        editor.putBoolean(Constants.IS_MOTION_ENABLED,enable);
-                        editor.putBoolean(Constants.IS_SHOW_NOTIFICATIONS_ENABLED,enable);
-                        editor.putBoolean(Constants.IS_SHOW_ALL_ALERTS_ENABLED,enable);
-                        editor.putBoolean(Constants.IS_ACTIVITY_RECOGNITION_ENABLED,enable);
-                        editor.putBoolean(Constants.IS_FETCH_ALERTS_PANEL_ENABLED, enable);
+                            editor.putBoolean(Constants.IS_DEBUG_MODE, enable);
+                            editor.putBoolean(Constants.IS_LOCATION_HISTORY_ENABLED,enable);
+                            editor.putBoolean(Constants.IS_ACTIVITY_HISTORY_ENABLED, enable);
+                            editor.putBoolean(Constants.IS_MOTION_ENABLED,enable);
+                            editor.putBoolean(Constants.IS_SHOW_NOTIFICATIONS_ENABLED,enable);
+                            editor.putBoolean(Constants.IS_SHOW_ALL_ALERTS_ENABLED,enable);
+                            editor.putBoolean(Constants.IS_ACTIVITY_RECOGNITION_ENABLED,enable);
+                            editor.putBoolean(Constants.IS_FETCH_ALERTS_PANEL_ENABLED, enable);
 
-                        editor.commit();
-                        Logger.log("Restored debug setting to default ");
+                            editor.commit();
+                            Logger.log("Restored debug setting to default ");
+                        }
                     }
                 }
             }
 
         }catch (Exception ex){
-            Logger.log(ex.getMessage());
+            Logger.log("restoreDebugSetting" + ex.getMessage());
 
         }
     }
