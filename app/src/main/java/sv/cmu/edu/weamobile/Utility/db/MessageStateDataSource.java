@@ -152,6 +152,7 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
 
         if(messageState != null){
             Logger.log("Retrieved message sate with id " + messageState.getUniqueId());
+            Logger.log("Retrieved message sate with id " + messageState.getJson());
         }else{
             Logger.log("Could not retrieve message sates with id " + id);
         }

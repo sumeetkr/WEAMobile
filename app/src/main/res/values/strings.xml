@@ -6,12 +6,12 @@
     <string name="title_activity_main">WEA+</string>
     <string name="hello_world">Do not change these options if you are not a part of the CMU WEA+ team. For any help, please contact sumeet.kumar@sv.cmu.edu. Thanks for participating.</string>
     <string name="action_settings">Settings</string>
-    <string name="action_login">Login</string>
+    <string name="action_login">Register</string>
     <string name="title_activity_alert">WEA+</string>
     <string name="title_alert_list">WEA+</string>
     <string name="title_alert_detail">WEA+ Alert Details</string>
-    <string name="title_activity_alert_dialog">AlertDialogActivity</string>
-    <string name="title_activity_feedback_web_view">CMU WEA+ Feedback</string>
+    <string name="title_activity_alert_dialog">WEA+ Alert</string>
+    <string name="title_activity_feedback_web_view">WEA+ Feedback</string>
     <string name="title_activity_debug_settings">Settings</string>
 
 
