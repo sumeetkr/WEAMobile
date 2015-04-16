@@ -32,6 +32,7 @@ public class GeoLocation {
                        int primaryActivityType, int primaryActivityConfidence,
                        int secondaryActivityType, int secondaryActivityConfidence,
                        Timestamp timestamp){
+
         this.lat = latitude;
         this.lng = longitude;
         this.accuracy = accuracy;
@@ -40,6 +41,7 @@ public class GeoLocation {
         setSecondaryActivity(secondaryActivityType);
         setActivityConfidence(secondaryActivityConfidence);
         setTimestamp(timestamp);
+
     }
 
     public GeoLocation(String latitude, String longitude, float accuracy, Timestamp timestamp){

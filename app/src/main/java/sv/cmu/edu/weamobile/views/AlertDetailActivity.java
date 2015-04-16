@@ -2,8 +2,8 @@ package sv.cmu.edu.weamobile.views;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 
 import sv.cmu.edu.weamobile.R;
@@ -23,7 +23,7 @@ import sv.cmu.edu.weamobile.utility.WEAUtil;
  * This activity is mostly just a 'shell' activity containing nothing
  * more than a {@link AlertDetailFragment}.
  */
-public class AlertDetailActivity extends FragmentActivity {
+public class AlertDetailActivity extends ActionBarActivity {
 
     AlertDetailFragment fragment;
 
@@ -44,6 +44,7 @@ public class AlertDetailActivity extends FragmentActivity {
 
         //no one wants dialog theme... I worked so hard for it.
         setTheme(android.R.style.Theme_DeviceDefault);
+        getActionBar().setDisplayShowHomeEnabled(true);
 
         setContentView(R.layout.activity_alert_detail);
 

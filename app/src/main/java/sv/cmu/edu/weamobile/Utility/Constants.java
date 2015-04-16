@@ -13,7 +13,7 @@ public class Constants {
 //public static final String URL_TO_GET_CONFIGURATION = "http://10.0.17.19:5000/wea/api/heartbeat/";
 //    public static final String FEEDBACK_URL_ROOT = "http://code.sumeetkumar.in/user_study/WEA/feedback_form.html";
     public static final String FEEDBACK_URL_ROOT = BASE_URL+ "/feedback/"; //alertid/phoneid
-    public static final String STATE_URL_ROOT = BASE_URL+"/wea/api/seen/"; //alertid/phoneid
+    public static final String STATE_URL_ROOT = BASE_URL+"/wea/api/message/"; //message/{messageId}/status/{phoneId}
     public static final String REGISTRATION_URL_ROOT = BASE_URL+"/wea/api/registration/"; //emsi/participant
 
     public static final String FETCH_CONFIG = "fetch_config";

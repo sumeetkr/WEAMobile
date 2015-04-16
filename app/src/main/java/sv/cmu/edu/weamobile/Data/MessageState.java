@@ -50,7 +50,7 @@ public class MessageState {
     }
 
     public enum State {
-        scheduled, shown, clicked
+        received, discarded, shown, clicked
     }
 
     public long getTimeWhenFeedbackGivenInEpoch() {

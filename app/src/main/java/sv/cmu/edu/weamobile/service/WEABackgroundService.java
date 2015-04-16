@@ -234,7 +234,7 @@ public class WEABackgroundService extends Service {
             WEAUtil.showMessageIfInDebugMode(getApplicationContext(), messageToShow);
             WEAAlarmManager.setupAlarmForAlertAtScheduledTime(getApplicationContext(), message.getId(), message.getScheduleEpochInMillis());
 
-            sendAlertScheduledInfoToServer(message);
+            AlertHelper.sendAlertReceivedInfoToServer(getApplicationContext(), message);
         }
     }
 
@@ -249,24 +249,7 @@ public class WEABackgroundService extends Service {
                     message.getId(),
                     System.currentTimeMillis() + WEAUtil.randInt(3000, 6000)); //in 3 to 6 seconds
 
-            sendAlertScheduledInfoToServer(message);
-        }
-    }
-
-    private void sendAlertScheduledInfoToServer(Message alert) {
-        try{
-            MessageState messageState = AlertHelper.getAlertState(getApplicationContext(), alert);
-            messageState.setState(MessageState.State.scheduled);
-
-            AlertHelper.updateMessageState(messageState, getApplicationContext());
-
-            WEAHttpClient.sendAlertState(getApplicationContext(),
-                    messageState.getJson(),
-                    String.valueOf(messageState.getId()));
-
-        }
-        catch (Exception ex){
-            Logger.log(ex.getMessage());
+            AlertHelper.sendAlertReceivedInfoToServer(getApplicationContext(), message);
         }
     }
 
@@ -322,6 +305,7 @@ public class WEABackgroundService extends Service {
 
             Logger.log("NewConfigurationReceiver");
             String json = intent.getStringExtra("message");
+            Logger.log("New configuration received" + json);
             WEANewConfigurationIntent newConfigurationIntent;
 
             if(json.isEmpty()){

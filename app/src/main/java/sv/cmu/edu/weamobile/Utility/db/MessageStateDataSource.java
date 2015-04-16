@@ -140,7 +140,7 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
                     state.setInPolygonOrAlertNotGeoTargeted(cursor.getInt(10)>0?true:false);
 
                     messageState = state;
-                    Logger.log("Retrieved messageState " + state.getUniqueId());
+//                    Logger.log("Retrieved messageState " + state.getUniqueId());
                     cursor.moveToNext();
                 }
             }

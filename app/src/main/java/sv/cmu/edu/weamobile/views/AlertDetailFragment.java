@@ -38,7 +38,6 @@ import sv.cmu.edu.weamobile.utility.AlertHelper;
 import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.GPSTracker;
 import sv.cmu.edu.weamobile.utility.Logger;
-import sv.cmu.edu.weamobile.utility.WEAHttpClient;
 import sv.cmu.edu.weamobile.utility.WEALocationHelper;
 import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
 import sv.cmu.edu.weamobile.utility.WEATextToSpeech;
@@ -204,16 +203,7 @@ public class AlertDetailFragment extends Fragment {
             WEAUtil.showMessageIfInDebugMode(getActivity().getApplicationContext(),
                     "Alert is shown for first time, may vibrate and speak");
 
-            messageState.setAlreadyShown(true);
-            messageState.setTimeWhenShownToUserInEpoch(System.currentTimeMillis());
-            messageState.setState(MessageState.State.shown);
-
-            AlertHelper.updateMessageState(messageState, getActivity().getApplicationContext());
-
-            WEAHttpClient.sendAlertState(getActivity().getApplicationContext(),
-                    messageState.getJson(),
-                    String.valueOf(messageState.getId()));
-
+            AlertHelper.sendAlertShownInfoToServer(getActivity().getApplicationContext(), message );
 
             if (message != null && message.isPhoneExpectedToVibrate()) {
                 WEAVibrator.vibrate(getActivity().getApplicationContext());

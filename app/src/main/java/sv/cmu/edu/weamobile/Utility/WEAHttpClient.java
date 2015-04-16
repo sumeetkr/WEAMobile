@@ -231,7 +231,8 @@ public class WEAHttpClient {
         final Context ctxt = context;
         String response = "";
         String phoneId = WEASharedPreferences.getStringProperty(context,Constants.PHONE_ID);
-        String server_url = Constants.STATE_URL_ROOT+ alertId+ "/"+ phoneId ;
+        //message/{messageId}/status/{phoneId}
+        String server_url = Constants.STATE_URL_ROOT+ alertId+ "/status/"+ phoneId ;
         try {
 
             StringEntity entity = new StringEntity(alertStateInJson);

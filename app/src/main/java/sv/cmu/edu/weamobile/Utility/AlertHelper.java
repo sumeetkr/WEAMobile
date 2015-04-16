@@ -118,7 +118,9 @@ public class AlertHelper {
             String messageToShow ="GPS location not know, please enable GPS for Geo-filtering, showing message";
             Logger.log(messageToShow);
             WEAUtil.showMessageIfInDebugMode(context, messageToShow);
-            showAlert(context, message, null, messageToShow);
+            //Cannot show alert to those whose locations not known
+            //showAlert(context, message, null, messageToShow);
+            sendAlertDiscardedInfoToServer(context, message);
         }
     }
 
@@ -139,6 +141,8 @@ public class AlertHelper {
 
     public static List<MessageState> getAlertStates(Context context, List<Message> messages){
         List<MessageState> messageStates = new ArrayList<MessageState>();
+
+        Logger.log("calling getAlertStates");
 
         MessageStateDataSource messageStateDataSource = new MessageStateDataSource(context);
         for(int i=0; i<messages.size();i++){
@@ -175,5 +179,59 @@ public class AlertHelper {
     public static List<MessageState> getAllAlertStates(Context applicationContext) {
         MessageStateDataSource dataSource = new MessageStateDataSource(applicationContext);
         return dataSource.getAllData();
+    }
+
+    public static void sendAlertReceivedInfoToServer(Context context, Message alert) {
+        try{
+            MessageState messageState = AlertHelper.getAlertState(context, alert);
+            messageState.setState(MessageState.State.received);
+
+            AlertHelper.updateMessageState(messageState, context);
+
+            WEAHttpClient.sendAlertState(context,
+                    messageState.getJson(),
+                    String.valueOf(messageState.getId()));
+
+        }
+        catch (Exception ex){
+            Logger.log(ex.getMessage());
+        }
+    }
+
+    public static void sendAlertDiscardedInfoToServer(Context context, Message alert) {
+        try{
+            MessageState messageState = AlertHelper.getAlertState(context, alert);
+            messageState.setState(MessageState.State.discarded);
+
+            AlertHelper.updateMessageState(messageState, context);
+
+            WEAHttpClient.sendAlertState(context,
+                    messageState.getJson(),
+                    String.valueOf(messageState.getId()));
+
+        }
+        catch (Exception ex){
+            Logger.log(ex.getMessage());
+        }
+    }
+
+    public static void sendAlertShownInfoToServer(Context context, Message alert) {
+        try{
+
+            MessageState messageState = AlertHelper.getAlertState(context, alert);
+            messageState.setState(MessageState.State.shown);
+            messageState.setTimeWhenShownToUserInEpoch(System.currentTimeMillis());
+            messageState.setAlreadyShown(true);
+
+            AlertHelper.updateMessageState(messageState, context);
+
+            WEAHttpClient.sendAlertState(context,
+                    messageState.getJson(),
+                    String.valueOf(messageState.getId()));
+
+        }
+        catch (Exception ex){
+            Logger.log(ex.getMessage());
+        }
     }
 }

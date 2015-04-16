@@ -33,7 +33,6 @@ import sv.cmu.edu.weamobile.service.WEANewConfigurationIntent;
 import sv.cmu.edu.weamobile.utility.AlertHelper;
 import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.Logger;
-import sv.cmu.edu.weamobile.utility.WEAHttpClient;
 import sv.cmu.edu.weamobile.utility.WEASharedPreferences;
 import sv.cmu.edu.weamobile.utility.WEATextToSpeech;
 import sv.cmu.edu.weamobile.utility.WEAUtil;
@@ -514,14 +513,8 @@ public class MainActivity extends FragmentActivity
 
                     WEAUtil.showMessageIfInDebugMode(getApplicationContext(),
                             "Showing alert for first time, may vibrate and speak");
-                    messageState.setAlreadyShown(true);
-                    messageState.setTimeWhenShownToUserInEpoch(System.currentTimeMillis());
-                    messageState.setState(MessageState.State.shown);
 
-                    AlertHelper.updateMessageState(messageState, getApplicationContext());
-                    WEAHttpClient.sendAlertState(getApplicationContext(),
-                            messageState.getJson(),
-                            String.valueOf(messageState.getId()));
+                    AlertHelper.sendAlertShownInfoToServer(getApplicationContext(), message);
 
                     if(message != null && message.isPhoneExpectedToVibrate()){
                         WEAVibrator.vibrate(getApplicationContext());
