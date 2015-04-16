@@ -113,27 +113,29 @@ public class MainActivity extends FragmentActivity
     private void setSwitchEvents() {
         mySwitch = (Switch) findViewById(R.id.switch2);
 
-        mySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        if(mySwitch!=null){
+            mySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView,
-                                         boolean isChecked) {
-                if (!programTryingToChangeSwitch) {
-                    if (isChecked) {
-                        mySwitch.setText("Syncing..");
-                        //ToDO: only for debugging
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView,
+                                             boolean isChecked) {
+                    if (!programTryingToChangeSwitch) {
+                        if (isChecked) {
+                            mySwitch.setText("Syncing..");
+                            //ToDO: only for debugging
 //                        if (Constants.IS_IN_DEBUG_MODE && configuration != null) {
 //                            AlertHelper.clearAlertStates(getApplicationContext(), configuration.getAlerts(getApplicationContext()));
 //                        }
-                        fetchConfig();
+                            fetchConfig();
+                        } else {
+                            mySwitch.setText("Alerts disabled");
+                        }
                     } else {
-                        mySwitch.setText("Alerts disabled");
+                        programTryingToChangeSwitch = false;
                     }
-                } else {
-                    programTryingToChangeSwitch = false;
                 }
-            }
-        });
+            });
+        }
     }
 
     @Override
@@ -153,10 +155,10 @@ public class MainActivity extends FragmentActivity
 
         if(!WEASharedPreferences.isFetchAlertsEnabled(this)){
             LinearLayout layout = (LinearLayout)findViewById(R.id.linear_layout_alerts_header);
-            layout.setVisibility(LinearLayout.GONE);
+            if(layout!=null) layout.setVisibility(LinearLayout.GONE);
         }else{
             LinearLayout layout = (LinearLayout)findViewById(R.id.linear_layout_alerts_header);
-            layout.setVisibility(LinearLayout.VISIBLE);
+            if(layout!=null) layout.setVisibility(LinearLayout.VISIBLE);
         }
 
 
@@ -224,22 +226,29 @@ public class MainActivity extends FragmentActivity
         if(time != null && !time.isEmpty() && ((System.currentTimeMillis()- Long.parseLong(time))< Constants.TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES*60*1000)){
             setUpToDate();
         }else{
-            if(mySwitch.isChecked()) mySwitch.setChecked(false);
+            if(mySwitch!= null){
+                if(mySwitch.isChecked()) mySwitch.setChecked(false);
+            }
+
             //fetchConfig();
         }
     }
 
     private void setUpToDate() {
-        if(!mySwitch.isChecked()) mySwitch.setChecked(true);
-        long time = Long.parseLong(WEASharedPreferences.getStringProperty(getApplicationContext(),
-                "lastTimeChecked"));
-        mySwitch.setText("Synced at: " +
-                WEAUtil.getTimeStringFromEpoch(time / 1000));
+        if(mySwitch != null){
+            if(!mySwitch.isChecked()) mySwitch.setChecked(true);
+            long time = Long.parseLong(WEASharedPreferences.getStringProperty(getApplicationContext(),
+                    "lastTimeChecked"));
+            mySwitch.setText("Synced at: " +
+                    WEAUtil.getTimeStringFromEpoch(time / 1000));
+        }
     }
 
     private void setUpCouldNotConnectToNetwork() {
-        if(mySwitch.isChecked()) mySwitch.setChecked(false);
-        mySwitch.setText("Synced failed !!");
+        if(mySwitch != null){
+            if(mySwitch.isChecked()) mySwitch.setChecked(false);
+            mySwitch.setText("Synced failed !!");
+        }
     }
 
     private void fetchConfig() {
@@ -289,6 +298,8 @@ public class MainActivity extends FragmentActivity
                 if(noOfTimesMenuClicked> 3) {
                     Intent intent = new Intent(getApplicationContext(), DebugSettings.class);
                     startActivity(intent);
+                }else{
+                    Toast.makeText(this, "No settings for you.", Toast.LENGTH_SHORT).show();
                 }
                 noOfTimesMenuClicked = noOfTimesMenuClicked +1;
                 return true;
