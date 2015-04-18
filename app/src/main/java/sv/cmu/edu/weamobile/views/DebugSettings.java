@@ -34,6 +34,7 @@ public class DebugSettings extends ActionBarActivity {
     private TextView txtMessages;
     private TextView txtLastHeartBeatAt;
     private TextView txtLastAlertAt;
+    private TextView txtVersionNo;
     private UserActivityRecognizer activityRecognizer;
     private NewActivityReceiver activityBroadcastReceiver;
 
@@ -58,6 +59,7 @@ public class DebugSettings extends ActionBarActivity {
 
         txtLastAlertAt = (TextView) findViewById(R.id.txtFetchAlerts);
         txtLastHeartBeatAt = (TextView) findViewById(R.id.txtSendHeartbeat);
+        txtVersionNo = (TextView) findViewById(R.id.txtVersionNo);
 
         chkViewDebugMessages.setChecked(WEASharedPreferences.isInDebugMode(getApplicationContext()));
         chkViewDebugMessages.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -194,6 +196,9 @@ public class DebugSettings extends ActionBarActivity {
                 Long timeWhenLastHeartbeatSent = Long.valueOf(timeLastHeartBeat);
                 txtLastHeartBeatAt.setText("Last Heartbeat at : " + WEAUtil.getTimeStringFromEpoch(timeWhenLastHeartbeatSent/1000));
             }
+
+            txtVersionNo.setText("Version no: " + WEAUtil.getPackageVersion(getApplicationContext()));
+
         }catch (Exception ex){
             Logger.log(ex.getMessage());
         }

@@ -44,7 +44,7 @@ public class WEASQLiteHelper extends SQLiteOpenHelper {
     public static final String COLUMN_ALERTSTATE_SCHEDULEDFOR = "scheduledFor";
     public static final String COLUMN_ALERTSTATE_TEXT = "text";
 
-    private static final int DATABASE_VERSION = 12;
+    private static final int DATABASE_VERSION = 13;
 
     /*
             The following create statement creates a table for storing individual properties of the alerts

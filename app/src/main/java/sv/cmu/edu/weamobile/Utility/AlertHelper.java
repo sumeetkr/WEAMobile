@@ -48,24 +48,31 @@ public class AlertHelper {
     public static void showAlert( Context context,
                                    Message message,
                                    GeoLocation location,
-                                    String messageWhyShowingAlert) {
+                                    String messageWhyShowingAlert,
+                                    boolean isInPolygon,
+                                    boolean isLocationHistoryInPolygon,
+                                    boolean isFutureLocationInPolygon,
+                                    boolean isNotGeoTargeted) {
         Logger.log("Its the message time");
         WEAUtil.showMessageIfInDebugMode(context, "Checking if message is active");
 
         if(message.isActive()){
             MessageStateDataSource messageStateDataSource = new MessageStateDataSource(context);
-
             MessageState state = messageStateDataSource.getData(message.getId());
+
+            state.setInPolygon(isInPolygon);
+            state.setLocationHistoryInPolygon(isLocationHistoryInPolygon);
+            state.setFutureLocationInPolygon(isFutureLocationInPolygon);
+
             if(location != null){
                 location.setBatteryLevel(WEAUtil.getBatteryLevel(context));
-                state.setLocationWhenShown(location);
                 location.setAdditionalInfo(location.getAdditionalInfo()+ messageWhyShowingAlert);
+                state.setLocationWhenShown(location);
             }
 
-            state.setInPolygonOrAlertNotGeoTargeted(true);
+            state.setIsToBeShown(true);
 
-            MessageStateDataSource dataSource = new MessageStateDataSource(context);
-            dataSource.updateData(state);
+            messageStateDataSource.updateData(state);
 
             Intent dialogIntent = new Intent(context, MainActivity.class);
             dialogIntent.putExtra(Constants.ALERT_ID, String.valueOf(message.getId()));
@@ -87,6 +94,11 @@ public class AlertHelper {
 
         GPSTracker tracker = new GPSTracker(context);
         if(tracker.canGetLocation()){
+            boolean isInPolygon= false;
+            boolean isLocationHistoryInPolygon = false;
+            boolean isFutureLocationInPolygon = false;
+            boolean isGeoTargeted = false;
+
             if(message.getParameter().isGeoFiltering()){
                 Logger.log("The phone can get location, will check if in target");
                 //first check location history
@@ -99,27 +111,33 @@ public class AlertHelper {
                     String messageToShow = "User's location history was found in the message region, showing message";
                     Logger.log(messageToShow);
                     WEAUtil.showMessageIfInDebugMode(context, messageToShow);
-                    showAlert(context, message, tracker.getNetworkGeoLocation(), messageToShow);
+                    isLocationHistoryInPolygon = true;
 
-                }else if(message.getParameter().isMotionPredictionBasedFiltering() && WEALocationHelper.areAnyPointsInPolygon2(
+                    showAlert(context, message, tracker.getNetworkGeoLocation(), messageToShow, false, true, false, false);
+                } else if(message.getParameter().isMotionPredictionBasedFiltering() && WEALocationHelper.areAnyPointsInPolygon2(
                         WEALocationHelper.getFuturePredictionsOfLatLngs(locations)
                         , message.getPolygon())){
                     String messageToShow = "User's predicted location was found in the message region, showing message";
                     Logger.log(messageToShow);
                     WEAUtil.showMessageIfInDebugMode(context, messageToShow);
-                    showAlert(context, message, tracker.getNetworkGeoLocation(), messageToShow);
-                }else{
+
+                    isFutureLocationInPolygon = true;
+
+                    showAlert(context, message, tracker.getNetworkGeoLocation(), messageToShow, false, false,true, false );
+                }
+
+                else{
                     tracker.keepLookingForPresenceInPolygonAndShowAlertIfNecessary(context, message);
                 }
             }else{
                 String messageToShow = "Geo-filtering is off, showing message";
                 Logger.log(messageToShow);
                 WEAUtil.showMessageIfInDebugMode(context, messageToShow);
-                showAlert(context, message, tracker.getNetworkGeoLocation(), messageToShow);
+                showAlert(context, message, tracker.getNetworkGeoLocation(), messageToShow, false, false, false, true );
             }
         }else{
             Logger.log("Location not known");
-            String messageToShow ="GPS location not know, please enable GPS for Geo-filtering, showing message";
+            String messageToShow ="GPS location not known,discarding alert";
             Logger.log(messageToShow);
             WEAUtil.showMessageIfInDebugMode(context, messageToShow);
             //Cannot show alert to those whose locations not known
@@ -206,7 +224,6 @@ public class AlertHelper {
         try{
             MessageState messageState = AlertHelper.getAlertState(context, alert);
             messageState.setStatus(MessageState.Status.discarded);
-
             AlertHelper.updateMessageState(messageState, context);
 
             WEAHttpClient.sendAlertState(context,
@@ -264,7 +281,7 @@ public class AlertHelper {
         JSONObject combined = new JSONObject();
         try {
             combined.put("status", message.getStatus().toString());
-            combined.put("additionalInfo",  message.toString());
+            combined.put("additionalInfo", message.getJson());
         } catch (JSONException e) {
             e.printStackTrace();
         }

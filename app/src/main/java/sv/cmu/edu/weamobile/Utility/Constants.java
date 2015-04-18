@@ -4,7 +4,9 @@ package sv.cmu.edu.weamobile.utility;
  * Created by sumeet on 9/25/14.
  */
 public class Constants {
-    public static final String BASE_URL = "https://wea-stage.herokuapp.com";
+//    public static final String BASE_URL = "http://wea-stage.herokuapp.com";
+    public static final String BASE_URL = "http://wea-android.herokuapp.com";
+
 //    public static final String URL_TO_GET_CONFIGURATION = "http://code.sumeetkumar.in/config.json";
     public static final String URL_TO_GET_CONFIGURATION = BASE_URL +"/wea/api/heartbeat/";
     public static final String URL_TO_SEND_HEARTBEAT = BASE_URL +"/wea/api/phone/";
@@ -18,7 +20,7 @@ public class Constants {
 
     public static final String FETCH_CONFIG = "fetch_config";
     public static final String PHONE_ID = "phone_id";
-    public static final String SERVER_REGISTRATION_URL = "http://wea-stage.herokuapp.com/wea/api/registration/android";
+    public static final String SERVER_REGISTRATION_URL = BASE_URL+"/wea/api/registration/android";
     public static final int TIME_RANGE_TO_SHOW_ALERT_IN_MINUTES = 5;
     public static final int TIME_THRESHOLD_TO_SHOW_ALERT_IN_SECONDS = 2;
     public static final String SMS_CODE_FOR_WEA_MESSAGES = "myPAWS1";

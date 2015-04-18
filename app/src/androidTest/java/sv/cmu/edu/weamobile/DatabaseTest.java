@@ -43,7 +43,7 @@ public class DatabaseTest extends AndroidTestCase {
 
         ContentValues insertValues = new ContentValues();
         insertValues.put(WEASQLiteHelper.COLUMN_ALERTSTATE_SCHEDULEDFOR,"2015-02-25T23:03:59.000Z" );
-        insertValues.put(WEASQLiteHelper.COLUMN_ALERTSTATE_TEXT,"{\"scheduledFor\":\"2015-02-25T23:03:59.000Z\",\"id\":1101,\"timeWhenFeedbackGivenInEpoch\":0,\"timeWhenShownToUserInEpoch\":0,\"isAlreadyShown\":false,\"isFeedbackGiven\":false,\"isInPolygonOrAlertNotGeoTargeted\":false}");
+        insertValues.put(WEASQLiteHelper.COLUMN_ALERTSTATE_TEXT,"{\"scheduledFor\":\"2015-02-25T23:03:59.000Z\",\"id\":1101,\"timeWhenFeedbackGivenInEpoch\":0,\"timeWhenShownToUserInEpoch\":0,\"isAlreadyShown\":false,\"isFeedbackGiven\":false,\"isToBeShown\":false}");
         long rows = db.getWritableDatabase().insert(WEASQLiteHelper.TABLE_ALERTSTATE, null, insertValues);
         assertTrue(rows > 0);
     }

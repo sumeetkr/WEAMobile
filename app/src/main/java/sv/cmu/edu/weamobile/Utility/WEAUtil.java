@@ -20,14 +20,17 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import java.util.TimeZone;
 
 import sv.cmu.edu.weamobile.R;
 import sv.cmu.edu.weamobile.data.GeoLocation;
+import sv.cmu.edu.weamobile.data.Message;
 import sv.cmu.edu.weamobile.data.UserActivity;
 import sv.cmu.edu.weamobile.utility.ActivityRecognition.UserActivityRecognizer;
 import sv.cmu.edu.weamobile.utility.db.LocationDataSource;
+import sv.cmu.edu.weamobile.utility.db.MessageDataSource;
 import sv.cmu.edu.weamobile.views.LoginActivity;
 
 /**
@@ -169,6 +172,17 @@ public class WEAUtil {
 
             location.setAdditionalInfo("Activity: "+ UserActivity.getFriendlyName(activity.getPrimaryActivityType()) +
                     " Confidence :" +activity.getActivityConfidence());
+
+            //provide last alert id, to return the new alerts
+            MessageDataSource dataSource = new MessageDataSource(context);
+            List<Message> messages = dataSource.getAllData();
+            int lastMessageId = 0;
+            for(Message message : messages){
+                if(lastMessageId < message.getId()) lastMessageId = message.getId();
+            }
+
+
+            location.setLastReceivedMessageId(lastMessageId);
 
         }catch(Exception ex){
             Logger.log(ex.getMessage());

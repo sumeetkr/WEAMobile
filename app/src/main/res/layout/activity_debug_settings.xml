@@ -99,8 +99,7 @@
         android:id="@+id/txtSendHeartbeat"
         android:layout_above="@+id/txtFetchAlerts"
         android:layout_alignLeft="@+id/txtDebugMessages"
-        android:layout_alignStart="@+id/txtDebugMessages"
-        android:layout_marginBottom="10dp" />
+        android:layout_alignStart="@+id/txtDebugMessages" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -121,5 +120,15 @@
         android:layout_below="@+id/chkShowAllAlerts"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Version no :"
+        android:id="@+id/txtVersionNo"
+        android:layout_above="@+id/txtSendHeartbeat"
+        android:layout_alignLeft="@+id/txtSendHeartbeat"
+        android:layout_alignStart="@+id/txtSendHeartbeat" />
 
 </RelativeLayout>

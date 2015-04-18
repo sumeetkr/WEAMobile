@@ -35,7 +35,7 @@ public class AlertDetailActivity extends ActionBarActivity {
         Message messageFromId = AlertHelper.getMessageFromId(getApplicationContext(), alertId);
         MessageState state = AlertHelper.getAlertState(getApplicationContext(), messageFromId);
 
-//        if(state != null && !state.isAlreadyShown() && alert.isActive() && state.isInPolygonOrAlertNotGeoTargeted()){
+//        if(state != null && !state.isAlreadyShown() && alert.isActive() && state.isToBeShown()){
 //            setTheme(android.R.style.Theme_DeviceDefault_Dialog_NoActionBar);
 ////            setTheme(android.R.style.Theme_Tra);
 //        }else{

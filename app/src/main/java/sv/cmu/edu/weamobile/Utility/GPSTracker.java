@@ -200,7 +200,7 @@ public class GPSTracker extends Service implements LocationListener {
                 String message= "Got GPS update";
                 if(geoLocation == null || WEALocationHelper.isInPolygon(geoLocation, this.message.getPolygon())){
                     message = "Present in polygon or location not known, will show message";
-                    AlertHelper.showAlert(mContext, this.message, geoLocation, message);
+                    AlertHelper.showAlert(mContext, this.message, geoLocation, message, true, false, false,false);
                     stopUsingGPS();
                 }else if(WEALocationHelper.getDistance(this.message.getPolygon(), geoLocation) < 0.1){
                     noOfTimesToCheck = 60;

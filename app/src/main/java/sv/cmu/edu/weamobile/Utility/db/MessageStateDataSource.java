@@ -22,7 +22,7 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
 //    private String latWhenShown;
 //    private String lngWhenShown;
 //    private float accuracyWhenShown = 0.00f;
-//    private boolean isInPolygonOrAlertNotGeoTargeted = false;
+//    private boolean isToBeShown = false;
 
     public static final String MESSAGE_STATE_TABLE = "MessageState";
 
@@ -36,7 +36,13 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
     public static final String COLUMN_LAT_WHEN_SHOWN = "latWhenShown";
     public static final String COLUMN_LNG_WHEN_SHOWN = "lngWhenShown";
     public static final String COLUMN_ACCURACY_WHEN_SHOWN = "accuracyWhenShown";
-    public static final String COLUMN_IS_IN_POLYGON_OR_MESSAGE_NOT_GEO_TARGETED = "isInPolygonOrAlertNotGeoTargeted";
+    public static final String COLUMN_IS_IN_POLYGON_OR_MESSAGE_NOT_GEO_TARGETED = "isToBeShown";
+//    private static final String COLUMN_ISisAlertToBeShown = false;
+    private static final String COLUMN_IS_IN_POLYGON = "isInPolygon";
+    private static final String COLUMN_IS_LOCATION_HISTORY_IN_POLYGON = "isLocationHistoryInPolygon";
+    private static final String COLUMN_IS_FUTURE_LOCATION_IN_POLYGON = "isFutureLocationInPolygon";
+    private static final String COLUMN_IS_GEO_TARGETED = "isGeoTargeted";
+
 
     public final static String CREATE_MESSAGE_TABLE_SQL =    "create table " + MESSAGE_STATE_TABLE + " ( " +
             COLUMN_ROW_ID + " integer primary key autoincrement , " +
@@ -50,6 +56,10 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
             COLUMN_LNG_WHEN_SHOWN + " text ," +
             COLUMN_ACCURACY_WHEN_SHOWN + " text ," +
             COLUMN_IS_IN_POLYGON_OR_MESSAGE_NOT_GEO_TARGETED + " integer ," +
+            COLUMN_IS_IN_POLYGON + " integer ," +
+            COLUMN_IS_LOCATION_HISTORY_IN_POLYGON + " integer ," +
+            COLUMN_IS_FUTURE_LOCATION_IN_POLYGON + " integer ," +
+            COLUMN_IS_GEO_TARGETED + " integer ," +
             "Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP "+
             " ) ";
 
@@ -91,7 +101,11 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
             insertValues.put(COLUMN_ACCURACY_WHEN_SHOWN, messageState.getLocationWhenShown().getAccuracy());
         }
 
-        insertValues.put(COLUMN_IS_IN_POLYGON_OR_MESSAGE_NOT_GEO_TARGETED, messageState.isInPolygonOrAlertNotGeoTargeted());
+        insertValues.put(COLUMN_IS_IN_POLYGON_OR_MESSAGE_NOT_GEO_TARGETED, messageState.isToBeShown());
+        insertValues.put(COLUMN_IS_IN_POLYGON, messageState.isInPolygon());
+        insertValues.put(COLUMN_IS_LOCATION_HISTORY_IN_POLYGON, messageState.isLocationHistoryInPolygon());
+        insertValues.put(COLUMN_IS_FUTURE_LOCATION_IN_POLYGON, messageState.isFutureLocationInPolygon());
+        insertValues.put(COLUMN_IS_GEO_TARGETED, messageState.isGeoTargeted());
         return insertValues;
     }
 
@@ -137,7 +151,12 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
                             cursor.getString(8),
                             cursor.getFloat(9) ));
 
-                    state.setInPolygonOrAlertNotGeoTargeted(cursor.getInt(10)>0?true:false);
+                    state.setIsToBeShown(cursor.getInt(10) > 0 ? true : false);
+
+                    state.setInPolygon(cursor.getInt(11) > 0 ? true : false);
+                    state.setLocationHistoryInPolygon(cursor.getInt(12) > 0 ? true : false);
+                    state.setFutureLocationInPolygon(cursor.getInt(13) > 0 ? true : false);
+                    state.setGeoTargeted(cursor.getInt(14) > 0 ? true : false);
 
                     messageState = state;
 //                    Logger.log("Retrieved messageState " + state.getUniqueId());
@@ -208,7 +227,12 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
 //                    float accuracy = Float.valueOf(cursor.getFloat(9));
                     state.setLocationWhenShown(new GeoLocation(cursor.getString(7), cursor.getString(7),cursor.getFloat(9) ));
 
-                    state.setInPolygonOrAlertNotGeoTargeted(cursor.getInt(10)>0?true:false);
+                    state.setIsToBeShown(cursor.getInt(10) > 0 ? true : false);
+
+                    state.setInPolygon(cursor.getInt(11) > 0 ? true : false);
+                    state.setLocationHistoryInPolygon(cursor.getInt(12) > 0 ? true : false);
+                    state.setFutureLocationInPolygon(cursor.getInt(13) > 0 ? true : false);
+                    state.setGeoTargeted(cursor.getInt(14) > 0 ? true : false);
 
                     messageStates.add(state);
                     cursor.moveToNext();

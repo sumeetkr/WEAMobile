@@ -72,7 +72,7 @@ public class AlertListFragment extends ListFragment {
             Message alert = messages.get(i);
             MessageState state = alertStateMap.get(alert.getId());
 
-            if(WEASharedPreferences.isShowAllAlertsEnabled(getActivity()) ||( alert.isNotOfFuture() && state!= null && state.isInPolygonOrAlertNotGeoTargeted())){
+            if(WEASharedPreferences.isShowAllAlertsEnabled(getActivity()) ||( alert.isNotOfFuture() && state!= null && state.isToBeShown())){
                 addItem(alert);
             }
 

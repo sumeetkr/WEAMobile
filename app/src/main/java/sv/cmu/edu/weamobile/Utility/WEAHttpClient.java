@@ -80,6 +80,10 @@ public class WEAHttpClient {
                             String.valueOf(System.currentTimeMillis()));
 
                     Logger.log("JsonSender", "Success - ");
+
+                    Intent intent = new Intent("new-config-event");
+                    intent.putExtra("message", response);
+                    LocalBroadcastManager.getInstance(ctxt).sendBroadcast(intent);
 //                    Logger.debug(response);
                 }
 

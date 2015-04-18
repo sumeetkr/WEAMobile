@@ -20,6 +20,7 @@ public class GeoLocation {
     private Timestamp timestamp;
     private int primaryActivityType =-1;
     private int activityConfidence = 0;
+    private int lastReceivedMessageId =0;
     private int secondaryActivityType= -1;
     private int secondaryActivityConfidence = 0;
 
@@ -169,5 +170,13 @@ public class GeoLocation {
 
     public void setSecondaryActivityConfidence(int secondaryActivityConfidence) {
         this.secondaryActivityConfidence = secondaryActivityConfidence;
+    }
+
+    public int getLastReceivedMessageId() {
+        return lastReceivedMessageId;
+    }
+
+    public void setLastReceivedMessageId(int lastReceivedMessageId) {
+        this.lastReceivedMessageId = lastReceivedMessageId;
     }
 }

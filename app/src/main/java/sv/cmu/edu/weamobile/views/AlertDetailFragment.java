@@ -84,7 +84,7 @@ public class AlertDetailFragment extends Fragment {
             TextView view = ((TextView) rootView.findViewById(R.id.alertText));
 
             String text = message.getText();
-//            if(!alertState.isAlreadyShown() && message.isActive() && alertState.isInPolygonOrAlertNotGeoTargeted()){
+//            if(!alertState.isAlreadyShown() && message.isActive() && alertState.isToBeShown()){
 //                text = message.getAlertType() + " Alert : "+ text;
 //            }
             view.setText(
@@ -260,7 +260,7 @@ public class AlertDetailFragment extends Fragment {
 
                                         boolean activityHistoryEnabled = WEASharedPreferences.isActivityHistoryEnabled(ctxt);
 
-                                        if(WEASharedPreferences.isLocationHistoryEnabled(ctxt)
+                                        if(message.getParameter().isMotionPredictionBasedFiltering() || WEASharedPreferences.isLocationHistoryEnabled(ctxt)
                                                 || WEASharedPreferences.isMotionPredictionEnabled(ctxt)
                                                 || activityHistoryEnabled){
 
@@ -285,13 +285,6 @@ public class AlertDetailFragment extends Fragment {
                                                     }
                                                 }
 
-                                                if(WEASharedPreferences.isLocationHistoryEnabled(ctxt)){
-                                                    mMap.addPolygon(new PolygonOptions()
-                                                            .addAll(oldPoints)
-                                                            .strokeColor(Color.BLUE)
-                                                            .strokeWidth(2));
-                                                }
-
                                                 //newer points should be in a different color
                                                 List<LatLng> newPoints = new ArrayList<LatLng>();
                                                 for(int i = historyPoints.size()-newPointsCount; i<historyPoints.size(); i++){
@@ -310,12 +303,21 @@ public class AlertDetailFragment extends Fragment {
                                                     }
                                                 }
 
+                                                if(WEASharedPreferences.isLocationHistoryEnabled(ctxt)){
+                                                    mMap.addPolygon(new PolygonOptions()
+                                                            .addAll(oldPoints)
+                                                            .strokeColor(Color.BLUE)
+                                                            .strokeWidth(2));
 
-                                                mMap.addPolygon(new PolygonOptions()
-                                                        .addAll(newPoints)
-                                                        .strokeColor(Color.YELLOW));
+                                                    mMap.addPolygon(new PolygonOptions()
+                                                            .addAll(newPoints)
+                                                            .strokeColor(Color.YELLOW));
 
-                                                if(WEASharedPreferences.isMotionPredictionEnabled(ctxt)){
+                                                }
+
+
+                                                if(message.getParameter().isMotionPredictionBasedFiltering() ||
+                                                        WEASharedPreferences.isMotionPredictionEnabled(ctxt)){
                                                     List<LatLng> futurePoints = WEALocationHelper.getFuturePredictionsOfLatLngs(historyPoints);
 
                                                     if(futurePoints.size()>0){

@@ -18,7 +18,11 @@ public class MessageState {
     private long timeWhenShownToUserInEpoch;
     private long timeWhenFeedbackGivenInEpoch;
     private GeoLocation locationWhenShown;
-    private boolean isInPolygonOrAlertNotGeoTargeted = false;
+    private boolean isAlertToBeShown = false;
+    private boolean isInPolygon= false;
+    private boolean isLocationHistoryInPolygon = false;
+    private boolean isFutureLocationInPolygon = false;
+    private boolean isGeoTargeted = false;
     private Status status = null;
 
     public String getScheduledFor() {
@@ -47,6 +51,38 @@ public class MessageState {
             epoch = date.getTime();
         }
         return epoch/1000;
+    }
+
+    public boolean isFutureLocationInPolygon() {
+        return isFutureLocationInPolygon;
+    }
+
+    public void setFutureLocationInPolygon(boolean isFutureLocationInPolygon) {
+        this.isFutureLocationInPolygon = isFutureLocationInPolygon;
+    }
+
+    public boolean isLocationHistoryInPolygon() {
+        return isLocationHistoryInPolygon;
+    }
+
+    public void setLocationHistoryInPolygon(boolean isLocationHistoryInPolygon) {
+        this.isLocationHistoryInPolygon = isLocationHistoryInPolygon;
+    }
+
+    public boolean isInPolygon() {
+        return isInPolygon;
+    }
+
+    public void setInPolygon(boolean isInPolygon) {
+        this.isInPolygon = isInPolygon;
+    }
+
+    public boolean isGeoTargeted() {
+        return isGeoTargeted;
+    }
+
+    public void setGeoTargeted(boolean isGeoTargeted) {
+        this.isGeoTargeted = isGeoTargeted;
     }
 
     public enum Status {
@@ -115,12 +151,12 @@ public class MessageState {
         this.isFeedbackGiven = isFeedbackGiven;
     }
 
-    public boolean isInPolygonOrAlertNotGeoTargeted() {
-        return isInPolygonOrAlertNotGeoTargeted;
+    public boolean isToBeShown() {
+        return isAlertToBeShown;
     }
 
-    public void setInPolygonOrAlertNotGeoTargeted(boolean isInPolygon) {
-        this.isInPolygonOrAlertNotGeoTargeted = isInPolygon;
+    public void setIsToBeShown(boolean isInPolygon) {
+        this.isAlertToBeShown = isInPolygon;
     }
 
     //Unique identifier for databse primary key

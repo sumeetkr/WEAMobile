@@ -154,7 +154,7 @@ public class WEABackgroundService extends Service {
                     WEAUtil.sendHeartBeat(getApplicationContext(),
                             lastActivity);
                 }
-            }, WEAUtil.randInt(1000, 2000));
+            }, WEAUtil.randInt(2000, 3000)); //it takes a couple of seconds to get activities
 //        }
 
     }
@@ -247,7 +247,7 @@ public class WEABackgroundService extends Service {
             WEAAlarmManager.setupAlarmForAlertAtScheduledTime(
                     getApplicationContext(),
                     message.getId(),
-                    System.currentTimeMillis() + WEAUtil.randInt(3000, 6000)); //in 3 to 6 seconds
+                    System.currentTimeMillis() + WEAUtil.randInt(5000, 20000)); //in 3 to 6 seconds
 
             AlertHelper.sendAlertReceivedInfoToServer(getApplicationContext(), message);
         }
@@ -308,35 +308,31 @@ public class WEABackgroundService extends Service {
             Logger.log("New configuration received" + json);
             WEANewConfigurationIntent newConfigurationIntent;
 
-            if(json.isEmpty()){
-                Logger.log("Received empty json");
-                json = WEASharedPreferences.readApplicationConfiguration(context);
-                newConfigurationIntent = new WEANewConfigurationIntent("", json, true);
-
-            }else{
+            if(!json.isEmpty() && json.length()>3){
                 WEASharedPreferences.saveApplicationConfiguration(context, json);
                 newConfigurationIntent = new WEANewConfigurationIntent(
                         "Received new configuration. ",
                         json,
                         false);
 
+                Configuration configuration = Configuration.fromJson(json);
+
+                addOrUpdatedMessagesToDatabase(configuration);
+
+                addOrUpdatedMessageStatesToDatabase(configuration); //Save the individual alerts
+
+                long currentTime = System.currentTimeMillis()/1000;
+                setupAlarmToShowFutureMessagesAtRightTime(configuration, currentTime);
+                showRecentMessageToUser(configuration, currentTime);
+
+                //update if new alerts
+                Logger.log("Broadcast intent: About to broadcast new configuration");
+                getApplicationContext().sendBroadcast(newConfigurationIntent);
+
+            }else{
+                Logger.log("empty configuration received");
             }
-
-            Configuration configuration = Configuration.fromJson(json);
-
-            addOrUpdatedMessagesToDatabase(configuration);
-
-            addOrUpdatedMessageStatesToDatabase(configuration); //Save the individual alerts
-
-            long currentTime = System.currentTimeMillis()/1000;
-            setupAlarmToShowFutureMessagesAtRightTime(configuration, currentTime);
-            showRecentMessageToUser(configuration, currentTime);
-
-            //update if new alerts
-            Logger.log("Broadcast intent: About to broadcast new configuration");
-            getApplicationContext().sendBroadcast(newConfigurationIntent);
         }
-
     }
 
     private class NewActivityReceiver extends BroadcastReceiver{
