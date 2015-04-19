@@ -8,8 +8,8 @@ import com.google.gson.JsonParser;
 import java.util.ArrayList;
 import java.util.List;
 
-import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.Logger;
+import sv.cmu.edu.weamobile.utility.WEAUtil;
 
 /**
  * Created by sumeet on 4/6/15.
@@ -30,7 +30,13 @@ public class Configuration {
                 List<Message> messages = new ArrayList<Message>() ;
                 for(JsonElement obj : jArray )
                 {
-                    messages.add(gson.fromJson( obj , Message.class));
+                    Message message = null;
+                    try{
+                        message = gson.fromJson( obj , Message.class);
+                    }catch (Exception ex){
+                        Logger.log(ex.getMessage());
+                    }
+                    if(message != null) messages.add(message);
                 }
 
                 configuration.setMessages(messages);
@@ -63,7 +69,7 @@ public class Configuration {
     }
 
     public String getLastMessageOnsetTimeStamp() {
-        String timeStamp = Constants.OLD_TIMESTAMP; // the time when this feature went :)
+        String timeStamp = WEAUtil.getTimeStampOneHoursBackInUTC();
 
         long epoch = 0;
         for(Message message: getMessages()){

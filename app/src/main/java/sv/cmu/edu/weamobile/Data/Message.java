@@ -18,7 +18,7 @@ public class Message {
     private String status;
     private Info[] info;
     private Parameter parameter;
-    private Incident [] incidents;
+//    private Incident [] incidents;
 
     public String getJson(){
         Gson gson = new Gson();
@@ -49,9 +49,9 @@ public class Message {
         return parameter;
     }
 
-    public Incident [] getIncidents() {
-        return incidents;
-    }
+//    public Incident [] getIncidents() {
+//        return incidents;
+//    }
 
     protected void setId(int id) {
         this.id = id;
@@ -77,9 +77,9 @@ public class Message {
         this.parameter = parameter;
     }
 
-    protected void setIncidents(Incident [] incidents) {
-        this.incidents = incidents;
-    }
+//    protected void setIncidents(Incident [] incidents) {
+//        this.incidents = incidents;
+//    }
 
     public class Info{
         private int certainty;

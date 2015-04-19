@@ -55,12 +55,12 @@ public class AlertHelper {
         Logger.log("Its the message time");
         WEAUtil.showMessageIfInDebugMode(context, "Checking if message is active");
 
-        if(message.isActive()){
+        if(message != null && message.isActive()){
 
             MessageStateDataSource messageStateDataSource = new MessageStateDataSource(context);
             MessageState state = messageStateDataSource.getData(message.getId());
 
-            if(!state.isAlreadyShown()){
+            if(state !=null && !state.isAlreadyShown()){
                 state.setInPolygon(isInPolygon);
                 state.setLocationHistoryInPolygon(isLocationHistoryInPolygon);
                 state.setFutureLocationInPolygon(isFutureLocationInPolygon);
@@ -86,7 +86,7 @@ public class AlertHelper {
 
             }
         }else{
-            Logger.log("Alert not active, will not be shown");
+            Logger.log("Alert not active, or state is null,  will not be shown");
             WEAUtil.showMessageIfInDebugMode(context, "Alert not active, will not be shown");
         }
     }
@@ -99,7 +99,7 @@ public class AlertHelper {
 
         GPSTracker tracker = new GPSTracker(context);
         if(tracker.canGetLocation()){
-            if(message.getParameter().isGeoFiltering()){
+            if(message != null && message.getParameter().isGeoFiltering()){
                 Logger.log("The phone can get location, will check if in target");
                 //first check location history
                 //The code here needs to be refactored for future extension

@@ -59,5 +59,4 @@ public class Constants {
 
 
     public static final long DETECTION_INTERVAL_IN_MILLISECONDS = 0;
-    public static final String OLD_TIMESTAMP = "2015-04-18T20:25:12.000Z";
 }

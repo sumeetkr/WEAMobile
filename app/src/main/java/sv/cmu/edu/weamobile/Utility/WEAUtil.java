@@ -306,4 +306,16 @@ public class WEAUtil {
     public static void restoreDebugSettingToOriginalState(Context context) {
         WEASharedPreferences.restoreDebugSetting(context, Constants.TIME_GAP_TO_RESTORE_TO_DEFAULT);
     }
+
+    public static String getTimeStampOneHoursBackInUTC() {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        df.setTimeZone(TimeZone.getTimeZone("gmt"));
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date());
+        cal.add(Calendar.HOUR, -1);
+        Date oneHourBack = cal.getTime();
+        String gmtTime = df.format(oneHourBack);
+
+        return  gmtTime;
+    }
 }

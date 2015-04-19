@@ -112,15 +112,32 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
     @Override
     public void insertDataIfNotPresent(MessageState data) {
         boolean found = false;
-        List<MessageState> messageStates = getAllData();
-        for(MessageState state : messageStates){
-            if(state.getUniqueId().compareTo(data.getUniqueId()) == 0){
-                found = true;
+
+        try{
+            open();
+            Cursor cursor = database.rawQuery("select * from "+ MESSAGE_STATE_TABLE +" where " + COLUMN_MESSAGE_ID + "=" + data.getId(), null);
+            if (cursor .moveToFirst()) {
+
+                while (cursor.isAfterLast() == false) {
+                    int messageId = Integer.valueOf(cursor.getString(1));
+                    String scheduledFor = cursor.getString(2);
+
+                    if(messageId == data.getId() && scheduledFor.compareTo(data.getScheduledFor())==0){
+                        found = true;
+                    }
+                    cursor.moveToNext();
+                }
             }
+        }catch (Exception ex){
+            Logger.log(ex.getLocalizedMessage());
+        }finally {
+            close();
         }
 
         if(!found){
             insertData(data);
+        }else{
+            Logger.log(data.getId() + " was already in database, not creating again");
         }
     }
 
@@ -171,7 +188,7 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
 
         if(messageState != null){
             Logger.log("Retrieved message sate with id " + messageState.getUniqueId());
-            Logger.log("Retrieved message sate with id " + messageState.getJson());
+            Logger.log("Retrieved message sate with json " + messageState.getJson());
         }else{
             Logger.log("Could not retrieve message sates with id " + id);
         }

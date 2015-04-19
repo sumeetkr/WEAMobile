@@ -131,4 +131,14 @@
         android:layout_alignLeft="@+id/txtSendHeartbeat"
         android:layout_alignStart="@+id/txtSendHeartbeat" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Phone Id :"
+        android:id="@+id/txtPhoneId"
+        android:layout_above="@+id/txtSendHeartbeat"
+        android:layout_toRightOf="@+id/txtDebugMessages"
+        android:layout_toEndOf="@+id/txtDebugMessages" />
+
 </RelativeLayout>

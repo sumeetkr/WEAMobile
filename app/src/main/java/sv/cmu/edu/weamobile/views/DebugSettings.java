@@ -35,6 +35,7 @@ public class DebugSettings extends ActionBarActivity {
     private TextView txtLastHeartBeatAt;
     private TextView txtLastAlertAt;
     private TextView txtVersionNo;
+    private TextView txtPhoneId;
     private UserActivityRecognizer activityRecognizer;
     private NewActivityReceiver activityBroadcastReceiver;
 
@@ -60,6 +61,7 @@ public class DebugSettings extends ActionBarActivity {
         txtLastAlertAt = (TextView) findViewById(R.id.txtFetchAlerts);
         txtLastHeartBeatAt = (TextView) findViewById(R.id.txtSendHeartbeat);
         txtVersionNo = (TextView) findViewById(R.id.txtVersionNo);
+        txtPhoneId = (TextView) findViewById(R.id.txtPhoneId);
 
         chkViewDebugMessages.setChecked(WEASharedPreferences.isInDebugMode(getApplicationContext()));
         chkViewDebugMessages.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -198,6 +200,11 @@ public class DebugSettings extends ActionBarActivity {
             }
 
             txtVersionNo.setText("Version no: " + WEAUtil.getPackageVersion(getApplicationContext()));
+
+            String phoneId = WEASharedPreferences.getStringProperty(getApplicationContext(), Constants.PHONE_ID);
+            if(phoneId != null && !phoneId.isEmpty()){
+                txtPhoneId.setText("PhoneId: "+ phoneId);
+            }
 
         }catch (Exception ex){
             Logger.log(ex.getMessage());
