@@ -187,8 +187,8 @@ public class WEALocationHelper {
             double heading2 = WEALocationHelper.getCurrentHeading(loc1, loc2);
 
             //give more weight to newer info
-            double heading = (0.7*heading1+0.3*heading2);
-            double speed = (0.7*speed1+0.3* speed2);
+            double heading = (0.9*heading1+0.1*heading2);
+            double speed = (0.8*speed1+0.2* speed2);
 
             Logger.log("Speed: " + speed + " heading: " + heading);
 

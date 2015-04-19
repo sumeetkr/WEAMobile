@@ -22,7 +22,7 @@ public class MessageState {
     private boolean isInPolygon= false;
     private boolean isLocationHistoryInPolygon = false;
     private boolean isFutureLocationInPolygon = false;
-    private boolean isGeoTargeted = false;
+    private boolean isNotGeoTargeted = false;
     private Status status = null;
 
     public String getScheduledFor() {
@@ -77,12 +77,12 @@ public class MessageState {
         this.isInPolygon = isInPolygon;
     }
 
-    public boolean isGeoTargeted() {
-        return isGeoTargeted;
+    public boolean isNotGeoTargeted() {
+        return isNotGeoTargeted;
     }
 
-    public void setGeoTargeted(boolean isGeoTargeted) {
-        this.isGeoTargeted = isGeoTargeted;
+    public void setNotGeoTargeted(boolean isGeoTargeted) {
+        this.isNotGeoTargeted = isGeoTargeted;
     }
 
     public enum Status {

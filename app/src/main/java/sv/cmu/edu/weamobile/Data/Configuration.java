@@ -8,6 +8,7 @@ import com.google.gson.JsonParser;
 import java.util.ArrayList;
 import java.util.List;
 
+import sv.cmu.edu.weamobile.utility.Constants;
 import sv.cmu.edu.weamobile.utility.Logger;
 
 /**
@@ -59,5 +60,19 @@ public class Configuration {
 
     public static boolean isValidJson(String json){
         return true;
+    }
+
+    public String getLastMessageOnsetTimeStamp() {
+        String timeStamp = Constants.OLD_TIMESTAMP; // the time when this feature went :)
+
+        long epoch = 0;
+        for(Message message: getMessages()){
+            if(message.getScheduledEpochInSeconds()>epoch){
+                epoch = message.getScheduledEpochInSeconds();
+                timeStamp = message.getScheduledFor();
+            }
+        }
+
+        return timeStamp;
     }
 }

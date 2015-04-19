@@ -3,7 +3,6 @@ apply plugin: 'com.android.application'
 android {
     signingConfigs {
         debug {
-            
         }
     }
     compileSdkVersion 20
@@ -12,8 +11,8 @@ android {
         applicationId "sv.cmu.edu.weamobile"
         minSdkVersion 14
         targetSdkVersion 20
-        versionCode 22
-        versionName "22.0"
+        versionCode 24
+        versionName "24.0"
         signingConfig signingConfigs.debug
     }
     buildTypes {

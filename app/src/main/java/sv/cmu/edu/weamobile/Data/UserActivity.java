@@ -148,6 +148,17 @@ public class UserActivity implements Serializable {
         this.secondaryActivityConfidence = secondaryActivityConfidence;
     }
 
+    public boolean isMoving(){
+        boolean moving = false;
+
+        if(getPrimaryActivityType()==DetectedActivity.IN_VEHICLE ||
+                getPrimaryActivityType()==DetectedActivity.ON_BICYCLE ||
+                getPrimaryActivityType()==DetectedActivity.ON_FOOT){
+            moving = true;
+        }
+        return  moving;
+    }
+
     private DetectedActivity walkingOrRunning(List<DetectedActivity> probableActivities) {
         DetectedActivity myActivity = null;
         int confidence = 0;

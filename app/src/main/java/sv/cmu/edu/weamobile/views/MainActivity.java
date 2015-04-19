@@ -167,9 +167,10 @@ public class MainActivity extends FragmentActivity
 
         if(getIntent().hasExtra(Constants.ALERT_ID)){
             selectItem();
-        }else{
-            showUnSeenAlert();
         }
+//        else{
+//            showUnSeenAlert();
+//        }
 
 //        if(!getIntent().hasExtra(Constants.ALERT_ID)){
 ////            List<MessageState> messageStates = AlertHelper.getAllAlertStates(getApplicationContext());
@@ -584,23 +585,24 @@ public class MainActivity extends FragmentActivity
                 }
 
                 // Post the UI updating code to our Handler
-                if(handler!= null){
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            programTryingToChangeSwitch = true;
-                            Log.d("WEA", "Got new configuration broadcast " );
-                            if(message!=null && !message.isEmpty()){
-                                updateLastCheckTimeStatus();
-                                WEAUtil.showMessageIfInDebugMode(context, message);
-//                                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
-                            }else{
-                                setUpCouldNotConnectToNetwork();
-                                Toast.makeText(context, "Could not connect to server, please check you network connection.", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-                }
+//                if(handler!= null){
+//                    handler.post(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            programTryingToChangeSwitch = true;
+//                            Log.d("WEA", "Got new configuration broadcast " );
+//                            if(message!=null && !message.isEmpty()){
+//                                updateLastCheckTimeStatus();
+//                                WEAUtil.showMessageIfInDebugMode(context, message);
+////                                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+//                            }
+//                            else{
+//                                setUpCouldNotConnectToNetwork();
+////                                Toast.makeText(context, "Could not connect to server, please check you network connection.", Toast.LENGTH_SHORT).show();
+//                            }
+//                        }
+//                    });
+//                }
             }catch(Exception ex){
                 Logger.log(ex.getMessage());
             }

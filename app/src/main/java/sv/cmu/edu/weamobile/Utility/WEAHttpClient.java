@@ -58,10 +58,11 @@ public class WEAHttpClient {
         return result;
     }
 
-    public static void sendHeartbeat(String data, Context context ) {
+    public static void sendHeartbeat(String data, Context context, String timestamp ) {
 
+        // http://localhost:5000/wea/api/message/all/1?timestamp=2015-04-18T00%3A11%3A57.000Z
         String phoneId = WEASharedPreferences.getStringProperty(context,Constants.PHONE_ID);
-        String serverUrl = Constants.URL_TO_SEND_HEARTBEAT +phoneId+"/heartbeat";
+        String serverUrl = Constants.URL_TO_SEND_HEARTBEAT +phoneId+"/heartbeat"+"?timestamp=" + timestamp;
 
         final Context ctxt = context;
         String response = "";
@@ -101,9 +102,11 @@ public class WEAHttpClient {
         }
     }
 
-    public static void fetchAlerts( Context context ){
+    public static void fetchAlerts( Context context, String timestamp ){
+
+        // http://localhost:5000/wea/api/message/all/1?timestamp=2015-04-18T00%3A11%3A57.000Z
         String phoneId = WEASharedPreferences.getStringProperty(context,Constants.PHONE_ID);
-        String serverUrl = Constants.URL_TO_FETCH_ALERTS +phoneId;
+        String serverUrl = Constants.URL_TO_FETCH_ALERTS +phoneId+"?timestamp=" + timestamp;
         final Context ctxt = context;
         String response = "";
         try {

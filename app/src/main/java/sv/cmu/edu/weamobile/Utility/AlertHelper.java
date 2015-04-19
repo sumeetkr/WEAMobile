@@ -25,7 +25,6 @@ import sv.cmu.edu.weamobile.utility.db.MessageStateDataSource;
 import sv.cmu.edu.weamobile.views.MainActivity;
 
 
-
 /**
  * Created by sumeet on 10/30/14.
  */
@@ -57,31 +56,37 @@ public class AlertHelper {
         WEAUtil.showMessageIfInDebugMode(context, "Checking if message is active");
 
         if(message.isActive()){
+
             MessageStateDataSource messageStateDataSource = new MessageStateDataSource(context);
             MessageState state = messageStateDataSource.getData(message.getId());
 
-            state.setInPolygon(isInPolygon);
-            state.setLocationHistoryInPolygon(isLocationHistoryInPolygon);
-            state.setFutureLocationInPolygon(isFutureLocationInPolygon);
+            if(!state.isAlreadyShown()){
+                state.setInPolygon(isInPolygon);
+                state.setLocationHistoryInPolygon(isLocationHistoryInPolygon);
+                state.setFutureLocationInPolygon(isFutureLocationInPolygon);
+                state.setNotGeoTargeted(isNotGeoTargeted);
 
-            if(location != null){
-                location.setBatteryLevel(WEAUtil.getBatteryLevel(context));
-                location.setAdditionalInfo(location.getAdditionalInfo()+ messageWhyShowingAlert);
-                state.setLocationWhenShown(location);
-            }
+                if(location != null){
+                    location.setBatteryLevel(WEAUtil.getBatteryLevel(context));
+                    location.setAdditionalInfo(location.getAdditionalInfo()+ messageWhyShowingAlert);
+                    state.setLocationWhenShown(location);
+                }
 
-            state.setIsToBeShown(true);
+                state.setIsToBeShown(true);
 
-            messageStateDataSource.updateData(state);
+                messageStateDataSource.updateData(state);
 
-            Intent dialogIntent = new Intent(context, MainActivity.class);
-            dialogIntent.putExtra(Constants.ALERT_ID, String.valueOf(message.getId()));
+                Intent dialogIntent = new Intent(context, MainActivity.class);
+                dialogIntent.putExtra(Constants.ALERT_ID, String.valueOf(message.getId()));
 //            dialogIntent.putExtra(Constants.CONFIG_JSON, configuration.getJson());
-            dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
-            WEAUtil.showMessageIfInDebugMode(context, "Alert is active, asking main view to show message");
-            context.startActivity(dialogIntent);
+                WEAUtil.showMessageIfInDebugMode(context, "Alert is active, asking main view to show message");
+                context.startActivity(dialogIntent);
+
+            }
         }else{
+            Logger.log("Alert not active, will not be shown");
             WEAUtil.showMessageIfInDebugMode(context, "Alert not active, will not be shown");
         }
     }
@@ -94,11 +99,6 @@ public class AlertHelper {
 
         GPSTracker tracker = new GPSTracker(context);
         if(tracker.canGetLocation()){
-            boolean isInPolygon= false;
-            boolean isLocationHistoryInPolygon = false;
-            boolean isFutureLocationInPolygon = false;
-            boolean isGeoTargeted = false;
-
             if(message.getParameter().isGeoFiltering()){
                 Logger.log("The phone can get location, will check if in target");
                 //first check location history
@@ -111,21 +111,8 @@ public class AlertHelper {
                     String messageToShow = "User's location history was found in the message region, showing message";
                     Logger.log(messageToShow);
                     WEAUtil.showMessageIfInDebugMode(context, messageToShow);
-                    isLocationHistoryInPolygon = true;
-
                     showAlert(context, message, tracker.getNetworkGeoLocation(), messageToShow, false, true, false, false);
-                } else if(message.getParameter().isMotionPredictionBasedFiltering() && WEALocationHelper.areAnyPointsInPolygon2(
-                        WEALocationHelper.getFuturePredictionsOfLatLngs(locations)
-                        , message.getPolygon())){
-                    String messageToShow = "User's predicted location was found in the message region, showing message";
-                    Logger.log(messageToShow);
-                    WEAUtil.showMessageIfInDebugMode(context, messageToShow);
-
-                    isFutureLocationInPolygon = true;
-
-                    showAlert(context, message, tracker.getNetworkGeoLocation(), messageToShow, false, false,true, false );
                 }
-
                 else{
                     tracker.keepLookingForPresenceInPolygonAndShowAlertIfNecessary(context, message);
                 }
@@ -146,10 +133,49 @@ public class AlertHelper {
         }
     }
 
+    public static void showAlertIfMovingTowardsAlertRegion(Context context, int  messageId){
+
+        Logger.log("Show message if moving towards the alert region for ", String.valueOf(messageId));
+
+        MessageDataSource messageDataSource = new MessageDataSource(context);
+        Message message = messageDataSource.getData(messageId);
+
+
+        if(message.getParameter().isGeoFiltering() && message.getParameter().isMotionPredictionBasedFiltering()) {
+
+            GPSTracker tracker = new GPSTracker(context);
+            if(tracker.canGetLocation()){
+                LocationDataSource dataSource = new LocationDataSource(context);
+                List<GeoLocation> locations = dataSource.getAllData();
+
+                if(WEALocationHelper.areAnyPointsInPolygon2(
+                        WEALocationHelper.getFuturePredictionsOfLatLngs(locations)
+                        , message.getPolygon())){
+
+                    String messageToShow = "User's predicted location was found in the message region, showing message";
+                    Logger.log(messageToShow);
+                    WEAUtil.showMessageIfInDebugMode(context, messageToShow);
+
+
+                    showAlert(context, message, tracker.getNetworkGeoLocation(), messageToShow, false, false, true, false );
+                }else{
+                    Logger.log("Motion predictions, but you are not expected to move to the alert region");
+                }
+            }
+            else
+            {
+                Logger.log("Can't get location, so won't predict future location");
+            }
+        }
+    }
+
     public static Message getMessageFromId(Context context, String id) {
 
         int intId = Integer.valueOf(id);
+        return getMessageFromIntId(context, intId);
+    }
 
+    public static Message getMessageFromIntId(Context context, int intId) {
         MessageDataSource dataSource = new MessageDataSource(context);
         return dataSource.getData(intId);
     }
@@ -159,6 +185,16 @@ public class AlertHelper {
         MessageState state = messageStateDataSource.getData(message.getId());
 
         return state;
+    }
+
+    public static MessageState getMessageStateFromId(Context context, int id) {
+
+        MessageState state = null;
+
+        MessageStateDataSource messageStateDataSource = new MessageStateDataSource(context);
+        state = messageStateDataSource.getData(id);
+
+        return  state;
     }
 
     public static List<MessageState> getAlertStates(Context context, List<Message> messages){

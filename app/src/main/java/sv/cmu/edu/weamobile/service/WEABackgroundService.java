@@ -37,6 +37,7 @@ public class WEABackgroundService extends Service {
     private NewActivityReceiver activityBroadcastReceiver;
     private UserActivity lastActivity;
     private Handler handler;
+    private  Intent mainIntent;
 
 
     public class LocalBinder extends Binder {
@@ -77,7 +78,7 @@ public class WEABackgroundService extends Service {
 
     private void registerNewActivityReceiver() {
         if (activityBroadcastReceiver == null){
-            activityBroadcastReceiver = new NewActivityReceiver(handler);
+            activityBroadcastReceiver = new NewActivityReceiver(handler, mainIntent);
 
             Logger.log("WEA", "New configuration receiver created in main activity");
             IntentFilter filter = new IntentFilter();
@@ -88,6 +89,7 @@ public class WEABackgroundService extends Service {
     }
 
     protected void onHandleIntent(Intent intent) {
+        mainIntent = intent;
         Log.d("WEA", "called with "+ intent.getAction());
         if (intent != null) {
             final String action = intent.getAction();
@@ -127,17 +129,23 @@ public class WEABackgroundService extends Service {
 
     private void showAlertAfterCheckingOtherConditions(int alertId) {
 
-        //Get info on UserActivity
+        MessageState state =  AlertHelper.getMessageStateFromId(getApplicationContext(), alertId);
+        if(state != null && !state.isAlreadyShown()){
+            //Get info on UserActivity
+            //if(lastActivity == null)
+            Message message  = AlertHelper.getMessageFromIntId(getApplicationContext(), alertId);
+            if(message != null && message.getParameter().isGeoFiltering() && message.getParameter().isMotionPredictionBasedFiltering()) {
+                WEAUtil.getUserActivityInfo(getApplicationContext());
+            }
 
-//        WEAUtil.getUserActivityInfo(getApplicationContext());
+            // Get info on location history
 
-        // Get info on location history
+            // Get info on motion i.e. speed and direction
 
-        // Get info on motion i.e. speed and direction
+            //Combine the above three info to find if alert is to be shown or not
 
-        //Combine the above three info to find if alert is to be shown or not
-
-        AlertHelper.showAlertIfInTargetOrIsNotGeotargeted(getApplicationContext(), alertId);
+            AlertHelper.showAlertIfInTargetOrIsNotGeotargeted(getApplicationContext(), alertId);
+        }
     }
 
     private void sendHeartbeat(){
@@ -147,17 +155,34 @@ public class WEABackgroundService extends Service {
             // Get info on motion i.e. speed and direction
             //Get info on UserActivity
             WEAUtil.getUserActivityInfo(getApplicationContext());
+
+            String lastMessageOnsetTimeStamp = getLastMessageOnsetTime();
+
+            final String timeStamp = lastMessageOnsetTimeStamp;
+
             //wait some time to get user activity, which is added to to the heartbeat
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     WEAUtil.sendHeartBeat(getApplicationContext(),
-                            lastActivity);
+                            lastActivity, timeStamp);
                 }
             }, WEAUtil.randInt(2000, 3000)); //it takes a couple of seconds to get activities
 //        }
 
     }
+
+    private String getLastMessageOnsetTime() {
+        String lastJson = WEASharedPreferences.readApplicationConfiguration(getApplicationContext());
+
+        String lastMessageOnsetTimeStamp = Constants.OLD_TIMESTAMP;
+        if(lastJson != null && lastJson.length()>3){
+            Configuration config = Configuration.fromJson(lastJson);
+            lastMessageOnsetTimeStamp = config.getLastMessageOnsetTimeStamp();
+        }
+        return lastMessageOnsetTimeStamp;
+    }
+
     private void fetchConfiguration() {
         Logger.log("Got request to fetch new configuration");
         //read configuration and setup up new alarm
@@ -165,11 +190,14 @@ public class WEABackgroundService extends Service {
 
         if(WEAUtil.checkIfPhoneIsRegisteredIfNotRegister(getApplicationContext())){
 
+            String lastMessageOnsetTimeStamp = getLastMessageOnsetTime();
+            final String timeStamp = lastMessageOnsetTimeStamp;
+
             //don't let all phones to ask at the same moment
             handler.postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
-                                        WEAHttpClient.fetchAlerts(getApplicationContext());
+                                        WEAHttpClient.fetchAlerts(getApplicationContext(), timeStamp);
                                     }
 
               }, WEAUtil.randInt(5, 1000));
@@ -232,24 +260,53 @@ public class WEABackgroundService extends Service {
             String messageToShow = "Alert expected after: "+ (message.getScheduledEpochInSeconds() - currentTime) + " secs";
             Logger.log(messageToShow);
             WEAUtil.showMessageIfInDebugMode(getApplicationContext(), messageToShow);
-            WEAAlarmManager.setupAlarmForAlertAtScheduledTime(getApplicationContext(), message.getId(), message.getScheduleEpochInMillis());
+            WEAAlarmManager.setupAlarmForAlertAtScheduledTime(
+                    getApplicationContext(),
+                    message.getId(),
+                    message.getScheduleEpochInMillis());
 
             AlertHelper.sendAlertReceivedInfoToServer(getApplicationContext(), message);
         }
     }
 
-    private void showRecentMessageToUser(Configuration configuration, long currentTime){
+    private List<Message> showRecentMessageToUser(Configuration configuration, long currentTime){
         List<Message> messages = getRecentMessages(configuration);
         for(Message message : messages){
             String messageToShow = "Alert expected after: "+ (message.getScheduledEpochInSeconds() - currentTime) + " secs";
             Logger.log(messageToShow);
             WEAUtil.showMessageIfInDebugMode(getApplicationContext(), messageToShow);
+
+            //showAlertAfterCheckingOtherConditions(message.getId());
             WEAAlarmManager.setupAlarmForAlertAtScheduledTime(
                     getApplicationContext(),
                     message.getId(),
                     System.currentTimeMillis() + WEAUtil.randInt(5000, 20000)); //in 3 to 6 seconds
 
             AlertHelper.sendAlertReceivedInfoToServer(getApplicationContext(), message);
+        }
+
+        return  messages;
+    }
+
+    private void showActiveButNotShownMessageToUser(Configuration configuration,
+                                                    long currentTime,
+                                                    List<Message> recentMessages){
+        List<Message> messages = getActiveMessages(configuration);
+        for(Message activeMessage : messages){
+            boolean isRecent = false;
+            for(Message recentMessage: recentMessages){
+                if(recentMessage.getId() == activeMessage.getId()){
+                    isRecent = true;
+                }
+            }
+            if(!isRecent){
+                String messageToShow = "Trying to show active but now shown alert";
+                Logger.log(messageToShow);
+                WEAUtil.showMessageIfInDebugMode(getApplicationContext(), messageToShow);
+
+                mainIntent.putExtra("alertId",activeMessage.getId());
+                showAlertAfterCheckingOtherConditions(activeMessage.getId());
+            }
         }
     }
 
@@ -281,7 +338,7 @@ public class WEABackgroundService extends Service {
             if(messages.size() >0){
                 for(Message alert: messages){
                     try{
-                        if(alert.isRecent()){
+                        if(alert.isRecent()){ //isRecent()
                             relevantAlerts.add(alert);
                         }
                     }catch(Exception ex){
@@ -292,6 +349,27 @@ public class WEABackgroundService extends Service {
         }
         return relevantAlerts;
     }
+
+    private List<Message> getActiveMessages(Configuration config){
+        List<Message> relevantAlerts= new ArrayList<Message>();
+
+        if(config != null){
+            List<Message> messages = config.getMessages();
+            if(messages.size() >0){
+                for(Message alert: messages){
+                    try{
+                        if(alert.isActive()){ //isRecent()
+                            relevantAlerts.add(alert);
+                        }
+                    }catch(Exception ex){
+                        Logger.log(ex.getMessage());
+                    }
+                }
+            }
+        }
+        return relevantAlerts;
+    }
+
 
     private class NewConfigurationReceiver extends BroadcastReceiver {
         private final Handler handler;
@@ -308,29 +386,35 @@ public class WEABackgroundService extends Service {
             Logger.log("New configuration received" + json);
             WEANewConfigurationIntent newConfigurationIntent;
 
-            if(!json.isEmpty() && json.length()>3){
+
+            if(json.isEmpty() || json.length()<3){
+                Logger.log("Received empty json");
+                json = WEASharedPreferences.readApplicationConfiguration(context);
+                newConfigurationIntent = new WEANewConfigurationIntent("", json, true);
+
+            }else{
                 WEASharedPreferences.saveApplicationConfiguration(context, json);
                 newConfigurationIntent = new WEANewConfigurationIntent(
                         "Received new configuration. ",
                         json,
                         false);
 
+            }
+
+            if(json != null){
                 Configuration configuration = Configuration.fromJson(json);
 
                 addOrUpdatedMessagesToDatabase(configuration);
-
                 addOrUpdatedMessageStatesToDatabase(configuration); //Save the individual alerts
 
                 long currentTime = System.currentTimeMillis()/1000;
                 setupAlarmToShowFutureMessagesAtRightTime(configuration, currentTime);
-                showRecentMessageToUser(configuration, currentTime);
+                List<Message> recentMessages = showRecentMessageToUser(configuration, currentTime);
+                showActiveButNotShownMessageToUser(configuration, currentTime, recentMessages);
 
                 //update if new alerts
                 Logger.log("Broadcast intent: About to broadcast new configuration");
                 getApplicationContext().sendBroadcast(newConfigurationIntent);
-
-            }else{
-                Logger.log("empty configuration received");
             }
         }
     }
@@ -339,7 +423,7 @@ public class WEABackgroundService extends Service {
 
         private final Handler handler;
 
-        public NewActivityReceiver(Handler handler) {
+        public NewActivityReceiver(Handler handler, Intent mainIntent) {
             this.handler = handler;
         }
 
@@ -351,6 +435,18 @@ public class WEABackgroundService extends Service {
                     public void run() {
                         lastActivity = (UserActivity) intent.getSerializableExtra(Constants.ACTIVITY);
                         Logger.log("BackgroundService received new activity notification " + intent.getStringExtra(Constants.ACTIVITY_TYPE));
+
+                        int alertId= mainIntent.getIntExtra(("alertId"),-1);
+                        if(alertId != -1){
+                            if(lastActivity.isMoving()){
+                                Logger.log("NewActivityReceiver, will show alert if moving towards target");
+                                AlertHelper.showAlertIfMovingTowardsAlertRegion(getApplicationContext(), alertId);
+                            }else{
+                                Logger.log("NewActivityReceiver, You are not moving so, won't use motion predictions");
+                            }
+                        }else{
+                            Logger.log("NewActivityReceiver, No alert ");
+                        }
                     }
                 });
             }

@@ -147,7 +147,9 @@ public class WEAUtil {
     }
 
     public static void sendHeartBeat(Context context,
-                                     UserActivity activity) {
+                                     UserActivity activity,
+                                     final String timeStampOfLastOnset) {
+
         GeoLocation location = new GeoLocation("0.00", "0.00", 0.00f);
         GPSTracker tracker =null;
         try{
@@ -193,7 +195,7 @@ public class WEAUtil {
                 if(tracker != null) tracker.stopUsingGPS();
                 if(checkIfPhoneIsRegisteredIfNotRegister(context)){
 
-                    WEAHttpClient.sendHeartbeat(location.getJson(), context);
+                    WEAHttpClient.sendHeartbeat(location.getJson(), context, timeStampOfLastOnset);
 
                     //TODO: Need to move it at right location
                     LocationDataSource dataSource = new LocationDataSource(context);
@@ -209,7 +211,7 @@ public class WEAUtil {
                         public void run() {
 
                             try{
-                                WEAHttpClient.sendHeartbeat(finalLocation.getJson(), ctxtCopy);
+                                WEAHttpClient.sendHeartbeat(finalLocation.getJson(), ctxtCopy, timeStampOfLastOnset);
 
                                 //TODO: Need to move it at right location
                                 LocationDataSource dataSource = new LocationDataSource(ctxtCopy);
@@ -250,7 +252,7 @@ public class WEAUtil {
     }
 
     public static void sendHeartBeat(Context context){
-        sendHeartBeat(context, null);
+        sendHeartBeat(context, null, "");
     }
 
     public  static  void  getUserActivityInfo(Context context) {

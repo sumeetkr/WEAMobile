@@ -41,7 +41,7 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
     private static final String COLUMN_IS_IN_POLYGON = "isInPolygon";
     private static final String COLUMN_IS_LOCATION_HISTORY_IN_POLYGON = "isLocationHistoryInPolygon";
     private static final String COLUMN_IS_FUTURE_LOCATION_IN_POLYGON = "isFutureLocationInPolygon";
-    private static final String COLUMN_IS_GEO_TARGETED = "isGeoTargeted";
+    private static final String COLUMN_IS_GEO_TARGETED = "isNotGeoTargeted";
 
 
     public final static String CREATE_MESSAGE_TABLE_SQL =    "create table " + MESSAGE_STATE_TABLE + " ( " +
@@ -105,7 +105,7 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
         insertValues.put(COLUMN_IS_IN_POLYGON, messageState.isInPolygon());
         insertValues.put(COLUMN_IS_LOCATION_HISTORY_IN_POLYGON, messageState.isLocationHistoryInPolygon());
         insertValues.put(COLUMN_IS_FUTURE_LOCATION_IN_POLYGON, messageState.isFutureLocationInPolygon());
-        insertValues.put(COLUMN_IS_GEO_TARGETED, messageState.isGeoTargeted());
+        insertValues.put(COLUMN_IS_GEO_TARGETED, messageState.isNotGeoTargeted());
         return insertValues;
     }
 
@@ -156,7 +156,7 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
                     state.setInPolygon(cursor.getInt(11) > 0 ? true : false);
                     state.setLocationHistoryInPolygon(cursor.getInt(12) > 0 ? true : false);
                     state.setFutureLocationInPolygon(cursor.getInt(13) > 0 ? true : false);
-                    state.setGeoTargeted(cursor.getInt(14) > 0 ? true : false);
+                    state.setNotGeoTargeted(cursor.getInt(14) > 0 ? true : false);
 
                     messageState = state;
 //                    Logger.log("Retrieved messageState " + state.getUniqueId());
@@ -232,7 +232,7 @@ public class MessageStateDataSource extends WEADataSource<MessageState> {
                     state.setInPolygon(cursor.getInt(11) > 0 ? true : false);
                     state.setLocationHistoryInPolygon(cursor.getInt(12) > 0 ? true : false);
                     state.setFutureLocationInPolygon(cursor.getInt(13) > 0 ? true : false);
-                    state.setGeoTargeted(cursor.getInt(14) > 0 ? true : false);
+                    state.setNotGeoTargeted(cursor.getInt(14) > 0 ? true : false);
 
                     messageStates.add(state);
                     cursor.moveToNext();
