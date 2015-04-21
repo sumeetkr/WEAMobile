@@ -93,11 +93,11 @@ public class AlertDetailFragment extends Fragment {
 
             view.setMovementMethod(LinkMovementMethod.getInstance());
 
-            startTime = message.getEndingAtInLocalTime();
+            startTime = message.getScheduledForInLocalTime();
             endTime = message.getEndingAtInLocalTime();
 
             ((TextView) rootView.findViewById(R.id.txtLabel)).setText(
-                    AlertHelper.getTextWithStyle("From : " + startTime +  " To : " +endTime,
+                    AlertHelper.getTextWithStyle("From : " + startTime +  "  To : " +endTime,
                                     //+ "\n" + textToShow,
                             1f, false));
 
