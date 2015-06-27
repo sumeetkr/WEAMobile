@@ -103,14 +103,33 @@ public class WEALocationHelper {
 
     public static double getDistanceFromCentroid(GeoLocation myLocation, double[] polyCenter) {
         float center = 0000;
+        double dist=0;
         try{
             float [] results= new float[2];
-            Location.distanceBetween(polyCenter[0], polyCenter[1], myLocation.getLatitude(), myLocation.getLongitude(), results);
+            //Test was failing as Location (android type) is not availabel while running unit test
+//            Location.distanceBetween(polyCenter[0], polyCenter[1], myLocation.getLatitude(), myLocation.getLongitude(), results);
             center= results[0]/1000;
-        }catch(Exception ex){
 
+            dist = distance(polyCenter[0], polyCenter[1], myLocation.getLatitude(), myLocation.getLongitude(), "K");
+        }catch(Exception ex){
+            System.out.println(ex.getMessage());
+            //Logger.log(ex.getMessage());
         }
-        return center;
+        return dist;
+    }
+
+    public static double getPolygonAverageRadius(GeoLocation [] polygon){
+        double avgRadius =0;
+
+        double []  centers = calculatePolyCenter(polygon);
+
+        for (GeoLocation vertex:polygon) {
+            avgRadius += distance(centers[0], centers[1], vertex.getLatitude(), vertex.getLongitude(), "K");
+        }
+
+        avgRadius = avgRadius/polygon.length;
+
+        return avgRadius;
     }
 
     public static double getDistance(GeoLocation [] polygon, GeoLocation location){
@@ -120,6 +139,31 @@ public class WEALocationHelper {
         );
 
         return distance;
+    }
+
+    public static float distFromInMeters(float lat1, float lng1, float lat2, float lng2) {
+        double earthRadius = 6371000; //meters
+        double dLat = Math.toRadians(lat2-lat1);
+        double dLng = Math.toRadians(lng2-lng1);
+        double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                        Math.sin(dLng/2) * Math.sin(dLng/2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        float dist = (float) (earthRadius * c);
+
+        return dist;
+    }
+
+    //it is very approximate algorithm and was written in hurry
+    public static double getNearestDistance(GeoLocation [] polygon, GeoLocation location){
+        double minDistance = Double.MAX_VALUE;
+
+        for (GeoLocation vertex:polygon) {
+            double dist  = distance(location.getLatitude(), location.getLongitude(), vertex.getLatitude(), vertex.getLongitude(), "K");
+            if(dist<minDistance) minDistance = dist;
+        }
+
+        return  minDistance;
     }
 
     public static Location getLocationFromCoordinates(double latitude, double longitude){
@@ -217,5 +261,60 @@ public class WEALocationHelper {
         centroid[1] = centroid[1] / totalPoints;
 
         return centroid;
+    }
+
+    /*::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
+/*::                                                                         :*/
+/*::  This routine calculates the distance between two points (given the     :*/
+/*::  latitude/longitude of those points). It is being used to calculate     :*/
+/*::  the distance between two locations using GeoDataSource (TM) prodducts  :*/
+/*::                                                                         :*/
+/*::  Definitions:                                                           :*/
+/*::    South latitudes are negative, east longitudes are positive           :*/
+/*::                                                                         :*/
+/*::  Passed to function:                                                    :*/
+/*::    lat1, lon1 = Latitude and Longitude of point 1 (in decimal degrees)  :*/
+/*::    lat2, lon2 = Latitude and Longitude of point 2 (in decimal degrees)  :*/
+/*::    unit = the unit you desire for results                               :*/
+/*::           where: 'M' is statute miles (default)                         :*/
+/*::                  'K' is kilometers                                      :*/
+/*::                  'N' is nautical miles                                  :*/
+/*::  Worldwide cities and other features databases with latitude longitude  :*/
+/*::  are available at http://www.geodatasource.com                          :*/
+/*::                                                                         :*/
+/*::  For enquiries, please contact sales@geodatasource.com                  :*/
+/*::                                                                         :*/
+/*::  Official Web site: http://www.geodatasource.com                        :*/
+/*::                                                                         :*/
+/*::           GeoDataSource.com (C) All Rights Reserved 2015                :*/
+/*::                                                                         :*/
+/*::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
+
+    private static double distance(double lat1, double lon1, double lat2, double lon2, String unit) {
+        double theta = lon1 - lon2;
+        double dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
+        dist = Math.acos(dist);
+        dist = rad2deg(dist);
+        dist = dist * 60 * 1.1515;
+        if (unit == "K") {
+            dist = dist * 1.609344;
+        } else if (unit == "N") {
+            dist = dist * 0.8684;
+        }
+        return (dist);
+    }
+
+    /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
+/*::  This function converts decimal degrees to radians             :*/
+/*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
+    private static double deg2rad(double deg) {
+        return (deg * Math.PI / 180.0);
+    }
+
+    /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
+/*::  This function converts radians to decimal degrees             :*/
+/*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
+    private static double rad2deg(double rad) {
+        return (rad * 180 / Math.PI);
     }
 }
