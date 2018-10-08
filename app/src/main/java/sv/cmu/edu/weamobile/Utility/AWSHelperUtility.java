@@ -37,11 +37,11 @@ public class AWSHelperUtility {
 
 
     //these Id's are given by Joel Krebs.
-    public static String GCM_PROJECT_NUMBER = "842017813674";
-    public static String AWS_ACCESS_ID = "AKIAJL4WANOABODPZYYA";
-    public static String AWS_ACCESS_SECRET = "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";
-    public static String AWS_ARN = "arn:aws:sns:us-east-1:639742306000:app/GCM/WEA";
-    public static String AWS_TOPIC_ARN = "arn:aws:sns:us-east-1:639742306000:WEA_ALERTS";
+    public static String GCM_PROJECT_NUMBER = "";
+    public static String AWS_ACCESS_ID = "";
+    public static String AWS_ACCESS_SECRET = "";
+    public static String AWS_ARN = "";
+    public static String AWS_TOPIC_ARN = "";
 
     /*
         This function registers an Endpoint with Amazon AWS automatically through a access key and secret key
