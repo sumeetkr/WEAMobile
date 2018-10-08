@@ -129,7 +129,7 @@
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyCIf_5kIhKH-Vz5QOA_wm4ZhjzN_JOz7Jw" />
+            android:value="" />
 
         <activity
             android:name="sv.cmu.edu.weamobile.views.DebugSettings"
