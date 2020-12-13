@@ -1,10 +1,12 @@
 # WeaMobile
 This repository contains Android mobile application to simulate wireless emergency alerts
+![WEA Mobile Picture](https://github.com/sumeetkr/WEAMobile/blob/master/mobile.png)
 
 # Wea Server
 Please check this repository for server setup
 https://github.com/sumeetkr/OpenAlerts
 
+![Wea Server Visualization](https://github.com/sumeetkr/WEAMobile/blob/master/server.jpg)
 
 # Files that need changes before usage
 sdk.dir in local.properties
